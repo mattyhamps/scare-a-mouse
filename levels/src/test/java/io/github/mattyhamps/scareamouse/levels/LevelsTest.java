@@ -50,6 +50,19 @@ class LevelsTest {
         assertNotNull(v, "level " + n + " \"" + l.name + "\" fails its rules");
     }
 
+    /** After the first ten levels, tips never describe the solution; they can only announce a new animal. */
+    @ParameterizedTest(name = "level {0} tip")
+    @MethodSource("afterTenth")
+    void tipDoesNotGiveAwayTheSolution(int n) {
+        String tip = levels.get(n - 1).tip;
+        assertTrue(tip == null || tip.isEmpty() || tip.startsWith("New animal:"),
+                "level " + n + " tip describes the solution: \"" + tip + "\"");
+    }
+
+    static IntStream afterTenth() throws IOException {
+        return IntStream.rangeClosed(11, read().size());
+    }
+
     static IntStream tutorials() {
         return IntStream.rangeClosed(1, 3);
     }

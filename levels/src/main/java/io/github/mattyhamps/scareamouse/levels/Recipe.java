@@ -27,7 +27,10 @@ public final class Recipe {
     public final Trick[] tricks;
     /** The chain goes all the way round: the mouse runs, scares an elephant, and the chain comes back for it. */
     public final boolean wrapAround;
-    /** Shown in the game as the level's tip. */
+    /**
+     * Shown in the game as the level's tip. After level 10, tips never describe the solution or the
+     * trick: leave it empty, or announce a new animal ("New animal: ..."). LevelsTest enforces this.
+     */
     public final String tip;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
@@ -67,13 +70,13 @@ public final class Recipe {
      */
     public static Recipe forLevel(int n) {
         switch (n) {
-            case 61: return new Recipe(Animal.LION, 2, false, "Three animals: one chases the mouse, two clear the path.", Trick.PLAIN);
-            case 62: return new Recipe(Animal.LION, 0, false, "Two predators freeze an animal. Take one away and it bolts.", Trick.FREEZE_RELEASE);
-            case 63: return new Recipe(Animal.BEAR, 1, false, "Something's in the way. Clear the path to the hole.", Trick.PLAIN);
-            case 64: return new Recipe(Animal.ELEPHANT, 0, false, "An elephant in your hand: the longest chain yet.", Trick.PLAIN);
-            case 65: return new Recipe(Animal.ELEPHANT, 0, false, "Someone's already scared but stuck. Clear the way.", Trick.WAITING_RUNNER);
+            case 61: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN);
+            case 62: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE);
+            case 63: return new Recipe(Animal.BEAR, 1, false, "", Trick.PLAIN);
+            case 64: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN);
+            case 65: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER);
             case 66: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE);
-            case 67: return new Recipe(Animal.CAT, 0, true, "All the way round: the mouse scares the elephant.", Trick.PLAIN);
+            case 67: return new Recipe(Animal.CAT, 0, true, "", Trick.PLAIN);
             case 68: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER);
             case 69: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
             case 70: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN);
