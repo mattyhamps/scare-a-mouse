@@ -87,6 +87,12 @@ public final class LevelRules {
         if (n <= 42) {
             return of(1, 3, 5, 0, 2, CLE, 2, 2);
         }
-        return new LevelRules(2, 2, 4, 0, 2, CLE, CL, Collections.<Animal>emptyList(), null, null, 3, 2);
+        if (n <= 50) {
+            return new LevelRules(2, 2, 4, 0, 2, CLE, CL, Collections.<Animal>emptyList(), null, null, 3, 2);
+        }
+        if (n <= 60) { // second batch: any animal can be in your hand, exactly one solution, longer chains
+            return new LevelRules(2, 3, 5, 0, 3, CLE, CLE, Collections.<Animal>emptyList(), null, null, 1, 2);
+        }
+        throw new IllegalArgumentException("No rules for level " + n + " yet: add them here first");
     }
 }

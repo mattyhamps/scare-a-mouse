@@ -23,13 +23,17 @@ class LevelsTest {
 
     @BeforeAll
     static void load() throws IOException {
+        levels = read();
+    }
+
+    static List<Level> read() throws IOException {
         Path file = Paths.get(System.getProperty("levels.file", "../data/levels.json"));
-        levels = Level.listFromJson(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+        return Level.listFromJson(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
     }
 
     @Test
-    void fiftyLevels() {
-        assertEquals(50, levels.size());
+    void levelsComeInBatchesOfTen() {
+        assertEquals(0, levels.size() % 10, "level count " + levels.size());
     }
 
     @ParameterizedTest(name = "tutorial level {0}")
@@ -50,7 +54,7 @@ class LevelsTest {
         return IntStream.rangeClosed(1, 3);
     }
 
-    static IntStream generated() {
-        return IntStream.rangeClosed(4, 50);
+    static IntStream generated() throws IOException {
+        return IntStream.rangeClosed(4, read().size());
     }
 }

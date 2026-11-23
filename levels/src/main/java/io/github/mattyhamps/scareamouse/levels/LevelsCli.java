@@ -17,8 +17,9 @@ import java.util.List;
  * <pre>
  *   audit                          check every level; exit code 1 if any fail
  *   check N                        explain level N
- *   make N [--seed S] [--threads T] [--timeout SEC] [--write]
- *                                  generate a replacement for level N; --write saves it into levels.json
+ *   make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]
+ *                                  generate a replacement for level N (or a new level at the end);
+ *                                  --write saves it into levels.json
  *   --file PATH                    levels file (default data/levels.json)
  * </pre>
  */
@@ -89,9 +90,16 @@ public final class LevelsCli {
         long seed = Long.parseLong(option(args, "--seed", String.valueOf(n * 1000L)));
         int threads = Integer.parseInt(option(args, "--threads", String.valueOf(Runtime.getRuntime().availableProcessors())));
         long timeout = Long.parseLong(option(args, "--timeout", "900"));
-        Level old = levels.get(n - 1);
+        if (n > levels.size() + 1) {
+            System.out.println("Make level " + (levels.size() + 1) + " first.");
+            System.exit(2);
+        }
+        boolean adding = n == levels.size() + 1;
+        Level old = adding ? null : levels.get(n - 1);
+        String name = option(args, "--name", adding ? "Level " + n : old.name);
+        String tip = option(args, "--tip", adding ? "" : old.tip);
         long start = System.currentTimeMillis();
-        LevelGenerator.Found found = LevelGenerator.searchParallel(LevelRules.forLevel(n), seed, threads, timeout, old.name, old.tip);
+        LevelGenerator.Found found = LevelGenerator.searchParallel(LevelRules.forLevel(n), seed, threads, timeout, name, tip);
         if (found == null) {
             System.out.println("No level found in " + timeout + "s. Try another --seed or a longer --timeout.");
             System.exit(2);
@@ -100,7 +108,11 @@ public final class LevelsCli {
                 n, (System.currentTimeMillis() - start) / 1000.0, found.seed, found.tries,
                 found.verdict.solutions, found.verdict.depth);
         if (args.length > 2 && contains(args, "--write")) {
-            levels.set(n - 1, found.level);
+            if (adding) {
+                levels.add(found.level);
+            } else {
+                levels.set(n - 1, found.level);
+            }
             Files.write(file, Level.listToJson(levels).getBytes(StandardCharsets.UTF_8));
             System.out.println("Saved to " + file);
         } else {
@@ -127,6 +139,6 @@ public final class LevelsCli {
     }
 
     private static void usage() {
-        System.out.println("Usage: audit | check N | make N [--seed S] [--threads T] [--timeout SEC] [--write]  [--file PATH]");
+        System.out.println("Usage: audit | check N | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
     }
 }
