@@ -47,6 +47,8 @@
   .card.pick p{margin:0 0 12px;font-size:14px;color:var(--muted)}
   .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-bottom:14px;max-height:56vh;overflow:auto}
   .grid .dot{width:auto;aspect-ratio:1;height:auto}
+  .grid .dot.locked{opacity:.4;cursor:default;font-size:13px}
+  .card.pick .danger.hidden{display:none}
   .hint-ring b{position:absolute;right:-6px;top:-8px;font-size:16px;background:var(--bg);border-radius:50%;padding:1px}
   .piece,.animal.placed{touch-action:none}
   .ghost{position:fixed;left:0;top:0;z-index:20;pointer-events:none;display:grid;place-items:center;transform:translate(-50%,-75%) scale(1.15);filter:drop-shadow(0 8px 10px rgba(0,0,0,.45))}
@@ -119,7 +121,7 @@
   <h3>Levels</h3><p id="progress"></p>
   <div class="grid" id="dots"></div>
   <button class="btn" id="closePick">Close</button>
-  <!-- TESTING ONLY: remove before launch -->
+  <!-- Developer mode only (see DEV_HASH) -->
   <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
 </div></div>
 <div class="overlay" id="win"><div class="card">
@@ -150,7 +152,22 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
   let solved = store.get('cm_solved', {});
   const isDone = i => levelKey(LEVELS[i]) in solved;
   const doneCount = () => LEVELS.filter((_,i)=>isDone(i)).length;
-  let li = Math.min(store.get('cm_level', 0), LEVELS.length-1);
+  // Levels unlock in order: everything up to one past your highest solved level. (Highest, not
+  // "first unsolved", so rebuilding an earlier level never locks anyone out of where they'd reached.)
+  // Developer mode opens every level and shows the reset button. It is turned on once per browser by
+  // opening the game with #dev=<passphrase>; only a SHA-256 fingerprint of the passphrase is in this
+  // public code. Pull request previews follow the same rules, so locking can be tested there too.
+  const DEV_HASH = '3ccd5f1d0d17131c97a09a91fdf8531b445c627418158b77d65afb954bfb25af';
+  const devFlag = { get(){ try{ return localStorage.getItem('sam_dev')==='1'; }catch(e){ return false; } },
+                    set(on){ try{ on ? localStorage.setItem('sam_dev','1') : localStorage.removeItem('sam_dev'); }catch(e){} } };
+  let DEV = devFlag.get();
+  const unlockedUpTo = () => {
+    if(DEV) return LEVELS.length-1;
+    let hi=-1; LEVELS.forEach((_,i)=>{ if(isDone(i)) hi=i; });
+    return Math.min(hi+1, LEVELS.length-1);
+  };
+  const isOpen = i => i <= unlockedUpTo();
+  let li = Math.min(store.get('cm_level', 0), unlockedUpTo());
   let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintCount=0;
 
   if (PREVIEW) {
@@ -167,13 +184,17 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
   function renderDots(){
-    $('dots').innerHTML = LEVELS.map((_,i)=>`<div class="dot ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}">${i+1}</div>`).join('');
-    $('dots').querySelectorAll('.dot').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
-    $('progress').textContent = `${doneCount()} of ${LEVELS.length} solved`;
+    $('dots').innerHTML = LEVELS.map((_,i)=> isOpen(i)
+      ? `<div class="dot ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}">${i+1}</div>`
+      : `<div class="dot locked" title="Locked">🔒</div>`).join('');
+    $('dots').querySelectorAll('.dot:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
+    $('progress').textContent = `${doneCount()} of ${LEVELS.length} solved` + (DEV ? ' · developer mode' : '');
+    $('resetProgress').classList.toggle('hidden', !DEV);
     $('lvlBtn').textContent = `Level ${li+1} ▾`;
   }
 
   function load(i){
+    if(!isOpen(i)) i=unlockedUpTo();
     clearInterval(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
@@ -410,7 +431,7 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
 
   $('lvlBtn').onclick=()=>{ if(mode!=='running') $('picker').classList.add('show'); };
   $('closePick').onclick=()=>$('picker').classList.remove('show');
-  // TESTING ONLY: remove before launch. Two taps to confirm.
+  // Developer mode only (hidden for players). Two taps to confirm.
   $('resetProgress').onclick=()=>{
     const b=$('resetProgress');
     if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent='Tap again to erase all progress'; clearTimeout(b._t); b._t=setTimeout(()=>{ b.classList.remove('armed'); b.textContent='Reset progress (testing)'; },3000); return; }
@@ -424,7 +445,23 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
   $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); load(li); $('picker').classList.add('show'); };
   $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
   let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
+  // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
+  async function checkDevLink(){
+    const m=/^#dev=(.+)$/.exec(location.hash);
+    if(!m) return;
+    history.replaceState(null,'',location.pathname+location.search); // don't leave the passphrase in the address bar
+    const code=decodeURIComponent(m[1]);
+    if(code==='off'){ devFlag.set(false); DEV=false; load(Math.min(li,unlockedUpTo())); toast('Developer mode off.'); return; }
+    try{
+      const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code));
+      const hex=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+      if(hex===DEV_HASH){ devFlag.set(true); DEV=true; renderDots(); toast('Developer mode on: every level is open.'); }
+    }catch(e){}
+  }
+
   load(li);
+  checkDevLink();
+  window.addEventListener('hashchange', checkDevLink);
 })(); }).catch(e => {
   document.body.innerHTML = '<p style="padding:24px;font-family:system-ui">Sorry, the game failed to load: ' + e.message + '</p>';
 });
