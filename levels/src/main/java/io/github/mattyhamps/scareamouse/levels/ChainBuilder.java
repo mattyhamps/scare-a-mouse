@@ -135,7 +135,7 @@ public final class ChainBuilder {
             return null;
         }
         for (int k = 0; k < recipe.laneBlockers; k++) {
-            if (!addLaneBlocker(d, rng, wrap)) {
+            if (!addLaneBlocker(d, rng, wrap, recipe.blockers)) {
                 return null;
             }
         }
@@ -523,7 +523,7 @@ public final class ChainBuilder {
      * right past it, and adds the animal you place to start that runner. The blocker is moved by a board
      * runner (not by your animal directly), so there's only one right square for your new animal.
      */
-    private static boolean addLaneBlocker(Draft d, LevelGenerator.Rng rng, boolean wrap) {
+    private static boolean addLaneBlocker(Draft d, LevelGenerator.Rng rng, boolean wrap, Animal[] blockerTypes) {
         // Where the mouse starts its run to the hole, and which way the hole is.
         int px;
         int py;
@@ -544,8 +544,7 @@ public final class ChainBuilder {
         for (int x = px + hx, y = py + hy; x >= 0 && y >= 0 && x < N && y < N; x += hx, y += hy) {
             lane.add(new int[] {x, y});
         }
-        // Not lions: a lion is moved by an elephant, and an elephant is started by a mouse, which you never place.
-        Animal[] blockerTypes = {Animal.DOG, Animal.BEAR};
+        // Never lions: a lion is moved by an elephant, and an elephant is started by a mouse, which you never place.
         List<int[]> options = new ArrayList<>(); // {bx, by, type, sx, sy, runDir sign, distance}
         for (int[] b : lane) {
             for (int t = 0; t < blockerTypes.length; t++) {
