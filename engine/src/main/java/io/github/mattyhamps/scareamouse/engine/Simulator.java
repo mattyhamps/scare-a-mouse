@@ -75,8 +75,10 @@ public final class Simulator {
         }
 
         List<List<SimResult.Snapshot>> frames = record ? new ArrayList<>() : null;
+        List<List<Integer>> bumps = record ? new ArrayList<>() : null;
         if (record) {
             frames.add(snap(type, x, y, gone));
+            bumps.add(new ArrayList<Integer>());
         }
         boolean[] everMoved = new boolean[n];
         Set<String> seen = new HashSet<>();
@@ -129,7 +131,7 @@ public final class Simulator {
                 }
             }
             if (!seen.add(key.toString())) {
-                return new SimResult(false, true, count(everMoved), 0, frames);
+                return new SimResult(false, true, count(everMoved), 0, frames, bumps);
             }
 
             List<Integer> runners = new ArrayList<>();
@@ -148,9 +150,12 @@ public final class Simulator {
                 claims.merge(cellKey(x[i] + dx[i], y[i] + dy[i]), 1, Integer::sum);
             }
             List<Integer> pending = new ArrayList<>();
+            List<Integer> standoff = new ArrayList<>(); // blocked this step by another animal heading for the same square
             for (int i : runners) {
                 if (claims.get(cellKey(x[i] + dx[i], y[i] + dy[i])) == 1) {
                     pending.add(i);
+                } else {
+                    standoff.add(i);
                 }
             }
 
@@ -199,15 +204,16 @@ public final class Simulator {
             }
             if (record) {
                 frames.add(snap(type, x, y, gone));
+                bumps.add(standoff);
             }
             if (won) {
-                return new SimResult(true, false, count(everMoved), tick + 1, frames);
+                return new SimResult(true, false, count(everMoved), tick + 1, frames, bumps);
             }
             if (!anyDone) {
                 break; // nothing moved: the board is settled
             }
         }
-        return new SimResult(false, false, count(everMoved), 0, frames);
+        return new SimResult(false, false, count(everMoved), 0, frames, bumps);
     }
 
     /** Walls, the castle edge, and the hole for anything but the mouse. */

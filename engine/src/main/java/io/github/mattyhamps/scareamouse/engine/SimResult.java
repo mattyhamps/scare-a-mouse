@@ -34,20 +34,26 @@ public final class SimResult {
     public final int ticks;
     /** Frame 0 is the starting board; one more frame per step. Null unless recorded. */
     public final List<List<Snapshot>> frames;
+    /**
+     * For each frame, the animals that couldn't move that step because another animal was heading for
+     * the same square (a standoff, rule 4). Lined up with {@link #frames}. Null unless recorded.
+     */
+    public final List<List<Integer>> bumps;
 
-    SimResult(boolean win, boolean loop, int moved, int ticks, List<List<Snapshot>> frames) {
+    SimResult(boolean win, boolean loop, int moved, int ticks, List<List<Snapshot>> frames, List<List<Integer>> bumps) {
         this.win = win;
         this.loop = loop;
         this.moved = moved;
         this.ticks = ticks;
         this.frames = frames;
+        this.bumps = bumps;
     }
 
     public List<Snapshot> lastFrame() {
         return frames == null ? null : frames.get(frames.size() - 1);
     }
 
-    /** JSON for the browser: {win, loop, moved, ticks, frames:[[{id,t,x,y,gone}...]...]}. */
+    /** JSON for the browser: {win, loop, moved, ticks, frames:[[{id,t,x,y,gone}...]...], bumps:[[ids]...]}. */
     public String toJson() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("win", win);
@@ -71,6 +77,13 @@ public final class SimResult {
             }
         }
         m.put("frames", fs);
+        List<Object> bs = new ArrayList<>();
+        if (bumps != null) {
+            for (List<Integer> b : bumps) {
+                bs.add(new ArrayList<Object>(b));
+            }
+        }
+        m.put("bumps", bs);
         return Json.write(m);
     }
 }
