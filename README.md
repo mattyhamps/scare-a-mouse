@@ -94,5 +94,11 @@ If you change the rules in `Simulator`, run `mvn verify`: the physics tests show
 
 ## Contributing
 
-Work on a branch and open a pull request into `main`. CI builds, runs every test and checks the
-compiled engine on each pull request; merging to `main` publishes the site.
+Work on a branch and open a pull request into `main`. On every pull request CI builds, runs every
+test, checks the compiled engine and publishes a **preview** at
+`https://mattyhamps.github.io/scare-a-mouse/pr-preview/pr-<number>/` (a bot comments the link).
+Play the preview before merging; its progress is stored separately from the live game. Merging to
+`main` publishes the live site, and closing a pull request removes its preview.
+
+Both the live site and the previews are folders on the `gh-pages` branch
+(Settings → Pages → Deploy from a branch: `gh-pages`, `/ (root)`).
