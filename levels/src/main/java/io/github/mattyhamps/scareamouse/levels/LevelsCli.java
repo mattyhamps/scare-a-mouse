@@ -99,6 +99,11 @@ public final class LevelsCli {
         String name = option(args, "--name", adding ? "Level " + n : old.name);
         String tip = option(args, "--tip", adding ? "" : old.tip);
         long start = System.currentTimeMillis();
+        Recipe recipe = Recipe.forLevel(n);
+        if (recipe != null) {
+            buildDesigned(levels, file, args, n, recipe, name, option(args, "--tip", null), seed, threads, timeout, start);
+            return;
+        }
         LevelGenerator.Found found = LevelGenerator.searchParallel(LevelRules.forLevel(n), seed, threads, timeout, name, tip);
         if (found == null) {
             System.out.println("No level found in " + timeout + "s. Try another --seed or a longer --timeout.");
@@ -117,6 +122,32 @@ public final class LevelsCli {
             System.out.println("Saved to " + file);
         } else {
             System.out.println(io.github.mattyhamps.scareamouse.engine.Json.write(found.level.toJson()));
+        }
+    }
+
+    /** Designed levels: the chain builder makes several candidates and keeps the most interesting. */
+    private static void buildDesigned(List<Level> levels, Path file, String[] args, int n, Recipe recipe, String name,
+                                      String tipOverride, long seed, int threads, long timeout, long start)
+            throws IOException, InterruptedException {
+        int want = Integer.parseInt(option(args, "--candidates", "6"));
+        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout);
+        if (built == null) {
+            System.out.println("No level built in " + timeout + "s. Try another --seed or a longer --timeout.");
+            System.exit(2);
+        }
+        Level level = tipOverride == null ? built.level : built.level.withNameAndTip(name, tipOverride);
+        System.out.printf("Built level %d in %.1fs (seed %d): %s%n", n, (System.currentTimeMillis() - start) / 1000.0,
+                built.seed, Interest.breakdown(level));
+        if (contains(args, "--write")) {
+            if (n == levels.size() + 1) {
+                levels.add(level);
+            } else {
+                levels.set(n - 1, level);
+            }
+            Files.write(file, Level.listToJson(levels).getBytes(StandardCharsets.UTF_8));
+            System.out.println("Saved to " + file);
+        } else {
+            System.out.println(io.github.mattyhamps.scareamouse.engine.Json.write(level.toJson()));
         }
     }
 
