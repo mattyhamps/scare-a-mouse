@@ -1,20 +1,23 @@
 name: Build, test and publish
 
+# Every pull request gets its own preview site; merging into main publishes the live site.
+#   Live:    https://mattyhamps.github.io/scare-a-mouse/
+#   Preview: https://mattyhamps.github.io/scare-a-mouse/pr-preview/pr-<number>/
+# Both are folders on the gh-pages branch (Settings > Pages > Deploy from a branch: gh-pages).
+
 on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -25,7 +28,7 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # Compiles everything, runs the physics tests and checks every level,
+      # Compiles everything, runs the physics tests, checks every level and every recipe,
       # then TeaVM compiles the engine to web/target/site/js/engine.js.
       - name: Build and test
         run: mvn -B verify
@@ -35,24 +38,93 @@ jobs:
           node-version: '22'
 
       # Runs the same physics fixtures and all levels through the compiled JavaScript,
-      # so a TeaVM problem can't reach the live site.
+      # so a TeaVM problem can't reach a preview or the live site.
       - name: Check the JavaScript build of the engine
         run: node web/test/check-engine.js web/target/site/js/engine.js
 
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
+          name: site
           path: web/target/site
 
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  publish:
     needs: build
+    # Runs after a successful build, or on its own to remove a closed pull request's preview.
+    # Dependabot's pull requests get no preview (their token can't publish).
+    if: >-
+      always()
+      && (needs.build.result == 'success' || github.event.action == 'closed')
+      && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: gh-pages
+      cancel-in-progress: false
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Download the built site
+        if: github.event.action != 'closed'
+        uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: site
+
+      - name: Publish to the gh-pages branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$remote" gh-pages >/dev/null; then
+            git clone --quiet --depth 1 --branch gh-pages "$remote" pages
+          else
+            git init --quiet pages
+            git -C pages checkout --quiet --orphan gh-pages
+            git -C pages remote add origin "$remote"
+          fi
+          cd pages
+          if [ "$EVENT" = "pull_request" ]; then
+            target="pr-preview/pr-$PR"
+            rm -rf "$target"
+            if [ "$ACTION" != "closed" ]; then
+              mkdir -p "$target"
+              cp -R ../site/. "$target/"
+            fi
+            message="Preview for pull request #$PR ($ACTION)"
+          else
+            # Live site at the top level; leave the previews folder alone.
+            find . -mindepth 1 -maxdepth 1 ! -name .git ! -name pr-preview -exec rm -rf {} +
+            cp -R ../site/. .
+            message="Publish ${GITHUB_SHA::7} from main"
+          fi
+          touch .nojekyll
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to publish."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit --quiet -m "$message"
+          git push --quiet origin gh-pages
+
+      - name: Comment the preview link on the pull request
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const pr = context.payload.pull_request.number;
+            const url = `https://${context.repo.owner}.github.io/${context.repo.repo}/pr-preview/pr-${pr}/`;
+            const marker = '<!-- preview-link -->';
+            const body = `${marker}\n**Preview:** ${url}\n\nUpdated for ${context.sha.slice(0, 7)}. ` +
+              `It can take a minute to appear. Progress in the preview is kept separate from the live game.`;
+            const { data: comments } = await github.rest.issues.listComments({ ...context.repo, issue_number: pr });
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pr, body });
+            }
