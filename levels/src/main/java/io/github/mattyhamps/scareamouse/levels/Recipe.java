@@ -23,6 +23,8 @@ public final class Recipe {
      * of the way, started by one more animal in your hand.
      */
     public final int laneBlockers;
+    /** Animals that can be blockers. A dog is cleared by a bear (started by a lion), a bear by a lion (started by an elephant). */
+    public final Animal[] blockers;
     /** Tricks the chain must contain, in addition to plain links. */
     public final Trick[] tricks;
     /** The chain goes all the way round: the mouse runs, scares an elephant, and the chain comes back for it. */
@@ -34,6 +36,11 @@ public final class Recipe {
     public final String tip;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
+        this(trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
+    }
+
+    private Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Animal[] blockers, Trick... tricks) {
+        this.blockers = blockers;
         this.trigger = trigger;
         this.laneBlockers = laneBlockers;
         this.wrapAround = wrapAround;
@@ -53,6 +60,11 @@ public final class Recipe {
         }
         int chain = trigger.ordinal() - 1; // animals between your first animal and the mouse
         return LevelRules.forBuilt(handSize(), Math.min(chain, 3), 0);
+    }
+
+    /** The same recipe, with only these blocker animals (for example only dogs, so you place lions not elephants). */
+    public Recipe withBlockers(Animal... types) {
+        return new Recipe(trigger, laneBlockers, wrapAround, tip, types, tricks);
     }
 
     public boolean has(Trick t) {
@@ -91,6 +103,17 @@ public final class Recipe {
             case 78: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER);
             case 79: return new Recipe(Animal.CAT, 0, true, "", Trick.FREEZE_RELEASE);
             case 80: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
+            // 81-90: same difficulty, more variety in your hand (mostly dog blockers, cleared by lions)
+            case 81: return new Recipe(Animal.BEAR, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
+            case 82: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE);
+            case 83: return new Recipe(Animal.CAT, 0, true, "", Trick.PLAIN);
+            case 84: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
+            case 85: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER);
+            case 86: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
+            case 87: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN);
+            case 88: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN).withBlockers(Animal.DOG);
+            case 89: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE);
+            case 90: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
             default: return null;
         }
     }
