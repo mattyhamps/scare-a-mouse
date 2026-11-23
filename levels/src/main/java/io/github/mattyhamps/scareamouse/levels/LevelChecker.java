@@ -16,8 +16,10 @@ import java.util.List;
  *   <li>pressing Go with nothing placed doesn't win;</li>
  *   <li>it has at least one and at most {@code maxSolutions} solutions;</li>
  *   <li>no shortcuts: in every solution, at least {@code minDepth} other animals start running before the mouse;</li>
- *   <li>with two animals to place, both are needed;</li>
- *   <li>no clutter: every board animal and wall matters in every solution (remove any one and that solution fails);</li>
+ *   <li>every animal in your hand is needed;</li>
+ *   <li>every solution moves at least {@code minMoved} animals (for chains where the mouse moves early);</li>
+ *   <li>no clutter: every board animal and wall affects the puzzle (remove any one and either the solution
+ *       breaks or the puzzle gets easier);</li>
  *   <li>for intro levels, the animal being introduced actually moves.</li>
  * </ul>
  */
@@ -41,6 +43,9 @@ public final class LevelChecker {
     /** Returns null if the level fails any rule. */
     public static Verdict check(Level level, LevelRules rules) {
         List<Animal> hand = level.inventory;
+        if (hand.contains(Animal.MOUSE)) {
+            return null; // there is only ever one mouse, and it's never in your hand
+        }
         if (Simulator.run(level, Collections.<Piece>emptyList()).win) {
             return null;
         }
@@ -63,10 +68,20 @@ public final class LevelChecker {
         if (minDepth < rules.minDepth) {
             return null; // a shortcut exists
         }
-        if (hand.size() == 2) {
-            for (Animal a : hand) {
-                if (!solutions(level, Arrays.asList(a), 1).isEmpty()) {
-                    return null; // one animal alone is enough
+        for (List<Piece> s : sols) {
+            if (Simulator.run(level, s).moved < rules.minMoved) {
+                return null; // a solution with too short a chain
+            }
+        }
+        if (hand.size() >= 2) {
+            for (int i = 0; i < hand.size(); i++) {
+                if (i > 0 && hand.get(i) == hand.get(i - 1)) {
+                    continue; // same smaller hand as the previous one
+                }
+                List<Animal> fewer = new ArrayList<>(hand);
+                fewer.remove(i);
+                if (!solutions(level, fewer, 1).isEmpty()) {
+                    return null; // the level can be won without one of your animals
                 }
             }
         }
@@ -77,11 +92,15 @@ public final class LevelChecker {
         for (int i = 0; i < level.walls.size(); i++) {
             parts.add(level.withoutWall(i));
         }
-        for (List<Piece> s : sols) {
-            for (Level part : parts) {
-                if (Simulator.run(part, s).win) {
-                    return null; // something on the board doesn't matter for this solution
-                }
+        for (Level part : parts) {
+            boolean stillWins = false;
+            for (List<Piece> s : sols) {
+                stillWins |= Simulator.run(part, s).win;
+            }
+            // A piece is clutter if taking it away changes nothing: the solutions still work and no new
+            // ones open up. (Blockers and pinning animals pass, because removing them makes the puzzle easier.)
+            if (stillWins && !puzzleChanges(part, hand, sols.size())) {
+                return null;
             }
         }
         if (rules.mustMove != null && !boardAnimalMoves(level, sols.get(best), rules.mustMove)) {
@@ -90,42 +109,52 @@ public final class LevelChecker {
         return new Verdict(sols.get(best), maxDepth, sols.size());
     }
 
-    /** Every winning placement, up to {@code cap}. Supports one or two animals in hand. */
+    /** True if, without some piece, pressing Go with nothing placed wins, or more solutions exist than before. */
+    private static boolean puzzleChanges(Level without, List<Animal> hand, int solutionsBefore) {
+        if (Simulator.run(without, Collections.<Piece>emptyList()).win) {
+            return true;
+        }
+        return solutions(without, hand, solutionsBefore + 1).size() > solutionsBefore;
+    }
+
+    /**
+     * Every winning placement, up to {@code cap}, for any number of animals in hand.
+     * Identical animals are never tried in swapped order, so each placement is counted once.
+     */
     public static List<List<Piece>> solutions(Level level, List<Animal> hand, int cap) {
         List<int[]> open = level.openSquares();
         List<List<Piece>> out = new ArrayList<>();
-        if (hand.size() == 1) {
-            for (int[] c : open) {
-                List<Piece> p = Arrays.asList(new Piece(hand.get(0), c[0], c[1]));
-                if (Simulator.run(level, p).win) {
-                    out.add(p);
-                    if (out.size() >= cap) {
-                        return out;
-                    }
-                }
-            }
-        } else if (hand.size() == 2) {
-            boolean same = hand.get(0) == hand.get(1);
-            for (int i = 0; i < open.size(); i++) {
-                for (int j = same ? i + 1 : 0; j < open.size(); j++) {
-                    if (i == j) {
-                        continue;
-                    }
-                    List<Piece> p = Arrays.asList(
-                            new Piece(hand.get(0), open.get(i)[0], open.get(i)[1]),
-                            new Piece(hand.get(1), open.get(j)[0], open.get(j)[1]));
-                    if (Simulator.run(level, p).win) {
-                        out.add(p);
-                        if (out.size() >= cap) {
-                            return out;
-                        }
-                    }
-                }
-            }
-        } else {
-            throw new IllegalArgumentException("Only 1 or 2 animals in hand are supported");
-        }
+        search(level, hand, open, 0, new int[hand.size()], new boolean[open.size()], cap, out);
         return out;
+    }
+
+    private static boolean search(Level level, List<Animal> hand, List<int[]> open, int k, int[] pick,
+                                  boolean[] used, int cap, List<List<Piece>> out) {
+        if (k == hand.size()) {
+            List<Piece> p = new ArrayList<>(hand.size());
+            for (int i = 0; i < hand.size(); i++) {
+                p.add(new Piece(hand.get(i), open.get(pick[i])[0], open.get(pick[i])[1]));
+            }
+            if (Simulator.run(level, p).win) {
+                out.add(p);
+                return out.size() >= cap;
+            }
+            return false;
+        }
+        int start = k > 0 && hand.get(k) == hand.get(k - 1) ? pick[k - 1] + 1 : 0;
+        for (int c = start; c < open.size(); c++) {
+            if (used[c]) {
+                continue;
+            }
+            used[c] = true;
+            pick[k] = c;
+            boolean full = search(level, hand, open, k + 1, pick, used, cap, out);
+            used[c] = false;
+            if (full) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** How many animals (other than the mouse) start running before the mouse does. */

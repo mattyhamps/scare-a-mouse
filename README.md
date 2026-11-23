@@ -33,7 +33,7 @@ A run ends when the mouse escapes, when nothing moves for a step, or when the bo
 | Folder | What it is |
 | --- | --- |
 | `engine/` | The rulebook in plain Java, no dependencies. `PhysicsTest` runs every scenario in `physics-fixtures.json`. |
-| `levels/` | Level checker and generator (command line). `LevelsTest` checks that every level passes its rules. |
+| `levels/` | Level checker, chain builder and random generator (command line). `LevelsTest` checks that every level passes its rules; `ChainBuilderTest` checks every recipe can still be built. |
 | `web/` | The game page. TeaVM compiles the engine to `js/engine.js`; the page only draws and animates. |
 | `data/levels.json` | All 50 levels, one per line. |
 | `.github/workflows/ci.yml` | On every push: build, run all tests, check the compiled JavaScript, publish to GitHub Pages. |
@@ -55,16 +55,44 @@ Every level must pass these checks (`LevelChecker`, numbers per level in `LevelR
 - Pressing Go with nothing placed doesn't win.
 - At most 2–3 solutions (most levels have exactly one).
 - **No shortcuts:** in every solution, other animals start running before the mouse does.
-- **No clutter:** every animal and wall on the board is needed in every solution.
-- With two animals to place, both are needed.
+- **No clutter:** every animal and wall affects the puzzle. Remove any one and either the solution
+  breaks or the puzzle gets easier (so blockers and pinning animals count, decorations don't).
+- Every animal in your hand is needed, and you never place a mouse.
+
+## How levels are made
+
+- **Levels 4–60:** random layouts, kept only if they pass the checker (`LevelGenerator`).
+- **Levels 61+:** designed by `ChainBuilder` from a `Recipe`. It builds the chain forward from your
+  first animal, one link at a time, running the simulator after every placement to confirm the new
+  link gets scared at the right moment and that nothing moves before you place anything. It makes
+  several candidates, keeps those that pass the checker, and picks the most interesting by
+  `Interest` (chain length, tricks used, turns, how far your animals are from the mouse).
+
+Tricks a recipe can ask for:
+
+| Trick | What happens |
+| --- | --- |
+| Long chain | Elephant → lion → bear → dog → cat → mouse. |
+| Freeze and release | An animal starts pinned between two predators; the chain pulls one away and it bolts. |
+| Waiting runner | An animal is already scared but stuck behind another; it takes off when the blocker moves. |
+| Clear the path | Animals sit between the mouse and the hole; each needs its own chain (one more animal in your hand). |
+| Wrap-around | The mouse runs first, scares an elephant, and the chain comes all the way back for it. |
+
+Recipes are mixed through each batch of ten rather than grouped.
 
 Level tools:
 
 ```sh
 ./scripts/levels.sh audit             # check all levels
 ./scripts/levels.sh check 30          # explain one level
-./scripts/levels.sh make 30 --write   # generate a new level 30 (uses all CPU cores) and save it
+./scripts/levels.sh make 30 --write   # make a new level 30 (designed if it has a recipe) and save it
+./scripts/levels.sh make 71 --name "Some Name" --write   # add a new level at the end
 ```
 
 If you change the rules in `Simulator`, run `mvn verify`: the physics tests show what changed and
 `LevelsTest` lists any level that no longer passes. Regenerate those with `make N --write`.
+
+## Contributing
+
+Work on a branch and open a pull request into `main`. CI builds, runs every test and checks the
+compiled engine on each pull request; merging to `main` publishes the site.

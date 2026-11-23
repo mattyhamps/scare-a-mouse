@@ -34,10 +34,25 @@ public final class LevelRules {
     public final int maxSolutions;
     /** In every solution, at least this many other animals start running before the mouse does. */
     public final int minDepth;
+    /** In every solution, at least this many animals move (0 = no rule). */
+    public final int minMoved;
 
     private LevelRules(int pieces, int fixedMin, int fixedMax, int wallsMin, int wallsMax, List<Animal> types,
                        List<Animal> handTypes, List<Animal> ensure, Animal mustPlace, Animal mustMove,
                        int maxSolutions, int minDepth) {
+        this(pieces, fixedMin, fixedMax, wallsMin, wallsMax, types, handTypes, ensure, mustPlace, mustMove,
+                maxSolutions, minDepth, 0);
+    }
+
+    /** Rules for a built level: how many animals you place and how long the chain must be. */
+    public static LevelRules forBuilt(int pieces, int minDepth, int minMoved) {
+        return new LevelRules(pieces, 0, 0, 0, 0, CLE, CLE, Collections.<Animal>emptyList(), null, null,
+                1, minDepth, minMoved);
+    }
+
+    private LevelRules(int pieces, int fixedMin, int fixedMax, int wallsMin, int wallsMax, List<Animal> types,
+                       List<Animal> handTypes, List<Animal> ensure, Animal mustPlace, Animal mustMove,
+                       int maxSolutions, int minDepth, int minMoved) {
         this.pieces = pieces;
         this.fixedMin = fixedMin;
         this.fixedMax = fixedMax;
@@ -50,6 +65,7 @@ public final class LevelRules {
         this.mustMove = mustMove;
         this.maxSolutions = maxSolutions;
         this.minDepth = minDepth;
+        this.minMoved = minMoved;
     }
 
     private static LevelRules of(int pieces, int fMin, int fMax, int wMin, int wMax, List<Animal> types,
@@ -62,6 +78,10 @@ public final class LevelRules {
     public static LevelRules forLevel(int n) {
         if (n <= 3) {
             throw new IllegalArgumentException("Levels 1-3 are hand-made tutorials");
+        }
+        Recipe recipe = Recipe.forLevel(n);
+        if (recipe != null) {
+            return recipe.rules(); // a designed level (see ChainBuilder)
         }
         if (n <= 12) {
             return of(1, 2, 3, 0, 2, C, 2, 1);
