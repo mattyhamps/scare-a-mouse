@@ -28,6 +28,15 @@ class EngineBasicsTest {
     }
 
     @Test
+    void standoffIsReported() {
+        // Both cats flee their dogs toward the middle square at the same time: neither moves.
+        Level level = BoardPicture.level(Arrays.asList("DC.CD"), null);
+        SimResult r = Simulator.record(level, Collections.<Piece>emptyList());
+        assertEquals(Arrays.asList(1, 2), r.bumps.get(1)); // the two cats (ids follow reading order: D=0, C=1, C=2, D=3)
+        assertTrue(r.bumps.get(0).isEmpty());
+    }
+
+    @Test
     void jsonRoundTrip() {
         String text = "{\"name\":\"T\",\"tip\":\"a \\\"tip\\\"\",\"w\":7,\"h\":7,\"hole\":[-1,3],\"walls\":[[2,2]],"
                 + "\"fixed\":[{\"t\":\"mouse\",\"x\":3,\"y\":3}],\"inv\":[\"cat\"],\"solution\":[{\"t\":\"cat\",\"x\":4,\"y\":3}]}";
