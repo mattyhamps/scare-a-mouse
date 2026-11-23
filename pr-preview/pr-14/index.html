@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scare-a-Mouse">
+<meta name="theme-color" content="#1d1a24">
+<title>Scare-a-Mouse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1d1a24; --bg2:#2a2533; --stone:#8d8478; --stone-d:#5d564d; --stone-l:#b3aa9c;
+    --floor-a:#e9dfc9; --floor-b:#ddd1b6; --ink:#f6efe2; --muted:#b9ae9c;
+    --gold:#f2b84b; --gold-d:#c98a1c; --red:#e0664f; --green:#7cc47a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:radial-gradient(120% 80% at 50% 0%,#3a3046 0%,var(--bg) 60%);color:var(--ink);
+    font-family:Fredoka,ui-rounded,"SF Pro Rounded",system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation;overscroll-behavior:none}
+  .app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:12px;
+    padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 14px)}
+  header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:22px;letter-spacing:.3px}
+  .preview-banner{background:var(--gold);color:#2b1d05;font-size:13px;font-weight:600;text-align:center;border-radius:10px;padding:6px 10px}
+  .brand .crest{font-size:24px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.4))}
+  .dots{display:flex;gap:6px}
+  .dot{width:34px;height:34px;border-radius:10px;border:2px solid #4a4155;background:var(--bg2);color:var(--muted);font:600 15px Fredoka,system-ui;display:grid;place-items:center;cursor:pointer}
+  .dot.cur{border-color:var(--gold);color:var(--ink)}
+  .dot.done{background:#3c5a3b;border-color:#5f8f5d;color:#e6ffe4}
+  .title{display:flex;align-items:baseline;justify-content:space-between}
+  .title h2{margin:0;font-size:20px;font-weight:600}
+  .title .sub{color:var(--muted);font-size:14px}
+  .tip{background:var(--bg2);border:1px solid #3d3548;border-radius:14px;padding:10px 12px;font-size:15px;color:#e8dfcf;line-height:1.35;min-height:44px}
+  .chain{display:flex;align-items:center;justify-content:center;gap:2px;font-size:20px;background:rgba(255,255,255,.04);border-radius:12px;padding:6px 4px}
+  .chain .arrow{font-size:11px;color:var(--muted);margin:0 1px}
+  .chain .cap{font-size:11px;color:var(--muted);margin-right:6px;font-weight:500}
+  .board-wrap{position:relative;align-self:center}
+  .board{position:relative;border-radius:14px;box-shadow:0 14px 30px rgba(0,0,0,.45),0 0 0 2px #3a332c}
+  .lvlbtn{font:600 15px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:12px;padding:7px 12px;cursor:pointer}
+  .card.pick{max-width:400px;padding:18px 16px}
+  .card.pick h3{margin:0 0 2px}
+  .card.pick .danger{margin-top:10px;background:transparent;box-shadow:none;border:2px solid #6b3a35;color:#f0a99c;font-size:15px;padding:10px}
+  .card.pick .danger.armed{background:#6b3a35;color:#fff}
+  .card.pick p{margin:0 0 12px;font-size:14px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-bottom:14px;max-height:56vh;overflow:auto}
+  .grid .dot{width:auto;aspect-ratio:1;height:auto}
+  .grid .dot.locked{cursor:default;background:#17131c;border-color:#2e2836;color:#8d8398;font-size:12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1}
+  .grid .dot.locked .lk{font-size:13px;opacity:.85}
+  .card.pick .danger.hidden{display:none}
+  /* Castle map: the levels are a winding path through the castle's rooms, 50 levels a room. */
+  .card.pick{padding:16px 12px}
+  .map{position:relative;max-height:64vh;overflow:auto;margin:0 -2px 12px;border-radius:16px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+  .room{position:relative;background:var(--rb);border-bottom:3px solid rgba(0,0,0,.35)}
+  .room:first-child{border-radius:16px 16px 0 0}
+  .room-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 12px;
+    background:linear-gradient(180deg,var(--stone-l),var(--stone) 60%,var(--stone-d));color:#2a2420;
+    box-shadow:0 3px 0 rgba(0,0,0,.25);text-align:left}
+  .room-head .ic{font-size:22px}
+  .room-head b{font:600 16px Fredoka,system-ui;flex:1}
+  .room-head small{font-size:12px;font-weight:600;opacity:.75}
+  .room-body{position:relative}
+  .room-body svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .room .deco{position:absolute;font-size:18px;opacity:.6;pointer-events:none;transform:translate(-50%,-50%)}
+  .node{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;
+    display:grid;place-items:center;font:600 15px Fredoka,system-ui;color:#3a2f22;
+    background:radial-gradient(circle at 50% 35%,#fff7e4,#e2d3b2);border:3px solid #a8946f;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+  .node.done{background:radial-gradient(circle at 50% 35%,#ffe7a3,#e9b34a);border-color:#b77d14;color:#3d2a05}
+  .node.done::after{content:"✓";position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;border-radius:50%;
+    background:#5f8f5d;color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid #2a2533}
+  .node.cur{border-color:var(--gold);box-shadow:0 0 0 4px rgba(242,184,75,.45),0 3px 0 rgba(0,0,0,.35)}
+  .node.cur::before{content:"🐭";position:absolute;top:-24px;font-size:22px;animation:bob 1.2s ease-in-out infinite}
+  .node.locked{cursor:default;background:#2b2531;border-color:#4a4155;color:#8d8398;font-size:11px;box-shadow:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;gap:1px}
+  .node.locked .lk{font-size:11px;opacity:.8}
+  .room.soon .room-body{display:grid;place-items:center;height:90px;color:#cfc4b4;font-size:14px;font-weight:600}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .hint-ring b{position:absolute;right:-6px;top:-8px;font-size:16px;background:var(--bg);border-radius:50%;padding:1px}
+  .piece,.animal.placed{touch-action:none}
+  .ghost{position:fixed;left:0;top:0;z-index:20;pointer-events:none;display:grid;place-items:center;transform:translate(-50%,-75%) scale(1.15);filter:drop-shadow(0 8px 10px rgba(0,0,0,.45))}
+  .animal.lifted{opacity:.25}
+  .floor.target{box-shadow:inset 0 0 0 3px var(--gold)}
+  .floor.target.bad{box-shadow:inset 0 0 0 3px var(--red)}
+  .tile{position:absolute;display:grid;place-items:center}
+  .floor{background:var(--floor-a)}
+  .floor.alt{background:var(--floor-b)}
+  .floor.placeable{cursor:pointer}
+  .board.armed .floor.placeable::after{content:"";width:34%;height:34%;border-radius:50%;background:rgba(201,138,28,.22)}
+  .border{background:linear-gradient(180deg,var(--stone-l),var(--stone) 55%,var(--stone-d));box-shadow:inset 0 0 0 1px rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.18)}
+  .wall{background:linear-gradient(180deg,#9c9284,#6b635a);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.2),0 3px 0 rgba(0,0,0,.25);border-radius:4px}
+  .hole{background:linear-gradient(180deg,var(--stone-l),var(--stone) 55%,var(--stone-d))}
+  .hole i{display:block;width:62%;height:62%;background:#120f14;border-radius:50% 50% 8% 8%;box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.0)}
+  .hole.in{background:var(--floor-a)} .hole.in.alt{background:var(--floor-b)}
+  .hole.in i{width:66%;height:66%;border-radius:50%;box-shadow:inset 0 5px 7px rgba(0,0,0,.85),0 0 0 3px var(--stone-d)}
+  .hole.t i{transform:rotate(180deg)} .hole.l i{transform:rotate(90deg)} .hole.r i{transform:rotate(-90deg)}
+  .board.running .hole i,.board.edit .hole i{animation:glow 1.6s ease-in-out infinite}
+  @keyframes glow{50%{box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.55)}}
+  .animal{position:absolute;left:0;top:0;display:grid;place-items:center;transition:transform .15s linear,opacity .25s;pointer-events:none;z-index:2}
+  .animal span{display:block;line-height:1;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25));transition:transform .12s}
+  .animal.placed{pointer-events:auto;cursor:pointer}
+  .animal.placed::before{content:"";position:absolute;inset:8%;border-radius:30%;background:rgba(242,184,75,.28);border:2px dashed var(--gold-d)}
+  .animal.scared span{animation:hop .3s ease-out}
+  @keyframes hop{40%{transform:translateY(-14%) scale(1.08)}}
+  .animal.gone{opacity:0}
+  /* Standoff: two animals heading for the same square, so neither moves (rulebook rule 4). */
+  .animal.stuck::after{content:"!";position:absolute;top:0;right:2%;width:36%;height:36%;border-radius:50%;
+    background:var(--red);color:#fff;font:700 14px Fredoka,system-ui;display:grid;place-items:center;
+    box-shadow:0 2px 0 rgba(0,0,0,.3)}
+  .animal.bump span{animation:bump .35s ease-in-out}
+  @keyframes bump{25%{transform:translateX(-9%)}50%{transform:translateX(9%)}75%{transform:translateX(-5%)}}
+  .hint-ring{position:absolute;border:3px solid var(--gold);border-radius:30%;z-index:3;pointer-events:none;animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(.86);opacity:.6}}
+  .tray{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid #3d3548;border-radius:16px;padding:10px 12px;min-height:66px}
+  .tray .lbl{color:var(--muted);font-size:13px;width:52px;line-height:1.15}
+  .piece{width:52px;height:52px;border-radius:14px;background:#3a3345;border:2px solid #51475e;display:grid;place-items:center;font-size:30px;cursor:pointer;position:relative}
+  .piece.sel{border-color:var(--gold);background:#4a3f33;box-shadow:0 0 0 3px rgba(242,184,75,.25)}
+  .piece.used{opacity:.25;cursor:default}
+  .tray .empty{color:var(--muted);font-size:14px}
+  .controls{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px}
+  button.btn{font:600 18px Fredoka,system-ui;border:0;border-radius:16px;padding:14px 10px;color:var(--ink);background:#3a3345;box-shadow:0 4px 0 #26212d;cursor:pointer}
+  button.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #26212d}
+  button.go{background:linear-gradient(180deg,#f6c560,var(--gold-d));color:#2b1d05;box-shadow:0 4px 0 #8a5d10}
+  button.go:active{box-shadow:0 1px 0 #8a5d10}
+  button.btn:disabled{opacity:.45}
+  .toast{position:absolute;left:50%;top:10px;transform:translate(-50%,-20px);opacity:0;background:rgba(20,16,24,.92);color:var(--ink);padding:9px 14px;border-radius:12px;font-size:15px;white-space:nowrap;transition:.25s;z-index:5;pointer-events:none}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .overlay{position:fixed;inset:0;background:rgba(15,12,18,.7);display:none;place-items:center;z-index:10;padding:24px}
+  .overlay.show{display:grid}
+  .card{background:linear-gradient(180deg,#3a3046,#2a2533);border:2px solid #574a66;border-radius:22px;padding:24px 22px;text-align:center;max-width:340px;width:100%;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{from{transform:scale(.7);opacity:0}}
+  .card .big{font-size:56px}
+  .card h3{margin:6px 0 4px;font-size:26px}
+  .card p{margin:0 0 18px;color:#e0d6c5;font-size:16px;line-height:1.4}
+  .card .btn{width:100%}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="crest">🐭</span>Scare-a-Mouse</div>
+    <button class="lvlbtn" id="lvlBtn"></button>
+  </header>
+  <div class="title"><h2 id="lvlName"></h2><span class="sub" id="lvlSub"></span></div>
+  <div class="tip" id="tip"></div>
+  <div class="chain" id="chain"></div>
+  <div class="board-wrap"><div class="board" id="board"></div><div class="toast" id="toast"></div></div>
+  <div class="tray" id="tray"></div>
+  <div class="controls">
+    <button class="btn" id="hintBtn">Hint</button>
+    <button class="btn" id="resetBtn">Reset</button>
+    <button class="btn go" id="goBtn">Go!</button>
+  </div>
+</div>
+<div class="overlay" id="picker"><div class="card pick">
+  <h3>The castle</h3><p id="progress"></p>
+  <div class="map" id="dots"></div>
+  <button class="btn" id="closePick">Close</button>
+  <!-- Developer mode only (see DEV_HASH) -->
+  <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
+</div></div>
+<div class="overlay" id="win"><div class="card">
+  <div class="big">🐭🕳️</div><h3 id="winTitle">Mouse escaped!</h3><p id="winText"></p>
+  <button class="btn go" id="nextBtn">Next level</button>
+  <button class="btn" id="winLevelsBtn" style="margin-top:12px">All levels</button>
+</div></div>
+<!-- The physics: the Java engine, compiled to JavaScript by TeaVM. Defines scareSimulate(). -->
+<script src="js/engine.js"></script>
+<script>
+Promise.all([
+  fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
+  fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => [])
+]).then(([LEVELS, LEGACY]) => { (function(){
+  const ORDER = ['mouse','cat','dog','bear','lion','elephant'];
+  // All game physics happen in the Java engine; the page only draws and animates the frames it returns.
+  const simulate = (level, placed) => JSON.parse(scareSimulate(JSON.stringify(level), JSON.stringify(placed)));
+  const EMOJI = { mouse:'🐭', cat:'🐱', dog:'🐶', bear:'🐻', lion:'🦁', elephant:'🐘' };
+  const NAME = { mouse:'mouse', cat:'cat', dog:'dog', bear:'bear', lion:'lion', elephant:'elephant' };
+  const $ = id => document.getElementById(id);
+  // Pull request previews live at /pr-preview/pr-N/ on the same site: keep their progress separate
+  // so testing never marks levels solved in the real game.
+  const PREVIEW = /\/pr-preview\/pr-(\d+)\//.exec(location.pathname);
+  const KEY = PREVIEW ? `preview${PREVIEW[1]}_` : '';
+  const store = { get(k,d){ try{ const v=localStorage.getItem(KEY+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
+                  set(k,v){ try{ localStorage.setItem(KEY+k,JSON.stringify(v)); }catch(e){} } };
+
+  // Progress is keyed by each level's exact layout, so a rebuilt level automatically shows as unplayed.
+  // solved = { layoutKey: [placed animals of the winning setup] }
+  function levelKey(l){ const s=JSON.stringify([l.hole,l.walls,l.fixed,l.inv]); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+  let solved = store.get('cm_solved', {});
+  // The hole used to sit in the castle wall. Levels whose hole simply moved onto the board keep the
+  // same solution, so carry over progress saved under the old layout.
+  (function keepOldProgress(){
+    let changed = false;
+    for (const e of LEGACY) {
+      const l = LEVELS[e.level - 1]; if (!l) continue;
+      const before = levelKey({...l, hole: e.hole}), now = levelKey(l);
+      if (before in solved && !(now in solved)) { solved[now] = solved[before]; changed = true; }
+    }
+    if (changed) store.set('cm_solved', solved);
+  })();
+  const isDone = i => levelKey(LEVELS[i]) in solved;
+  const doneCount = () => LEVELS.filter((_,i)=>isDone(i)).length;
+  // Levels unlock in order: everything up to one past your highest solved level. (Highest, not
+  // "first unsolved", so rebuilding an earlier level never locks anyone out of where they'd reached.)
+  // Developer mode opens every level and shows the reset button. It is turned on once per browser by
+  // opening the game with #dev=<passphrase>; only a SHA-256 fingerprint of the passphrase is in this
+  // public code. Pull request previews follow the same rules, so locking can be tested there too.
+  const DEV_HASH = '3ccd5f1d0d17131c97a09a91fdf8531b445c627418158b77d65afb954bfb25af';
+  const devFlag = { get(){ try{ return localStorage.getItem('sam_dev')==='1'; }catch(e){ return false; } },
+                    set(on){ try{ on ? localStorage.setItem('sam_dev','1') : localStorage.removeItem('sam_dev'); }catch(e){} } };
+  let DEV = devFlag.get();
+  const unlockedUpTo = () => {
+    if(DEV) return LEVELS.length-1;
+    let hi=-1; LEVELS.forEach((_,i)=>{ if(isDone(i)) hi=i; });
+    return Math.min(hi+1, LEVELS.length-1);
+  };
+  const isOpen = i => i <= unlockedUpTo();
+  let li = Math.min(store.get('cm_level', 0), unlockedUpTo());
+  let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintCount=0;
+
+  if (PREVIEW) {
+    const b=document.createElement('div'); b.className='preview-banner';
+    b.textContent=`Preview of pull request #${PREVIEW[1]} · progress here is separate`;
+    document.querySelector('.app').prepend(b);
+    document.title = `Preview #${PREVIEW[1]} · Scare-a-Mouse`;
+  }
+
+  // Food-chain legend
+  $('chain').innerHTML = '<span class="cap">each fears the next</span>' +
+    ORDER.concat('mouse').map(t=>`<span title="${t}">${EMOJI[t]}</span>`).join('<span class="arrow">→</span>');
+
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+
+  // The castle: 50 levels a room, and the path continues into the next room as levels are added.
+  const ROOM_SIZE = 50;
+  const ROOMS = [
+    {name:'Gate',            ic:'🏰', bg:'#4b5a3a', deco:['🌿','🪨','🌼']},
+    {name:'Courtyard',       ic:'⛲', bg:'#53643f', deco:['🌳','🌷','🪣']},
+    {name:'Stables',         ic:'🐴', bg:'#6b5434', deco:['🌾','🐴','🪵']},
+    {name:'Great hall',      ic:'🛡️', bg:'#5b3c3a', deco:['🕯️','🛡️','🍷']},
+    {name:'Kitchens',        ic:'🍲', bg:'#664a32', deco:['🧀','🥖','🍲']},
+    {name:'Library',         ic:'📚', bg:'#3f3a5a', deco:['📚','🕯️','📜']},
+    {name:'Chapel',          ic:'🔔', bg:'#4d4a63', deco:['🔔','🕯️','🌸']},
+    {name:'Armory',          ic:'⚔️', bg:'#45484f', deco:['⚔️','🛡️','🏹']},
+    {name:'Gallery',         ic:'🖼️', bg:'#5a4048', deco:['🖼️','🏺','🪞']},
+    {name:'Ballroom',        ic:'🎻', bg:'#5b3a5c', deco:['🎻','💃','🕯️']},
+    {name:'Wine cellar',     ic:'🍷', bg:'#40302e', deco:['🛢️','🍷','🕸️']},
+    {name:'Dungeon',         ic:'⛓️', bg:'#2f2f36', deco:['⛓️','🕸️','💀']},
+    {name:'Secret passage',  ic:'🕯️', bg:'#2a2833', deco:['🕯️','🕸️','🗝️']},
+    {name:'Treasury',        ic:'💰', bg:'#5a4a25', deco:['💰','💎','👑']},
+    {name:'Clock tower',     ic:'🕰️', bg:'#4a4440', deco:['⚙️','🕰️','🦉']},
+    {name:'Battlements',     ic:'🚩', bg:'#4e5866', deco:['🚩','☁️','🐦']},
+    {name:'Royal chambers',  ic:'🛏️', bg:'#5c3646', deco:['🛏️','🕯️','🧸']},
+    {name:'Throne room',     ic:'👑', bg:'#5e2f35', deco:['👑','🕯️','🛡️']},
+    {name:'Tower stairs',    ic:'🪜', bg:'#454049', deco:['🕯️','🪟','🕸️']},
+    {name:'Tower top',       ic:'🌙', bg:'#2e3557', deco:['🌙','⭐','🦇']},
+  ];
+  const roomOf = i => ROOMS[Math.floor(i/ROOM_SIZE)] || {name:`Wing ${Math.floor(i/ROOM_SIZE)+1}`, ic:'🏯', bg:'#4a4155', deco:['🕯️','🪨','🌿']};
+
+  function renderDots(){
+    // Levels zigzag across the room in rows of five; the road loops out at the end of each row.
+    const COLS = 5, ROW = 78, TOP = 46;
+    const colOf = k => { const r=Math.floor(k/COLS), c=k%COLS; return r%2 ? COLS-1-c : c; };
+    const xOf = k => 14 + colOf(k) * 18;                                                   // percent
+    const yOf = k => TOP + Math.floor(k/COLS)*ROW + Math.round(Math.sin(colOf(k)*1.7 + Math.floor(k/COLS)) * 9);
+    // A smooth road through the points (Catmull-Rom turned into Bezier curves).
+    const road = pts => { let d=`M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i=0;i<pts.length-1;i++){ const a=pts[i-1]||pts[i], b=pts[i], c=pts[i+1], e=pts[i+2]||c;
+        d += ` C ${b[0]+(c[0]-a[0])/6} ${b[1]+(c[1]-a[1])/6}, ${c[0]-(e[0]-b[0])/6} ${c[1]-(e[1]-b[1])/6}, ${c[0]} ${c[1]}`; }
+      return d; };
+    let html = '';
+    const rooms = Math.ceil(LEVELS.length/ROOM_SIZE);
+    for (let r = 0; r < rooms; r++) {
+      const room = roomOf(r*ROOM_SIZE), from = r*ROOM_SIZE, to = Math.min(LEVELS.length, from+ROOM_SIZE);
+      const n = to-from, rows = Math.ceil(n/COLS), h = TOP + (rows-1)*ROW + 52;
+      let solvedHere = 0; for (let i=from;i<to;i++) if (isDone(i)) solvedHere++;
+      // the path through this room's levels, as a dashed trail
+      const pts = [];
+      for (let k=0;k<n;k++) {
+        pts.push([xOf(k), yOf(k)]);
+        if (k%COLS===COLS-1 && k<n-1) pts.push([Math.floor(k/COLS)%2 ? 3 : 97, (yOf(k)+yOf(k+1))/2]); // loop at the row's end
+      }
+      const d = road(pts);
+      let nodes = '';
+      for (let k=0;k<n;k++) {
+        const i = from+k, pos = `left:${xOf(k)}%;top:${yOf(k)}px`;
+        nodes += isOpen(i)
+          ? `<div class="node ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
+          : `<div class="node locked" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
+      }
+      // a few props at the turns of the path
+      let deco = '';
+      for (let row=0; row<rows-1; row++) { const e = room.deco[row % room.deco.length];
+        deco += `<span class="deco" style="left:${row%2?92:8}%;top:${TOP+row*ROW+ROW/2}px">${e}</span>`; }
+      html += `<section class="room" style="--rb:${room.bg}">
+        <div class="room-head"><span class="ic">${room.ic}</span><b>${room.name}</b><small>${solvedHere}/${n}</small></div>
+        <div class="room-body" style="height:${h}px">
+          <svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
+            <path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path d="${d}" fill="none" stroke="#b9ab92" stroke-width="24" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path d="${d}" fill="none" stroke="#d8ccb2" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+          ${deco}${nodes}
+        </div></section>`;
+    }
+    const next = roomOf(rooms*ROOM_SIZE);
+    html += `<section class="room soon" style="--rb:${next.bg}">
+      <div class="room-head"><span class="ic">${next.ic}</span><b>${next.name}</b><small>🔒</small></div>
+      <div class="room-body">More levels coming soon</div></section>`;
+    $('dots').innerHTML = html;
+    $('dots').querySelectorAll('.node:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
+    $('progress').textContent = `${doneCount()} of ${LEVELS.length} solved` + (DEV ? ' · developer mode' : '');
+    $('resetProgress').classList.toggle('hidden', !DEV);
+    $('lvlBtn').textContent = `Level ${li+1} ▾`;
+  }
+
+  function load(i){
+    if(!isOpen(i)) i=unlockedUpTo();
+    clearInterval(timer); clearTimeout(backTimer);
+    li=i; store.set('cm_level',li); L=LEVELS[li];
+    const saved = solved[levelKey(L)];
+    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false; hintCount=0;
+    $('lvlName').textContent = L.name;
+    $('lvlSub').textContent = isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`;
+    $('tip').textContent = L.tip || (L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
+    renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
+  }
+
+  function buildBoard(){
+    const b=$('board'); const W=L.w+2, H=L.h+2;
+    const maxW = Math.min(window.innerWidth - 28, 492);
+    const maxH = window.innerHeight * 0.52;
+    cell = Math.floor(Math.min(maxW/W, maxH/H));
+    b.style.width=cell*W+'px'; b.style.height=cell*H+'px';
+    b.className='board edit armed';
+    const walls=new Set(L.walls.map(w=>w.join(',')));
+    let html='';
+    for(let y=-1;y<=L.h;y++) for(let x=-1;x<=L.w;x++){
+      const pos=`left:${(x+1)*cell}px;top:${(y+1)*cell}px;width:${cell}px;height:${cell}px`;
+      const border = x<0||y<0||x>=L.w||y>=L.h;
+      if(x===L.hole[0]&&y===L.hole[1]){
+        const side = border ? (y<0?'t':y>=L.h?'b':x<0?'l':'r') : `in ${(x+y)%2?'alt':''}`;
+        html+=`<div class="tile hole ${side}" style="${pos}"><i></i></div>`;
+      } else if(border) html+=`<div class="tile border" style="${pos}"></div>`;
+      else if(walls.has(x+','+y)) html+=`<div class="tile floor ${(x+y)%2?'alt':''}" style="${pos}"><div class="tile wall" style="left:4%;top:4%;width:92%;height:92%;position:absolute"></div></div>`;
+      else html+=`<div class="tile floor placeable ${(x+y)%2?'alt':''}" data-x="${x}" data-y="${y}" style="${pos}"></div>`;
+    }
+    b.innerHTML=html;
+    b.querySelectorAll('.placeable').forEach(t=>t.onclick=()=>tapCell(+t.dataset.x,+t.dataset.y));
+  }
+
+  function occupied(x,y){ return L.fixed.some(a=>a.x===x&&a.y===y) || placed.some(a=>a.x===x&&a.y===y); }
+  function remaining(){ const inv=[...L.inv]; placed.forEach(p=>{ const k=inv.indexOf(p.t); if(k>=0) inv.splice(k,1); }); return inv; }
+
+  function tapCell(x,y){
+    if(mode==='failed') backToStart();
+    if(mode!=='edit') return;
+    if(occupied(x,y)) return;
+    const rem=remaining();
+    if(!rem.length){ toast('All your animals are placed. Tap one to pick it up.'); return; }
+    const want = L.solution.slice(0,hintCount).find(s=>s.x===x&&s.y===y);
+    const t = want && rem.includes(want.t) ? want.t : rem[Math.min(selected, rem.length-1)];
+    placed.push({t,x,y}); selected=0;
+    renderTray(); renderAnimals(); updateButtons();
+  }
+
+  function renderTray(){
+    const rem=remaining(); const tr=$('tray');
+    if(!L.inv.length){ tr.innerHTML='<span class="empty">No animals to place.</span>'; return; }
+    tr.innerHTML = '<div class="lbl">Your animals</div>' + rem.map((t,i)=>`<div class="piece ${i===selected?'sel':''}" data-i="${i}">${EMOJI[t]}</div>`).join('')
+      + placed.map(p=>`<div class="piece used">${EMOJI[p.t]}</div>`).join('');
+    tr.querySelectorAll('.piece:not(.used)').forEach(p=>p.onpointerdown=e=>startDrag(e,{t:rem[+p.dataset.i], tray:+p.dataset.i}));
+    $('board').classList.toggle('armed', mode==='edit' && rem.length>0);
+  }
+
+  function renderAnimals(frame){
+    const b=$('board'); b.querySelectorAll('.animal').forEach(e=>e.remove()); animalEls={};
+    const list = frame || [...L.fixed.map(a=>({...a})), ...placed.map(a=>({...a, placed:true}))];
+    list.forEach((a,i)=>{
+      const el=document.createElement('div');
+      el.className='animal'+(a.placed&&mode==='edit'?' placed':'');
+      el.style.width=el.style.height=cell+'px';
+      el.style.transform=`translate(${(a.x+1)*cell}px,${(a.y+1)*cell}px)`;
+      el.innerHTML=`<span style="font-size:${Math.round(cell*0.68)}px">${EMOJI[a.t]}</span>`;
+      if(a.placed&&mode==='edit'){ const pi=placed.findIndex(p=>p.x===a.x&&p.y===a.y); el.onpointerdown=e=>startDrag(e,{t:a.t, placedIdx:pi, el}); }
+      b.appendChild(el); animalEls[a.id!=null?a.id:i]=el;
+    });
+    drawHints();
+  }
+
+  function updateButtons(){
+    $('goBtn').disabled = mode==='running';
+    const n = L.solution.length;
+    $('hintBtn').disabled = mode!=='edit' || hintCount>=n;
+    $('hintBtn').textContent = n>1 && hintCount>0 ? `Hint ${hintCount}/${n}` : 'Hint';
+    $('resetBtn').disabled = mode==='running' || (mode==='edit' && !placed.length);
+    $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
+  }
+
+  function go(){
+    if(mode==='running' || mode==='won') return;
+    clearTimeout(backTimer);
+    clearHint();
+    mode='running'; updateButtons(); renderTray();
+    const b=$('board'); b.className='board running';
+    const res = simulate(L, placed);
+    const fixedN=L.fixed.length;
+    // build elements keyed by engine id
+    renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=fixedN})));
+    let f=1;
+    timer=setInterval(()=>{
+      if(f>=res.frames.length){ clearInterval(timer); finish(res); return; }
+      const prev=res.frames[f-1], cur=res.frames[f];
+      const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
+      cur.forEach(a=>{
+        const el=animalEls[a.id]; const p=prev[a.id];
+        el.style.transform=`translate(${(a.x+1)*cell}px,${(a.y+1)*cell}px)`;
+        const startedMoving = (p.x!==a.x||p.y!==a.y) && (f===1 || (res.frames[f-2][a.id].x===p.x && res.frames[f-2][a.id].y===p.y));
+        if(startedMoving){ el.classList.remove('scared'); void el.offsetWidth; el.classList.add('scared'); }
+        el.classList.toggle('stuck', stuckNow.has(a.id));
+        if(stuckNow.has(a.id) && !stuckBefore.has(a.id)){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+        if(a.gone) setTimeout(()=>el.classList.add('gone'),140);
+      });
+      f++;
+    }, 170);
+  }
+
+  function finish(res){
+    if(res.win){
+      mode='won';
+      solved[levelKey(L)] = placed.map(p=>({t:p.t,x:p.x,y:p.y})); store.set('cm_solved',solved);
+      renderDots();
+      const last = li===LEVELS.length-1;
+      $('winTitle').textContent = last ? 'Castle cleared!' : 'Mouse escaped!';
+      $('winText').textContent = last ? 'You finished every level. More puzzles are on the way.' : `Level ${li+1} solved${hintShown?' (with a hint)':''}.`;
+      $('nextBtn').textContent = last ? 'Play again' : 'Next level';
+      setTimeout(()=>$('win').classList.add('show'), 350);
+    } else {
+      mode='failed';
+      const last=(res.bumps||[])[res.frames.length-1]||[];
+      toast(res.loop ? 'The animals are stuck going back and forth.'
+          : last.length ? 'Stuck! Two animals tried to move into the same square.'
+          : 'The mouse is still in the castle.');
+      backTimer=setTimeout(()=>{ if(mode==='failed') backToStart(); }, last.length ? 2600 : 1400);
+    }
+    updateButtons();
+  }
+
+  function backToStart(){
+    clearInterval(timer); clearTimeout(backTimer);
+    mode='edit'; $('board').className='board edit';
+    renderTray(); renderAnimals(); updateButtons();
+  }
+  function reset(){ placed=[]; selected=0; clearHint(); backToStart(); }
+
+  // Drag and drop (tap still works: tap a tray animal to select it, tap a placed animal to send it back).
+  let drag=null;
+  function startDrag(e,info){
+    if(mode==='failed') backToStart();
+    if(mode!=='edit') return;
+    e.preventDefault();
+    drag={...info, sx:e.clientX, sy:e.clientY, moved:false, ghost:null, target:null};
+    document.addEventListener('pointermove',moveDrag,{passive:false});
+    document.addEventListener('pointerup',endDrag);
+    document.addEventListener('pointercancel',cancelDrag);
+  }
+  function cellAt(cx,cy){
+    const r=$('board').getBoundingClientRect();
+    const x=Math.floor((cx-r.left)/cell)-1, y=Math.floor((cy-r.top)/cell)-1;
+    if(x<0||y<0||x>=L.w||y>=L.h) return null;
+    return {x,y};
+  }
+  function canDrop(c){
+    if(!c) return false;
+    if(L.walls.some(w=>w[0]===c.x&&w[1]===c.y)) return false;
+    if(c.x===L.hole[0]&&c.y===L.hole[1]) return false;
+    if(L.fixed.some(a=>a.x===c.x&&a.y===c.y)) return false;
+    return !placed.some((p,i)=>p.x===c.x&&p.y===c.y&&i!==drag.placedIdx);
+  }
+  function markTarget(c){
+    $('board').querySelectorAll('.floor.target').forEach(t=>t.classList.remove('target','bad'));
+    if(!c) return;
+    const t=$('board').querySelector(`.floor[data-x="${c.x}"][data-y="${c.y}"]`) || [...$('board').querySelectorAll('.floor')].find(f=>f.style.left===`${(c.x+1)*cell}px`&&f.style.top===`${(c.y+1)*cell}px`);
+    if(t){ t.classList.add('target'); if(!canDrop(c)) t.classList.add('bad'); }
+  }
+  function moveDrag(e){
+    if(!drag) return;
+    e.preventDefault();
+    if(!drag.moved && Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6) return;
+    if(!drag.moved){
+      drag.moved=true;
+      const g=document.createElement('div'); g.className='ghost';
+      g.innerHTML=`<span style="font-size:${Math.round(cell*0.75)}px">${EMOJI[drag.t]}</span>`;
+      document.body.appendChild(g); drag.ghost=g;
+      if(drag.el) drag.el.classList.add('lifted');
+      clearHint();
+    }
+    drag.ghost.style.left=e.clientX+'px'; drag.ghost.style.top=e.clientY+'px';
+    // aim at the square just above the finger, where the ghost is drawn
+    drag.target=cellAt(e.clientX, e.clientY-cell*0.5);
+    markTarget(drag.target);
+  }
+  function stopListening(){
+    document.removeEventListener('pointermove',moveDrag);
+    document.removeEventListener('pointerup',endDrag);
+    document.removeEventListener('pointercancel',cancelDrag);
+    if(drag&&drag.ghost) drag.ghost.remove();
+    markTarget(null);
+  }
+  function cancelDrag(){ stopListening(); if(drag&&drag.el) drag.el.classList.remove('lifted'); drag=null; }
+  function endDrag(){
+    const d=drag; stopListening(); drag=null;
+    if(!d) return;
+    if(!d.moved){ // a tap
+      if(d.tray!=null){ selected=d.tray; renderTray(); }
+      else if(d.placedIdx!=null){ placed.splice(d.placedIdx,1); renderTray(); renderAnimals(); updateButtons(); }
+      return;
+    }
+    drag=d; const ok=canDrop(d.target); drag=null;
+    if(ok){
+      if(d.placedIdx!=null){ placed[d.placedIdx]={t:d.t,x:d.target.x,y:d.target.y}; }
+      else placed.push({t:d.t,x:d.target.x,y:d.target.y});
+      selected=0;
+    } else if(d.placedIdx!=null && !d.target){ placed.splice(d.placedIdx,1); } // dragged off the board: back to the tray
+    renderTray(); renderAnimals(); updateButtons();
+  }
+
+  // Hints reveal one solution piece per press. Revealed hints stay through runs and Reset.
+  function clearHint(){ $('board').querySelectorAll('.hint-ring').forEach(e=>e.remove()); }
+  function drawHints(){
+    clearHint();
+    if(mode!=='edit') return;
+    L.solution.slice(0,hintCount).forEach(s=>{
+      const r=document.createElement('div'); r.className='hint-ring';
+      r.innerHTML=`<b>${EMOJI[s.t]}</b>`;
+      r.style.cssText=`left:${(s.x+1)*cell+cell*.06}px;top:${(s.y+1)*cell+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`;
+      $('board').appendChild(r);
+    });
+  }
+  function hint(){
+    if(mode==='failed') backToStart();
+    if(mode!=='edit') return;
+    const sol=L.solution;
+    if(hintCount>=sol.length) return;
+    const s=sol[hintCount++]; hintShown=true;
+    const onSolution = p => sol.some(q=>q.t===p.t&&q.x===p.x&&q.y===p.y);
+    // A different animal sitting on the hinted square goes back to the tray.
+    const here=placed.findIndex(p=>p.x===s.x&&p.y===s.y);
+    if(here>=0 && placed[here].t!==s.t) placed.splice(here,1);
+    // If every animal of the hinted kind is placed somewhere wrong, send one back so it can be placed.
+    if(!placed.some(p=>p.t===s.t&&p.x===s.x&&p.y===s.y) && !remaining().includes(s.t)){
+      let k=placed.findIndex(p=>p.t===s.t&&!onSolution(p));
+      if(k<0) k=placed.findIndex(p=>p.t===s.t);
+      if(k>=0) placed.splice(k,1);
+    }
+    renderTray(); renderAnimals(); updateButtons();
+    toast(sol.length>1 ? `Hint ${hintCount} of ${sol.length}: put the ${NAME[s.t]} on the glowing square.` : `Put the ${NAME[s.t]} on the glowing square.`);
+  }
+
+  function openPicker(){
+    $('picker').classList.add('show');
+    const cur = $('dots').querySelector('.node.cur');
+    if (cur) { const m=$('dots'); let y=0; for (let el=cur; el && el!==m; el=el.offsetParent) y+=el.offsetTop;
+      m.style.scrollBehavior='auto'; m.scrollTop = y - m.clientHeight/2; m.style.scrollBehavior=''; }
+  }
+  $('lvlBtn').onclick=()=>{ if(mode!=='running') openPicker(); };
+  $('closePick').onclick=()=>$('picker').classList.remove('show');
+  // Developer mode only (hidden for players). Two taps to confirm.
+  $('resetProgress').onclick=()=>{
+    const b=$('resetProgress');
+    if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent='Tap again to erase all progress'; clearTimeout(b._t); b._t=setTimeout(()=>{ b.classList.remove('armed'); b.textContent='Reset progress (testing)'; },3000); return; }
+    clearTimeout(b._t); b.classList.remove('armed'); b.textContent='Reset progress (testing)';
+    solved={}; store.set('cm_solved',solved); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
+  };
+  $('picker').onclick=e=>{ if(e.target.id==='picker') $('picker').classList.remove('show'); };
+  $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
+  // After a win: back to the level picker instead of the next level. Reloading the level first
+  // puts it back in normal play, showing the winning setup, if the picker is closed without choosing.
+  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); load(li); openPicker(); };
+  $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
+  let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
+  // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
+  async function checkDevLink(){
+    const m=/^#dev=(.+)$/.exec(location.hash);
+    if(!m) return;
+    history.replaceState(null,'',location.pathname+location.search); // don't leave the passphrase in the address bar
+    const code=decodeURIComponent(m[1]);
+    if(code==='off'){ devFlag.set(false); DEV=false; load(Math.min(li,unlockedUpTo())); toast('Developer mode off.'); return; }
+    try{
+      const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code));
+      const hex=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+      if(hex===DEV_HASH){ devFlag.set(true); DEV=true; renderDots(); toast('Developer mode on: every level is open.'); }
+    }catch(e){}
+  }
+
+  load(li);
+  checkDevLink();
+  window.addEventListener('hashchange', checkDevLink);
+})(); }).catch(e => {
+  document.body.innerHTML = '<p style="padding:24px;font-family:system-ui">Sorry, the game failed to load: ' + e.message + '</p>';
+});
+</script>
+</body>
+</html>
