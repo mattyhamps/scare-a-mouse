@@ -80,6 +80,17 @@ public final class Recipe {
             case 68: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER);
             case 69: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
             case 70: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN);
+            // 71-80: same difficulty as 61-70, new combinations
+            case 71: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE);
+            case 72: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN);
+            case 73: return new Recipe(Animal.CAT, 0, true, "", Trick.PLAIN);
+            case 74: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE);
+            case 75: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN);
+            case 76: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE);
+            case 77: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN);
+            case 78: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER);
+            case 79: return new Recipe(Animal.CAT, 0, true, "", Trick.FREEZE_RELEASE);
+            case 80: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
             default: return null;
         }
     }
