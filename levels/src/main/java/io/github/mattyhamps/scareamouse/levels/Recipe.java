@@ -111,7 +111,7 @@ public final class Recipe {
             case 85: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER);
             case 86: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
             case 87: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN);
-            case 88: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN).withBlockers(Animal.DOG);
+            case 88: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
             case 89: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE);
             case 90: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
             // 91-100: same difficulty and hand variety as 81-90; 100 gets the richest recipe
@@ -122,7 +122,7 @@ public final class Recipe {
             case 95: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.DOG);
             case 96: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
             case 97: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE);
-            case 98: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN).withBlockers(Animal.DOG);
+            case 98: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN);
             case 99: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
             case 100: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
             default: return null;

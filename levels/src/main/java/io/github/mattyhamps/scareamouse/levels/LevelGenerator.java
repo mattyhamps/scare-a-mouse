@@ -96,19 +96,8 @@ public final class LevelGenerator {
             hand.set(0, rules.mustPlace);
         }
         hand.sort((a, b) -> a.id().compareTo(b.id()));
-        int[] hole = r.pick(borderCells());
+        int[] hole = cells.get(k++);
         return new Level(name, tip, SIZE, SIZE, hole[0], hole[1], walls, fixed, hand, Collections.<Piece>emptyList());
-    }
-
-    private static List<int[]> borderCells() {
-        List<int[]> out = new ArrayList<>();
-        for (int i = 0; i < SIZE; i++) {
-            out.add(new int[] {i, -1});
-            out.add(new int[] {i, SIZE});
-            out.add(new int[] {-1, i});
-            out.add(new int[] {SIZE, i});
-        }
-        return out;
     }
 
     /** Single-threaded search from one seed. Gives up after maxTries (returns null). */

@@ -26,10 +26,11 @@ import java.util.Set;
  *       the same square at the same time, neither moves that step.</li>
  *   <li><b>Passing by:</b> a running animal that ends up beside an animal it fears turns and runs away
  *       from it (rules 2 and 3 are checked at the start of every step).</li>
- *   <li><b>The hole:</b> only the mouse can go through it. The mouse escaping wins the level.</li>
+ *   <li><b>The hole:</b> a square on the board. Only the mouse can go into it, and the mouse getting
+ *       in wins the level. Every other animal treats it like a wall.</li>
  * </ol>
- * The run ends when the mouse escapes, when a step passes with nothing moving, or when the board
- * repeats an earlier state (an endless loop).
+ * The run ends when the mouse gets into the hole, when a step passes with nothing moving, or when the
+ * board repeats an earlier state (an endless loop).
  */
 public final class Simulator {
     /** Up, right, down, left. */
@@ -220,6 +221,9 @@ public final class Simulator {
     private static boolean solid(Level level, boolean[] wall, Animal type, int nx, int ny) {
         if (type == Animal.MOUSE && nx == level.holeX && ny == level.holeY) {
             return false;
+        }
+        if (nx == level.holeX && ny == level.holeY) {
+            return true;
         }
         return nx < 0 || ny < 0 || nx >= level.w || ny >= level.h || wall[ny * level.w + nx];
     }

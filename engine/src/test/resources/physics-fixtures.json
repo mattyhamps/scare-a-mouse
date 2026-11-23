@@ -177,12 +177,12 @@
   }
  },
  {
-  "name": "6 · mouse escapes through the hole",
+  "name": "6 · mouse runs into the hole",
   "board": [
    ".MC...."
   ],
   "hole": [
-   -1,
+   0,
    0
   ],
   "placed": [],
@@ -193,16 +193,16 @@
  {
   "name": "6 · other animals treat the hole as a wall",
   "board": [
-   "CD....."
+   ".CD...."
   ],
   "hole": [
-   -1,
+   0,
    0
   ],
   "placed": [],
   "expect": {
    "pic": [
-    "CD....."
+    ".CD...."
    ],
    "win": false
   }
@@ -213,7 +213,38 @@
    ".M..CD."
   ],
   "hole": [
-   -1,
+   0,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "win": true
+  }
+ },
+ {
+  "name": "6 · the hole stops a runner in the middle of the board",
+  "board": [
+   "...CD.."
+  ],
+  "hole": [
+   2,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "pic": [
+    "...CD.."
+   ],
+   "win": false
+  }
+ },
+ {
+  "name": "6 · the hole is a square on the board: the mouse stops short of the edge",
+  "board": [
+   "....MC."
+  ],
+  "hole": [
+   1,
    0
   ],
   "placed": [],
@@ -257,7 +288,7 @@
    "......."
   ],
   "hole": [
-   -1,
+   0,
    6
   ],
   "placed": [

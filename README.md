@@ -1,7 +1,7 @@
 # Scare-a-Mouse 🐭
 
 A chain-reaction puzzle game. Place animals so each one scares the next, and get the mouse
-out through the hole.
+into the mouse hole.
 
 **Play:** https://mattyhamps.github.io/scare-a-mouse/ (works on iPhone and Android; use
 "Add to Home Screen" to keep it like an app).
@@ -23,9 +23,10 @@ and every part of the project uses that code.
    edge, or (for every animal but the mouse) the hole. If two animals would step into the same
    square at the same time, neither moves.
 5. **Passing by:** a running animal that ends up beside an animal it fears turns and runs away from it.
-6. **The hole:** only the mouse can go through it. The mouse escaping wins.
+6. **The hole:** a square on the board. Only the mouse can go into it, and the mouse getting in
+   wins. Every other animal treats it like a wall.
 
-A run ends when the mouse escapes, when nothing moves for a step, or when the board repeats
+A run ends when the mouse gets into the hole, when nothing moves for a step, or when the board repeats
 (an endless loop).
 
 ## Project layout
