@@ -146,7 +146,7 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
   const isDone = i => levelKey(LEVELS[i]) in solved;
   const doneCount = () => LEVELS.filter((_,i)=>isDone(i)).length;
   let li = Math.min(store.get('cm_level', 0), LEVELS.length-1);
-  let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer;
+  let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintCount=0;
 
   // Food-chain legend
   $('chain').innerHTML = '<span class="cap">each fears the next</span>' +
@@ -165,7 +165,7 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
     clearInterval(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
-    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false;
+    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false; hintCount=0;
     $('lvlName').textContent = L.name;
     $('lvlSub').textContent = isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`;
     $('tip').textContent = L.tip || (L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
@@ -204,7 +204,7 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
     if(occupied(x,y)) return;
     const rem=remaining();
     if(!rem.length){ toast('All your animals are placed. Tap one to pick it up.'); return; }
-    const want = L.solution.find(s=>s.x===x&&s.y===y&&$('board').querySelector('.hint-ring'));
+    const want = L.solution.slice(0,hintCount).find(s=>s.x===x&&s.y===y);
     const t = want && rem.includes(want.t) ? want.t : rem[Math.min(selected, rem.length-1)];
     placed.push({t,x,y}); selected=0;
     renderTray(); renderAnimals(); updateButtons();
@@ -231,12 +231,15 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
       if(a.placed&&mode==='edit'){ const pi=placed.findIndex(p=>p.x===a.x&&p.y===a.y); el.onpointerdown=e=>startDrag(e,{t:a.t, placedIdx:pi, el}); }
       b.appendChild(el); animalEls[a.id!=null?a.id:i]=el;
     });
+    drawHints();
   }
 
   function updateButtons(){
     $('goBtn').disabled = mode==='running';
-    $('hintBtn').disabled = mode!=='edit';
-    $('resetBtn').disabled = mode==='running' || (mode==='edit' && !placed.length && !$('board').querySelector('.hint-ring'));
+    const n = L.solution.length;
+    $('hintBtn').disabled = mode!=='edit' || hintCount>=n;
+    $('hintBtn').textContent = n>1 && hintCount>0 ? `Hint ${hintCount}/${n}` : 'Hint';
+    $('resetBtn').disabled = mode==='running' || (mode==='edit' && !placed.length);
     $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
   }
 
@@ -361,19 +364,36 @@ fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.
     renderTray(); renderAnimals(); updateButtons();
   }
 
+  // Hints reveal one solution piece per press. Revealed hints stay through runs and Reset.
   function clearHint(){ $('board').querySelectorAll('.hint-ring').forEach(e=>e.remove()); }
-  function hint(){
+  function drawHints(){
+    clearHint();
     if(mode!=='edit') return;
-    hintShown=true;
-    placed=[]; renderTray(); renderAnimals(); clearHint();
-    L.solution.forEach(s=>{
+    L.solution.slice(0,hintCount).forEach(s=>{
       const r=document.createElement('div'); r.className='hint-ring';
       r.innerHTML=`<b>${EMOJI[s.t]}</b>`;
       r.style.cssText=`left:${(s.x+1)*cell+cell*.06}px;top:${(s.y+1)*cell+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`;
       $('board').appendChild(r);
     });
-    toast(L.solution.length>1 ? 'Put each animal on its glowing square.' : `Put the ${NAME[L.solution[0].t]} on the glowing square.`);
-    updateButtons();
+  }
+  function hint(){
+    if(mode==='failed') backToStart();
+    if(mode!=='edit') return;
+    const sol=L.solution;
+    if(hintCount>=sol.length) return;
+    const s=sol[hintCount++]; hintShown=true;
+    const onSolution = p => sol.some(q=>q.t===p.t&&q.x===p.x&&q.y===p.y);
+    // A different animal sitting on the hinted square goes back to the tray.
+    const here=placed.findIndex(p=>p.x===s.x&&p.y===s.y);
+    if(here>=0 && placed[here].t!==s.t) placed.splice(here,1);
+    // If every animal of the hinted kind is placed somewhere wrong, send one back so it can be placed.
+    if(!placed.some(p=>p.t===s.t&&p.x===s.x&&p.y===s.y) && !remaining().includes(s.t)){
+      let k=placed.findIndex(p=>p.t===s.t&&!onSolution(p));
+      if(k<0) k=placed.findIndex(p=>p.t===s.t);
+      if(k>=0) placed.splice(k,1);
+    }
+    renderTray(); renderAnimals(); updateButtons();
+    toast(sol.length>1 ? `Hint ${hintCount} of ${sol.length}: put the ${NAME[s.t]} on the glowing square.` : `Put the ${NAME[s.t]} on the glowing square.`);
   }
 
   $('lvlBtn').onclick=()=>{ if(mode!=='running') $('picker').classList.add('show'); };
