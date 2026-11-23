@@ -142,8 +142,10 @@
 <!-- The physics: the Java engine, compiled to JavaScript by TeaVM. Defines scareSimulate(). -->
 <script src="js/engine.js"></script>
 <script>
+// ?set=samples plays a separate set of trial levels (all open, their own progress) instead of the game.
+const SET = new URLSearchParams(location.search).get('set') === 'samples' ? 'samples' : '';
 Promise.all([
-  fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
+  fetch(SET ? 'samples.json' : 'levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
   fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => [])
 ]).then(([LEVELS, LEGACY]) => { (function(){
   const ORDER = ['mouse','cat','dog','bear','lion','elephant'];
@@ -155,7 +157,7 @@ Promise.all([
   // Pull request previews live at /pr-preview/pr-N/ on the same site: keep their progress separate
   // so testing never marks levels solved in the real game.
   const PREVIEW = /\/pr-preview\/pr-(\d+)\//.exec(location.pathname);
-  const KEY = PREVIEW ? `preview${PREVIEW[1]}_` : '';
+  const KEY = (PREVIEW ? `preview${PREVIEW[1]}_` : '') + (SET ? `${SET}_` : '');
   const store = { get(k,d){ try{ const v=localStorage.getItem(KEY+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
                   set(k,v){ try{ localStorage.setItem(KEY+k,JSON.stringify(v)); }catch(e){} } };
 
@@ -186,13 +188,17 @@ Promise.all([
                     set(on){ try{ on ? localStorage.setItem('sam_dev','1') : localStorage.removeItem('sam_dev'); }catch(e){} } };
   let DEV = devFlag.get();
   const unlockedUpTo = () => {
-    if(DEV) return LEVELS.length-1;
+    if(DEV || SET) return LEVELS.length-1;
     let hi=-1; LEVELS.forEach((_,i)=>{ if(isDone(i)) hi=i; });
     return Math.min(hi+1, LEVELS.length-1);
   };
   const isOpen = i => i <= unlockedUpTo();
   let li = Math.min(store.get('cm_level', 0), unlockedUpTo());
   let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintCount=0;
+  // edge: thickness of the castle wall around the board, in px. Boards bigger than 7x7 get a thinner
+  // wall so their squares stay big enough to tap. P(v) is the pixel offset of column or row v.
+  let edge = 0;
+  const P = v => edge + v*cell;
 
   if (PREVIEW) {
     const b=document.createElement('div'); b.className='preview-banner';
@@ -233,13 +239,16 @@ Promise.all([
     const b=$('board'); const W=L.w+2, H=L.h+2;
     const maxW = Math.min(window.innerWidth - 28, 492);
     const maxH = window.innerHeight * 0.52;
-    cell = Math.floor(Math.min(maxW/W, maxH/H));
-    b.style.width=cell*W+'px'; b.style.height=cell*H+'px';
+    const ef = (L.w>7||L.h>7) ? 0.3 : 1;
+    cell = Math.floor(Math.min(maxW/(L.w+2*ef), maxH/(L.h+2*ef)));
+    edge = Math.round(cell*ef);
+    b.style.width=(cell*L.w+2*edge)+'px'; b.style.height=(cell*L.h+2*edge)+'px';
     b.className='board edit armed';
     const walls=new Set(L.walls.map(w=>w.join(',')));
     let html='';
     for(let y=-1;y<=L.h;y++) for(let x=-1;x<=L.w;x++){
-      const pos=`left:${(x+1)*cell}px;top:${(y+1)*cell}px;width:${cell}px;height:${cell}px`;
+      const side = (v,n) => v<0||v>=n;
+      const pos=`left:${x<0?0:P(x)}px;top:${y<0?0:P(y)}px;width:${side(x,L.w)?edge:cell}px;height:${side(y,L.h)?edge:cell}px`;
       const border = x<0||y<0||x>=L.w||y>=L.h;
       if(x===L.hole[0]&&y===L.hole[1]){
         const side = border ? (y<0?'t':y>=L.h?'b':x<0?'l':'r') : `in ${(x+y)%2?'alt':''}`;
@@ -283,7 +292,7 @@ Promise.all([
       const el=document.createElement('div');
       el.className='animal'+(a.placed&&mode==='edit'?' placed':'');
       el.style.width=el.style.height=cell+'px';
-      el.style.transform=`translate(${(a.x+1)*cell}px,${(a.y+1)*cell}px)`;
+      el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
       el.innerHTML=`<span style="font-size:${Math.round(cell*0.68)}px">${EMOJI[a.t]}</span>`;
       if(a.placed&&mode==='edit'){ const pi=placed.findIndex(p=>p.x===a.x&&p.y===a.y); el.onpointerdown=e=>startDrag(e,{t:a.t, placedIdx:pi, el}); }
       b.appendChild(el); animalEls[a.id!=null?a.id:i]=el;
@@ -317,7 +326,7 @@ Promise.all([
       const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
       cur.forEach(a=>{
         const el=animalEls[a.id]; const p=prev[a.id];
-        el.style.transform=`translate(${(a.x+1)*cell}px,${(a.y+1)*cell}px)`;
+        el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
         const startedMoving = (p.x!==a.x||p.y!==a.y) && (f===1 || (res.frames[f-2][a.id].x===p.x && res.frames[f-2][a.id].y===p.y));
         if(startedMoving){ el.classList.remove('scared'); void el.offsetWidth; el.classList.add('scared'); }
         el.classList.toggle('stuck', stuckNow.has(a.id));
@@ -369,7 +378,7 @@ Promise.all([
   }
   function cellAt(cx,cy){
     const r=$('board').getBoundingClientRect();
-    const x=Math.floor((cx-r.left)/cell)-1, y=Math.floor((cy-r.top)/cell)-1;
+    const x=Math.floor((cx-r.left-edge)/cell), y=Math.floor((cy-r.top-edge)/cell);
     if(x<0||y<0||x>=L.w||y>=L.h) return null;
     return {x,y};
   }
@@ -383,7 +392,7 @@ Promise.all([
   function markTarget(c){
     $('board').querySelectorAll('.floor.target').forEach(t=>t.classList.remove('target','bad'));
     if(!c) return;
-    const t=$('board').querySelector(`.floor[data-x="${c.x}"][data-y="${c.y}"]`) || [...$('board').querySelectorAll('.floor')].find(f=>f.style.left===`${(c.x+1)*cell}px`&&f.style.top===`${(c.y+1)*cell}px`);
+    const t=$('board').querySelector(`.floor[data-x="${c.x}"][data-y="${c.y}"]`) || [...$('board').querySelectorAll('.floor')].find(f=>f.style.left===`${P(c.x)}px`&&f.style.top===`${P(c.y)}px`);
     if(t){ t.classList.add('target'); if(!canDrop(c)) t.classList.add('bad'); }
   }
   function moveDrag(e){
@@ -436,7 +445,7 @@ Promise.all([
     L.solution.slice(0,hintCount).forEach(s=>{
       const r=document.createElement('div'); r.className='hint-ring';
       r.innerHTML=`<b>${EMOJI[s.t]}</b>`;
-      r.style.cssText=`left:${(s.x+1)*cell+cell*.06}px;top:${(s.y+1)*cell+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`;
+      r.style.cssText=`left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`;
       $('board').appendChild(r);
     });
   }

@@ -52,7 +52,7 @@
                 <resource><directory>src/main/webapp</directory></resource>
                 <resource>
                   <directory>${project.basedir}/../data</directory>
-                  <includes><include>levels.json</include><include>legacy-holes.json</include></includes>
+                  <includes><include>levels.json</include><include>legacy-holes.json</include><include>samples.json</include></includes>
                 </resource>
               </resources>
             </configuration>
