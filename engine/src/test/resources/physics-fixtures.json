@@ -1,0 +1,279 @@
+[
+ {
+  "name": "2 · cat next to mouse: mouse runs to the edge",
+  "board": [
+   ".MC...."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "M.C...."
+   ]
+  }
+ },
+ {
+  "name": "0 · animals only fear the next one up: dog next to mouse does nothing",
+  "board": [
+   ".MD...."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    ".MD...."
+   ],
+   "steps": 0
+  }
+ },
+ {
+  "name": "0 · elephants fear mice",
+  "board": [
+   "...ME.."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "...M..E"
+   ]
+  }
+ },
+ {
+  "name": "2 · diagonal does not count",
+  "board": [
+   "C..",
+   ".M.",
+   "..."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "C..",
+    ".M.",
+    "..."
+   ],
+   "steps": 0
+  }
+ },
+ {
+  "name": "3 · mouse between two cats is frozen",
+  "board": [
+   ".CMC."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    ".CMC."
+   ],
+   "steps": 0
+  }
+ },
+ {
+  "name": "3 · frozen, then free: dog chases one cat away, mouse runs from the other",
+  "board": [
+   "....D..",
+   "..CMC..",
+   ".......",
+   "......."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "....D..",
+    "..C...M",
+    ".......",
+    "....C.."
+   ]
+  }
+ },
+ {
+  "name": "4 · runner stops for good at a wall",
+  "board": [
+   "DC..#.."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "D..C#.."
+   ]
+  }
+ },
+ {
+  "name": "4 · runner waits behind an animal that never moves",
+  "board": [
+   "BCD...."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "BCD...."
+   ]
+  }
+ },
+ {
+  "name": "4 · cat chases a fleeing mouse all the way (train)",
+  "board": [
+   "...M.CD..."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "MC....D..."
+   ]
+  }
+ },
+ {
+  "name": "4 · two animals stepping into the same square: neither moves",
+  "board": [
+   "DC.CD"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "DC.CD"
+   ]
+  }
+ },
+ {
+  "name": "4 · two runners face to face block each other",
+  "board": [
+   "DCCD"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "DCCD"
+   ]
+  }
+ },
+ {
+  "name": "5 · running cat passes beside a dog and turns away from it",
+  "board": [
+   ".D..",
+   ".C..",
+   "....",
+   "D...",
+   "...."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    ".D..",
+    "....",
+    "....",
+    "D..C",
+    "...."
+   ]
+  }
+ },
+ {
+  "name": "6 · mouse escapes through the hole",
+  "board": [
+   ".MC...."
+  ],
+  "hole": [
+   -1,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "win": true
+  }
+ },
+ {
+  "name": "6 · other animals treat the hole as a wall",
+  "board": [
+   "CD....."
+  ],
+  "hole": [
+   -1,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "pic": [
+    "CD....."
+   ],
+   "win": false
+  }
+ },
+ {
+  "name": "6 · chain reaction: dog scares cat, cat scares mouse into the hole",
+  "board": [
+   ".M..CD."
+  ],
+  "hole": [
+   -1,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "win": true
+  }
+ },
+ {
+  "name": "end · nothing scared: the run ends straight away",
+  "board": [
+   "M.....D"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "steps": 0,
+   "win": false
+  }
+ },
+ {
+  "name": "end · endless back-and-forth is detected as a loop",
+  "board": [
+   "DC....D"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "loop": true,
+   "win": false
+  }
+ },
+ {
+  "name": "regression · level 30 trick no longer works",
+  "board": [
+   "...D...",
+   ".C..B..",
+   ".......",
+   ".......",
+   ".M.....",
+   ".......",
+   "......."
+  ],
+  "hole": [
+   -1,
+   6
+  ],
+  "placed": [
+   {
+    "t": "cat",
+    "x": 2,
+    "y": 1
+   },
+   {
+    "t": "lion",
+    "x": 4,
+    "y": 2
+   }
+  ],
+  "expect": {
+   "win": false
+  }
+ }
+]

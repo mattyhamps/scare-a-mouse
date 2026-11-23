@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.github.mattyhamps</groupId>
+    <artifactId>scare-a-mouse-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>scare-a-mouse-web</artifactId>
+  <name>Scare-a-Mouse web game</name>
+  <description>
+    The game page. TeaVM compiles the Java engine to target/site/js/engine.js; the page, levels.json
+    and engine.js together in target/site are the whole website (published to GitHub Pages by CI).
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.mattyhamps</groupId>
+      <artifactId>scare-a-mouse-engine</artifactId>
+    </dependency>
+    <!-- Java class library emulation and JavaScript interop, used only at TeaVM compile time -->
+    <dependency>
+      <groupId>org.teavm</groupId>
+      <artifactId>teavm-classlib</artifactId>
+      <version>${teavm.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.teavm</groupId>
+      <artifactId>teavm-jso-apis</artifactId>
+      <version>${teavm.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Copy the page and the levels into target/site -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>site-page</id>
+            <phase>process-resources</phase>
+            <goals><goal>copy-resources</goal></goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/site</outputDirectory>
+              <resources>
+                <resource><directory>src/main/webapp</directory></resource>
+                <resource>
+                  <directory>${project.basedir}/../data</directory>
+                  <includes><include>levels.json</include></includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Compile the engine to JavaScript -->
+      <plugin>
+        <groupId>org.teavm</groupId>
+        <artifactId>teavm-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>engine-js</id>
+            <goals><goal>compile</goal></goals>
+            <configuration>
+              <mainClass>io.github.mattyhamps.scareamouse.web.EngineExports</mainClass>
+              <targetDirectory>${project.build.directory}/site/js</targetDirectory>
+              <targetFileName>engine.js</targetFileName>
+              <minifying>true</minifying>
+              <optimizationLevel>ADVANCED</optimizationLevel>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

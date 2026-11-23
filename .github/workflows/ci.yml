@@ -1,0 +1,58 @@
+name: Build, test and publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Compiles everything, runs the physics tests and checks every level,
+      # then TeaVM compiles the engine to web/target/site/js/engine.js.
+      - name: Build and test
+        run: mvn -B verify
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Runs the same physics fixtures and all levels through the compiled JavaScript,
+      # so a TeaVM problem can't reach the live site.
+      - name: Check the JavaScript build of the engine
+        run: node web/test/check-engine.js web/target/site/js/engine.js
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/target/site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

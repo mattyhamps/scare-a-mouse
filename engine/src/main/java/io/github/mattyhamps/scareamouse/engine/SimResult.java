@@ -1,0 +1,76 @@
+package io.github.mattyhamps.scareamouse.engine;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Outcome of one run. Frames are recorded only when asked for (the game needs them to animate). */
+public final class SimResult {
+    /** One animal's state in one frame. */
+    public static final class Snapshot {
+        public final int id;
+        public final Animal type;
+        public final int x;
+        public final int y;
+        public final boolean gone;
+
+        Snapshot(int id, Animal type, int x, int y, boolean gone) {
+            this.id = id;
+            this.type = type;
+            this.x = x;
+            this.y = y;
+            this.gone = gone;
+        }
+    }
+
+    /** The mouse escaped through the hole. */
+    public final boolean win;
+    /** The run was stopped because the board repeated an earlier state. */
+    public final boolean loop;
+    /** How many different animals moved at least once. */
+    public final int moved;
+    /** Steps taken until the mouse escaped (0 if it didn't). */
+    public final int ticks;
+    /** Frame 0 is the starting board; one more frame per step. Null unless recorded. */
+    public final List<List<Snapshot>> frames;
+
+    SimResult(boolean win, boolean loop, int moved, int ticks, List<List<Snapshot>> frames) {
+        this.win = win;
+        this.loop = loop;
+        this.moved = moved;
+        this.ticks = ticks;
+        this.frames = frames;
+    }
+
+    public List<Snapshot> lastFrame() {
+        return frames == null ? null : frames.get(frames.size() - 1);
+    }
+
+    /** JSON for the browser: {win, loop, moved, ticks, frames:[[{id,t,x,y,gone}...]...]}. */
+    public String toJson() {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("win", win);
+        m.put("loop", loop);
+        m.put("moved", moved);
+        m.put("ticks", ticks);
+        List<Object> fs = new ArrayList<>();
+        if (frames != null) {
+            for (List<Snapshot> frame : frames) {
+                List<Object> f = new ArrayList<>();
+                for (Snapshot s : frame) {
+                    Map<String, Object> a = new LinkedHashMap<>();
+                    a.put("id", s.id);
+                    a.put("t", s.type.id());
+                    a.put("x", s.x);
+                    a.put("y", s.y);
+                    a.put("gone", s.gone);
+                    f.add(a);
+                }
+                fs.add(f);
+            }
+        }
+        m.put("frames", fs);
+        return Json.write(m);
+    }
+}
