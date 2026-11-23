@@ -51,6 +51,33 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1}
   .grid .dot.locked .lk{font-size:13px;opacity:.85}
   .card.pick .danger.hidden{display:none}
+  /* Castle map: the levels are a winding path through the castle's rooms, 50 levels a room. */
+  .card.pick{padding:16px 12px}
+  .map{position:relative;max-height:64vh;overflow:auto;margin:0 -2px 12px;border-radius:16px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+  .room{position:relative;background:var(--rb);border-bottom:3px solid rgba(0,0,0,.35)}
+  .room:first-child{border-radius:16px 16px 0 0}
+  .room-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 12px;
+    background:linear-gradient(180deg,var(--stone-l),var(--stone) 60%,var(--stone-d));color:#2a2420;
+    box-shadow:0 3px 0 rgba(0,0,0,.25);text-align:left}
+  .room-head .ic{font-size:22px}
+  .room-head b{font:600 16px Fredoka,system-ui;flex:1}
+  .room-head small{font-size:12px;font-weight:600;opacity:.75}
+  .room-body{position:relative}
+  .room-body svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .room .deco{position:absolute;font-size:18px;opacity:.6;pointer-events:none;transform:translate(-50%,-50%)}
+  .node{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;
+    display:grid;place-items:center;font:600 15px Fredoka,system-ui;color:#3a2f22;
+    background:radial-gradient(circle at 50% 35%,#fff7e4,#e2d3b2);border:3px solid #a8946f;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+  .node.done{background:radial-gradient(circle at 50% 35%,#ffe7a3,#e9b34a);border-color:#b77d14;color:#3d2a05}
+  .node.done::after{content:"✓";position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;border-radius:50%;
+    background:#5f8f5d;color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid #2a2533}
+  .node.cur{border-color:var(--gold);box-shadow:0 0 0 4px rgba(242,184,75,.45),0 3px 0 rgba(0,0,0,.35)}
+  .node.cur::before{content:"🐭";position:absolute;top:-24px;font-size:22px;animation:bob 1.2s ease-in-out infinite}
+  .node.locked{cursor:default;background:#2b2531;border-color:#4a4155;color:#8d8398;font-size:11px;box-shadow:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;gap:1px}
+  .node.locked .lk{font-size:11px;opacity:.8}
+  .room.soon .room-body{display:grid;place-items:center;height:90px;color:#cfc4b4;font-size:14px;font-weight:600}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
   .hint-ring b{position:absolute;right:-6px;top:-8px;font-size:16px;background:var(--bg);border-radius:50%;padding:1px}
   .piece,.animal.placed{touch-action:none}
   .ghost{position:fixed;left:0;top:0;z-index:20;pointer-events:none;display:grid;place-items:center;transform:translate(-50%,-75%) scale(1.15);filter:drop-shadow(0 8px 10px rgba(0,0,0,.45))}
@@ -128,8 +155,8 @@
   </div>
 </div>
 <div class="overlay" id="picker"><div class="card pick">
-  <h3>Levels</h3><p id="progress"></p>
-  <div class="grid" id="dots"></div>
+  <h3>The castle</h3><p id="progress"></p>
+  <div class="map" id="dots"></div>
   <button class="btn" id="closePick">Close</button>
   <!-- Developer mode only (see DEV_HASH) -->
   <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
@@ -207,11 +234,83 @@ Promise.all([
 
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
+  // The castle: 50 levels a room, and the path continues into the next room as levels are added.
+  const ROOM_SIZE = 50;
+  const ROOMS = [
+    {name:'Gate',            ic:'🏰', bg:'#4b5a3a', deco:['🌿','🪨','🌼']},
+    {name:'Courtyard',       ic:'⛲', bg:'#53643f', deco:['🌳','🌷','🪣']},
+    {name:'Stables',         ic:'🐴', bg:'#6b5434', deco:['🌾','🐴','🪵']},
+    {name:'Great hall',      ic:'🛡️', bg:'#5b3c3a', deco:['🕯️','🛡️','🍷']},
+    {name:'Kitchens',        ic:'🍲', bg:'#664a32', deco:['🧀','🥖','🍲']},
+    {name:'Library',         ic:'📚', bg:'#3f3a5a', deco:['📚','🕯️','📜']},
+    {name:'Chapel',          ic:'🔔', bg:'#4d4a63', deco:['🔔','🕯️','🌸']},
+    {name:'Armory',          ic:'⚔️', bg:'#45484f', deco:['⚔️','🛡️','🏹']},
+    {name:'Gallery',         ic:'🖼️', bg:'#5a4048', deco:['🖼️','🏺','🪞']},
+    {name:'Ballroom',        ic:'🎻', bg:'#5b3a5c', deco:['🎻','💃','🕯️']},
+    {name:'Wine cellar',     ic:'🍷', bg:'#40302e', deco:['🛢️','🍷','🕸️']},
+    {name:'Dungeon',         ic:'⛓️', bg:'#2f2f36', deco:['⛓️','🕸️','💀']},
+    {name:'Secret passage',  ic:'🕯️', bg:'#2a2833', deco:['🕯️','🕸️','🗝️']},
+    {name:'Treasury',        ic:'💰', bg:'#5a4a25', deco:['💰','💎','👑']},
+    {name:'Clock tower',     ic:'🕰️', bg:'#4a4440', deco:['⚙️','🕰️','🦉']},
+    {name:'Battlements',     ic:'🚩', bg:'#4e5866', deco:['🚩','☁️','🐦']},
+    {name:'Royal chambers',  ic:'🛏️', bg:'#5c3646', deco:['🛏️','🕯️','🧸']},
+    {name:'Throne room',     ic:'👑', bg:'#5e2f35', deco:['👑','🕯️','🛡️']},
+    {name:'Tower stairs',    ic:'🪜', bg:'#454049', deco:['🕯️','🪟','🕸️']},
+    {name:'Tower top',       ic:'🌙', bg:'#2e3557', deco:['🌙','⭐','🦇']},
+  ];
+  const roomOf = i => ROOMS[Math.floor(i/ROOM_SIZE)] || {name:`Wing ${Math.floor(i/ROOM_SIZE)+1}`, ic:'🏯', bg:'#4a4155', deco:['🕯️','🪨','🌿']};
+
   function renderDots(){
-    $('dots').innerHTML = LEVELS.map((_,i)=> isOpen(i)
-      ? `<div class="dot ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}">${i+1}</div>`
-      : `<div class="dot locked" title="Locked"><span class="lk">🔒</span><span>${i+1}</span></div>`).join('');
-    $('dots').querySelectorAll('.dot:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
+    // Levels zigzag across the room in rows of five; the road loops out at the end of each row.
+    const COLS = 5, ROW = 78, TOP = 46;
+    const colOf = k => { const r=Math.floor(k/COLS), c=k%COLS; return r%2 ? COLS-1-c : c; };
+    const xOf = k => 14 + colOf(k) * 18;                                                   // percent
+    const yOf = k => TOP + Math.floor(k/COLS)*ROW + Math.round(Math.sin(colOf(k)*1.7 + Math.floor(k/COLS)) * 9);
+    // A smooth road through the points (Catmull-Rom turned into Bezier curves).
+    const road = pts => { let d=`M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i=0;i<pts.length-1;i++){ const a=pts[i-1]||pts[i], b=pts[i], c=pts[i+1], e=pts[i+2]||c;
+        d += ` C ${b[0]+(c[0]-a[0])/6} ${b[1]+(c[1]-a[1])/6}, ${c[0]-(e[0]-b[0])/6} ${c[1]-(e[1]-b[1])/6}, ${c[0]} ${c[1]}`; }
+      return d; };
+    let html = '';
+    const rooms = Math.ceil(LEVELS.length/ROOM_SIZE);
+    for (let r = 0; r < rooms; r++) {
+      const room = roomOf(r*ROOM_SIZE), from = r*ROOM_SIZE, to = Math.min(LEVELS.length, from+ROOM_SIZE);
+      const n = to-from, rows = Math.ceil(n/COLS), h = TOP + (rows-1)*ROW + 52;
+      let solvedHere = 0; for (let i=from;i<to;i++) if (isDone(i)) solvedHere++;
+      // the path through this room's levels, as a dashed trail
+      const pts = [];
+      for (let k=0;k<n;k++) {
+        pts.push([xOf(k), yOf(k)]);
+        if (k%COLS===COLS-1 && k<n-1) pts.push([Math.floor(k/COLS)%2 ? 3 : 97, (yOf(k)+yOf(k+1))/2]); // loop at the row's end
+      }
+      const d = road(pts);
+      let nodes = '';
+      for (let k=0;k<n;k++) {
+        const i = from+k, pos = `left:${xOf(k)}%;top:${yOf(k)}px`;
+        nodes += isOpen(i)
+          ? `<div class="node ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
+          : `<div class="node locked" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
+      }
+      // a few props at the turns of the path
+      let deco = '';
+      for (let row=0; row<rows-1; row++) { const e = room.deco[row % room.deco.length];
+        deco += `<span class="deco" style="left:${row%2?92:8}%;top:${TOP+row*ROW+ROW/2}px">${e}</span>`; }
+      html += `<section class="room" style="--rb:${room.bg}">
+        <div class="room-head"><span class="ic">${room.ic}</span><b>${room.name}</b><small>${solvedHere}/${n}</small></div>
+        <div class="room-body" style="height:${h}px">
+          <svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
+            <path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path d="${d}" fill="none" stroke="#b9ab92" stroke-width="24" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            <path d="${d}" fill="none" stroke="#d8ccb2" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+          ${deco}${nodes}
+        </div></section>`;
+    }
+    const next = roomOf(rooms*ROOM_SIZE);
+    html += `<section class="room soon" style="--rb:${next.bg}">
+      <div class="room-head"><span class="ic">${next.ic}</span><b>${next.name}</b><small>🔒</small></div>
+      <div class="room-body">More levels coming soon</div></section>`;
+    $('dots').innerHTML = html;
+    $('dots').querySelectorAll('.node:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
     $('progress').textContent = `${doneCount()} of ${LEVELS.length} solved` + (DEV ? ' · developer mode' : '');
     $('resetProgress').classList.toggle('hidden', !DEV);
     $('lvlBtn').textContent = `Level ${li+1} ▾`;
@@ -460,7 +559,13 @@ Promise.all([
     toast(sol.length>1 ? `Hint ${hintCount} of ${sol.length}: put the ${NAME[s.t]} on the glowing square.` : `Put the ${NAME[s.t]} on the glowing square.`);
   }
 
-  $('lvlBtn').onclick=()=>{ if(mode!=='running') $('picker').classList.add('show'); };
+  function openPicker(){
+    $('picker').classList.add('show');
+    const cur = $('dots').querySelector('.node.cur');
+    if (cur) { const m=$('dots'); let y=0; for (let el=cur; el && el!==m; el=el.offsetParent) y+=el.offsetTop;
+      m.style.scrollBehavior='auto'; m.scrollTop = y - m.clientHeight/2; m.style.scrollBehavior=''; }
+  }
+  $('lvlBtn').onclick=()=>{ if(mode!=='running') openPicker(); };
   $('closePick').onclick=()=>$('picker').classList.remove('show');
   // Developer mode only (hidden for players). Two taps to confirm.
   $('resetProgress').onclick=()=>{
@@ -473,7 +578,7 @@ Promise.all([
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
   // After a win: back to the level picker instead of the next level. Reloading the level first
   // puts it back in normal play, showing the winning setup, if the picker is closed without choosing.
-  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); load(li); $('picker').classList.add('show'); };
+  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); load(li); openPicker(); };
   $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
   let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
   // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
