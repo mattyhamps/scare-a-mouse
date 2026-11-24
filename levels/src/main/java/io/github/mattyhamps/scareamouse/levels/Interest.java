@@ -28,18 +28,19 @@ public final class Interest {
         public int distance;
         public int steps;
         public int hand;
+        public boolean moving;
 
         public double score() {
             return 3 * moved + 2 * depth + 4 * freezeRelease + 4 * waitingRunner + (wrapAround ? 6 : 0)
-                    + turns + 0.5 * distance + 0.1 * steps + 2 * (hand - 1);
+                    + 2 * turns + 0.5 * distance + 0.1 * steps + 2 * (hand - 1);
         }
 
         @Override
         public String toString() {
-            return String.format("score %.1f: %d animals move, depth %d, %d freeze-release, %d waiting-runner%s, "
+            return String.format("score %.1f: %d animals move, depth %d, %d freeze-release, %d waiting-runner%s%s, "
                             + "%d turns, %d steps, %d in hand",
                     score(), moved, depth, freezeRelease, waitingRunner, wrapAround ? ", wrap-around" : "",
-                    turns, steps, hand);
+                    moving ? ", moving start" : "", turns, steps, hand);
         }
     }
 
@@ -54,6 +55,7 @@ public final class Interest {
         b.moved = r.moved;
         b.steps = f.size() - 1;
         b.hand = level.inventory.size();
+        b.moving = Simulator.run(level, java.util.Collections.<Piece>emptyList()).moved > 0;
         b.depth = LevelChecker.depth(level, level.solution);
         List<SimResult.Snapshot> start = f.get(0);
         for (SimResult.Snapshot a : start) {

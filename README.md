@@ -82,6 +82,16 @@ Tricks a recipe can ask for:
 | Clear the path | Animals sit between the mouse and the hole; each needs its own chain (one more animal in your hand). |
 | Wrap-around | The mouse runs first, scares an elephant, and the chain comes all the way back for it. |
 
+**Already-moving levels** (from level 101, about half of each batch) put the first animal of the
+chain on the board, so the board starts moving by itself when you press Go. Your animals steer it
+instead of starting it:
+
+| Move | What you do |
+| --- | --- |
+| Swerve | Place an animal a runner fears beside its path, so it turns the right way. |
+| Catch | A chain link is missing from the board; place it where a runner passes so it carries the chain on. |
+| Stop | Place an animal in a runner's path to halt it before it scares a "spoiler" that would ruin the run. |
+
 Recipes are mixed through each batch of ten rather than grouped.
 
 Level tools:

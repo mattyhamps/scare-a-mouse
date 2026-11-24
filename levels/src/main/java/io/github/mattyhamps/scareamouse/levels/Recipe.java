@@ -16,7 +16,20 @@ public final class Recipe {
         WAITING_RUNNER,
     }
 
-    /** The first animal you place; the chain runs down the food chain from it. */
+    /**
+     * Already-moving levels: the board starts moving on its own when you press Go, and each of these is
+     * one animal you place to steer the chain.
+     */
+    public enum Move {
+        /** Your animal stands beside a runner's path and makes it turn the right way (it fears your animal). */
+        SWERVE,
+        /** A runner passes the empty spot where your animal goes; it gets scared and carries the chain on. */
+        CATCH,
+        /** Your animal stands in a runner's path and halts it, before it reaches an animal that would spoil things. */
+        STOP,
+    }
+
+    /** The first animal in the chain's start; you place it, unless the level is already moving. */
     public final Animal trigger;
     /**
      * Animals sitting between the mouse and the hole. Each one needs its own little chain to scare it out
@@ -36,14 +49,17 @@ public final class Recipe {
     public final String tip;
     /** Width and height of the board, in squares. */
     public final int size;
+    /** Empty for normal levels. Otherwise the starter is on the board and you place one animal per move. */
+    public final Move[] moves;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
-        this(7, trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
+        this(7, new Move[0], trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
     }
 
-    private Recipe(int size, Animal trigger, int laneBlockers, boolean wrapAround, String tip, Animal[] blockers,
-                   Trick... tricks) {
+    private Recipe(int size, Move[] moves, Animal trigger, int laneBlockers, boolean wrapAround, String tip,
+                   Animal[] blockers, Trick... tricks) {
         this.size = size;
+        this.moves = moves;
         this.blockers = blockers;
         this.trigger = trigger;
         this.laneBlockers = laneBlockers;
@@ -53,7 +69,17 @@ public final class Recipe {
     }
 
     public int handSize() {
-        return 1 + laneBlockers;
+        return (moves.length > 0 ? moves.length : 1) + laneBlockers;
+    }
+
+    /** True if the board starts moving on its own when you press Go. */
+    public boolean moving() {
+        return moves.length > 0;
+    }
+
+    /** The same recipe as an already-moving level: the starter is on the board, and you make these moves. */
+    public Recipe withMoves(Move... newMoves) {
+        return new Recipe(size, newMoves, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
     }
 
     /** Checker rules that go with this recipe. */
@@ -68,7 +94,7 @@ public final class Recipe {
 
     /** The same recipe, with only these blocker animals (for example only dogs, so you place lions not elephants). */
     public Recipe withBlockers(Animal... types) {
-        return new Recipe(size, trigger, laneBlockers, wrapAround, tip, types, tricks);
+        return new Recipe(size, moves, trigger, laneBlockers, wrapAround, tip, types, tricks);
     }
 
     /**
@@ -82,7 +108,7 @@ public final class Recipe {
 
     /** The same recipe on a bigger (or smaller) square board. */
     public Recipe withSize(int newSize) {
-        return new Recipe(newSize, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+        return new Recipe(newSize, moves, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
     }
 
     public boolean has(Trick t) {
@@ -148,6 +174,18 @@ public final class Recipe {
             case 98: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN);
             case 99: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
             case 100: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
+            // 101-110: the first 8x8 boards, in the Great hall. Same difficulty as 91-100; about half start
+            // moving on their own when you press Go, and your animals swerve, catch or stop the runners.
+            case 101: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withMoves(Move.CATCH);
+            case 102: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
+            case 103: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.SWERVE);
+            case 104: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.DOG);
+            case 105: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
+            case 106: return new Recipe(Animal.BEAR, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
+            case 107: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
+            case 108: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
+            case 109: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.STOP);
+            case 110: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG);
             default: return null;
         }
     }

@@ -18,7 +18,13 @@ import java.util.List;
  * are built in as special links. The chain ends with the mouse beside the last runner's path and
  * the hole straight ahead of it. Recipes can also put animals in the mouse's path to the hole, each
  * cleared by its own short chain that you start ("clear the path"), which is how you get more
- * animals in hand. {@link LevelChecker} still has the final say on every level.
+ * animals in hand.
+ *
+ * <p>Already-moving levels ({@link Recipe#moves}) put the starter on the board, so the chain runs on its
+ * own when you press Go, and your animals steer it instead: a SWERVE animal turns a runner the right
+ * way, a CATCH animal is a chain link taken off the board for you to put back, and a STOP animal
+ * halts a runner before it scares a "spoiler" that would ruin the run. {@link LevelChecker} still has
+ * the final say on every level.
  */
 public final class ChainBuilder {
     private static final int[][] DIRS = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
@@ -51,6 +57,9 @@ public final class ChainBuilder {
         final List<Integer> guards = new ArrayList<>();  // fixed indices
         int holeX = -1;                                  // (-1,-1) is a corner, so no hole yet
         int holeY = -1;
+        boolean moving;                                  // the starter is on the board: no "still" check
+        int tx;                                          // where the starter is
+        int ty;
 
         Draft(int n) {
             this.n = n;
@@ -101,6 +110,26 @@ public final class ChainBuilder {
         }
         Draft d = new Draft(recipe.size);
         boolean wrap = recipe.wrapAround;
+        d.moving = recipe.moving();
+        if (d.moving && wrap) {
+            return null;
+        }
+        // Which links get a SWERVE: your animal turns the runner before that link's animal is placed.
+        boolean[] swerveAt = new boolean[plan.size()];
+        for (Recipe.Move m : recipe.moves) {
+            if (m == Recipe.Move.SWERVE) {
+                List<Integer> free = new ArrayList<>();
+                for (int k = 1; k < plan.size(); k++) {
+                    if (!swerveAt[k]) {
+                        free.add(k);
+                    }
+                }
+                if (free.isEmpty()) {
+                    return null;
+                }
+                swerveAt[rng.pick(free)] = true;
+            }
+        }
 
         // First link: your first animal right behind the first chain animal.
         boolean placedFirst = false;
@@ -113,7 +142,13 @@ public final class ChainBuilder {
             if (!d.free(x, y) || !d.free(tx, ty) || !d.free(x + dir[0], y + dir[1])) {
                 continue;
             }
-            d.placed.add(new Piece(recipe.trigger, tx, ty));
+            if (d.moving) {
+                d.add(recipe.trigger, tx, ty); // on the board: the chain starts by itself
+            } else {
+                d.placed.add(new Piece(recipe.trigger, tx, ty));
+            }
+            d.tx = tx;
+            d.ty = ty;
             d.chain.add(d.add(plan.get(0).runner, x, y));
             placedFirst = true;
         }
@@ -125,7 +160,7 @@ public final class ChainBuilder {
         }
 
         for (int s = 1; s < plan.size(); s++) {
-            if (!applyStep(d, plan.get(s), rng, wrap && s == plan.size() - 1)) {
+            if (!applyStep(d, plan.get(s), rng, wrap && s == plan.size() - 1, swerveAt[s])) {
                 return null;
             }
         }
@@ -140,6 +175,16 @@ public final class ChainBuilder {
         }
         for (int k = 0; k < recipe.laneBlockers; k++) {
             if (!addLaneBlocker(d, rng, wrap, recipe.blockers)) {
+                return null;
+            }
+        }
+        for (Recipe.Move m : recipe.moves) {
+            if (m == Recipe.Move.STOP && !addStop(d, rng)) {
+                return null;
+            }
+        }
+        for (Recipe.Move m : recipe.moves) {
+            if (m == Recipe.Move.CATCH && !takeOffBoard(d, rng)) {
                 return null;
             }
         }
@@ -219,19 +264,79 @@ public final class ChainBuilder {
             return valid(d);
         }
         int y = d.chain.get(d.chain.size() - 1);
-        Piece trigger = d.placed.get(0);
         Piece yp = d.fixed.get(y);
-        int[] q = {yp.x - trigger.x, yp.y - trigger.y};
+        int[] q = {yp.x - d.tx, yp.y - d.ty};
         return addTrickAnimals(d, step, yp, q, rng);
     }
 
     /** Places one step's animals beside the newest runner's path, retrying until the simulator agrees. */
-    private static boolean applyStep(Draft d, Step step, LevelGenerator.Rng rng, boolean wrapFinal) {
+    private static boolean applyStep(Draft d, Step step, LevelGenerator.Rng rng, boolean wrapFinal, boolean swerve) {
+        if (swerve) {
+            return swerveThenStep(d, step, rng, wrapFinal);
+        }
+        return placeStep(d, step, rng, wrapFinal, 0);
+    }
+
+    /**
+     * SWERVE: you place an animal the runner fears beside its path, so it turns when it gets there. The
+     * next link then goes beside the new stretch of path, which the runner only takes because of you.
+     */
+    private static boolean swerveThenStep(Draft d, Step step, LevelGenerator.Rng rng, boolean wrapFinal) {
+        int runner = d.chain.get(d.chain.size() - 1);
+        Animal type = d.fixed.get(runner).type;
+        List<int[]> path = path(d, runner);
+        if (path == null || type.predator() == Animal.MOUSE) {
+            return false;
+        }
+        List<int[]> options = new ArrayList<>(); // {k, sx, sy}: turn at path[k], your animal on side s
+        for (int k = 1; k < path.size(); k++) {
+            int mx = path.get(k)[0] - path.get(k - 1)[0];
+            int my = path.get(k)[1] - path.get(k - 1)[1];
+            for (int[] side : DIRS) {
+                if (side[0] * mx + side[1] * my != 0) {
+                    continue;
+                }
+                int[] p = path.get(k);
+                if (d.free(p[0] + side[0], p[1] + side[1]) && d.free(p[0] - side[0], p[1] - side[1])) {
+                    options.add(new int[] {k, side[0], side[1]});
+                }
+            }
+        }
+        Collections.shuffle(options, new java.util.Random((long) (rng.next() * Long.MAX_VALUE)));
+        int tries = 0;
+        for (int[] o : options) {
+            if (tries++ >= TRIES_PER_STEP / 2) {
+                break;
+            }
+            int[] p = path.get(o[0]);
+            d.placed.add(new Piece(type.predator(), p[0] + o[1], p[1] + o[2]));
+            List<int[]> turned = path(d, runner);
+            int from = turned == null ? -1 : indexOf(turned, p[0] - o[1], p[1] - o[2]);
+            if (from > 0 && placeStep(d, step, rng, wrapFinal, from)) {
+                return true;
+            }
+            d.placed.remove(d.placed.size() - 1);
+        }
+        return false;
+    }
+
+    private static int indexOf(List<int[]> path, int x, int y) {
+        for (int i = 0; i < path.size(); i++) {
+            if (path.get(i)[0] == x && path.get(i)[1] == y) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Places the step's animal beside the runner's path, from path index {@code from} on. */
+    private static boolean placeStep(Draft d, Step step, LevelGenerator.Rng rng, boolean wrapFinal, int from) {
         int runner = d.chain.get(d.chain.size() - 1);
         List<int[]> path = path(d, runner);
         if (path == null) {
             return false;
         }
+        path = path.subList(Math.min(from, path.size()), path.size());
         List<int[]> options = new ArrayList<>(); // {x, y, dx, dy}: new animal square and the way it will run
         for (int[] p : path) {
             for (int[] s : DIRS) {
@@ -328,7 +433,7 @@ public final class ChainBuilder {
      */
     private static boolean valid(Draft d) {
         Level level = d.level();
-        if (!still(level)) {
+        if (!d.moving && !still(level)) {
             return false;
         }
         SimResult r = Simulator.record(level, d.placed);
@@ -383,7 +488,7 @@ public final class ChainBuilder {
             shift(d, 1);
             d.holeX = o[2];
             d.holeY = o[3];
-            if (still(d.level()) && Simulator.run(d.level(), d.placed).win && allChainMoved(d)) {
+            if ((d.moving || still(d.level())) && Simulator.run(d.level(), d.placed).win && allChainMoved(d)) {
                 return true;
             }
             d.fixed.remove(0);
@@ -601,7 +706,7 @@ public final class ChainBuilder {
             int bIdx = d.add(blocker, bx, by);
             int rIdx = d.add(runner, rx, ry);
             d.placed.add(new Piece(starter, tx, ty));
-            if (still(d.level()) && Simulator.run(d.level(), d.placed).win && allChainMoved(d)
+            if ((d.moving || still(d.level())) && Simulator.run(d.level(), d.placed).win && allChainMoved(d)
                     && movesIn(d, rIdx) && movesIn(d, bIdx)) {
                 return true;
             }
@@ -626,6 +731,112 @@ public final class ChainBuilder {
             }
         }
         return rest;
+    }
+
+    /**
+     * STOP: a chain runner gets a "spoiler" beside the rest of its path (an animal it scares, which would
+     * run off and ruin the level), and you place an animal in the runner's path to halt it before that.
+     */
+    private static boolean addStop(Draft d, LevelGenerator.Rng rng) {
+        List<int[]> options = new ArrayList<>(); // {chain idx, k, side x, side y, j}
+        java.util.Map<Integer, List<int[]>> paths = new java.util.HashMap<>();
+        for (int idx : d.chain) {
+            Animal type = d.fixed.get(idx).type;
+            if (prey(type) == Animal.MOUSE) {
+                continue; // the mouse can't be a spoiler: there is only one
+            }
+            List<int[]> path = path(d, idx);
+            paths.put(idx, path);
+            if (path == null) {
+                continue;
+            }
+            for (int k = 0; k + 2 < path.size(); k++) {
+                for (int j = k + 2; j < path.size(); j++) {
+                    int mx = path.get(j)[0] - path.get(j - 1)[0];
+                    int my = path.get(j)[1] - path.get(j - 1)[1];
+                    for (int[] side : DIRS) {
+                        if (side[0] * mx + side[1] * my == 0) {
+                            options.add(new int[] {idx, k, side[0], side[1], j});
+                        }
+                    }
+                }
+            }
+        }
+        Collections.shuffle(options, new java.util.Random((long) (rng.next() * Long.MAX_VALUE)));
+        int tries = 0;
+        for (int[] o : options) {
+            Animal type = d.fixed.get(o[0]).type;
+            List<int[]> path = paths.get(o[0]);
+            int[] stopAt = path.get(o[1] + 1);
+            int[] p = path.get(o[4]);
+            int sx = p[0] + o[2];
+            int sy = p[1] + o[3];
+            if (!d.free(stopAt[0], stopAt[1]) || !d.free(sx, sy) || !d.free(sx + o[2], sy + o[3])) {
+                continue;
+            }
+            if (tries++ >= 3 * TRIES_PER_STEP) {
+                break;
+            }
+            // Your stopping animal: one the runner neither scares nor fears (never a mouse).
+            List<Animal> neutral = new ArrayList<>();
+            for (Animal a : Animal.values()) {
+                if (a != Animal.MOUSE && a != prey(type) && a != type.predator()) {
+                    neutral.add(a);
+                }
+            }
+            Animal stopper = rng.pick(neutral);
+            int spoiler = d.add(prey(type), sx, sy);
+            boolean spoils = !Simulator.run(d.level(), d.placed).win;
+            d.placed.add(new Piece(stopper, stopAt[0], stopAt[1]));
+            SimResult with = Simulator.record(d.level(), d.placed);
+            int stopperId = d.fixed.size() + d.placed.size() - 1;
+            if (spoils && with.win && firstMove(with.frames, spoiler) < 0 && firstMove(with.frames, stopperId) < 0) {
+                d.guards.add(spoiler);
+                return true;
+            }
+            d.placed.remove(d.placed.size() - 1);
+            d.removeLast(1);
+        }
+        return false;
+    }
+
+    /** CATCH: takes one chain animal (not the first) off the board; you put it back where the chain needs it. */
+    private static boolean takeOffBoard(Draft d, LevelGenerator.Rng rng) {
+        List<Integer> options = new ArrayList<>(d.chain.subList(1, d.chain.size()));
+        Collections.shuffle(options, new java.util.Random((long) (rng.next() * Long.MAX_VALUE)));
+        for (int idx : options) {
+            Piece c = d.fixed.get(idx);
+            if (c.type == Animal.MOUSE) {
+                continue;
+            }
+            List<Piece> fixed = new ArrayList<>(d.fixed);
+            fixed.remove(idx);
+            Level without = new Level("", "", d.n, d.n, d.holeX, d.holeY, Collections.<int[]>emptyList(), fixed,
+                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
+            List<Piece> placed = new ArrayList<>(d.placed);
+            if (Simulator.run(without, placed).win) {
+                continue; // the chain doesn't need it
+            }
+            placed.add(c);
+            if (!Simulator.run(without, placed).win) {
+                continue;
+            }
+            d.fixed.remove(idx);
+            d.chain.remove(Integer.valueOf(idx));
+            for (int k = 0; k < d.chain.size(); k++) {
+                if (d.chain.get(k) > idx) {
+                    d.chain.set(k, d.chain.get(k) - 1);
+                }
+            }
+            for (int k = 0; k < d.guards.size(); k++) {
+                if (d.guards.get(k) > idx) {
+                    d.guards.set(k, d.guards.get(k) - 1);
+                }
+            }
+            d.placed.add(c);
+            return true;
+        }
+        return false;
     }
 
     /** The finished level. Your animals are listed in chain order, which is the order hints reveal them. */
