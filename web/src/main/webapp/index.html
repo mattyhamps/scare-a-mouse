@@ -883,7 +883,7 @@ Promise.all([
     placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; hintStep=hintsUsed[levelKey(L)]||0; hintShown=hintStep>0;
     $('lvlName').textContent = L.name;
     const boss = isBoss(li);
-    $('lvlSub').textContent = (boss ? '👑 Boss · ' : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`);
+    $('lvlSub').textContent = (boss ? '👑 Boss · ' : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1}`);
     const areaName = AREAS[areaOf(li)].name;
     $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
