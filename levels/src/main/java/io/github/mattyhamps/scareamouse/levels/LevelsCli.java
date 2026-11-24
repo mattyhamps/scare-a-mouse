@@ -17,7 +17,7 @@ import java.util.List;
  * <pre>
  *   audit                          check every level; exit code 1 if any fail
  *   check N                        explain level N
- *   make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]
+ *   make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--balance K] [--write]
  *                                  generate a replacement for level N (or a new level at the end);
  *                                  --write saves it into levels.json
  *   --file PATH                    levels file (default data/levels.json)
@@ -130,7 +130,15 @@ public final class LevelsCli {
                                       String tipOverride, long seed, int threads, long timeout, long start)
             throws IOException, InterruptedException {
         int want = Integer.parseInt(option(args, "--candidates", "6"));
-        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout);
+        // --balance K: keep the animals you place varied, compared with the K levels before this one.
+        int window = Integer.parseInt(option(args, "--balance", "0"));
+        java.util.Map<io.github.mattyhamps.scareamouse.engine.Animal, Integer> recent = new java.util.HashMap<>();
+        for (int k = Math.max(0, n - 1 - window); k < Math.min(n - 1, levels.size()); k++) {
+            for (io.github.mattyhamps.scareamouse.engine.Animal a : levels.get(k).inventory) {
+                recent.merge(a, 1, Integer::sum);
+            }
+        }
+        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout, recent);
         if (built == null) {
             System.out.println("No level built in " + timeout + "s. Try another --seed or a longer --timeout.");
             System.exit(2);

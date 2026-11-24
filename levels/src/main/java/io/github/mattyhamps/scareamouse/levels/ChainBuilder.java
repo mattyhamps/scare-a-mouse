@@ -838,6 +838,9 @@ public final class ChainBuilder {
             if (Simulator.run(without, placed).win) {
                 continue; // the chain doesn't need it
             }
+            if (!d.moving && Simulator.run(without, Collections.<Piece>emptyList()).moved > 0) {
+                continue; // taking it away would set something off before you place anything
+            }
             placed.add(c);
             if (!Simulator.run(without, placed).win) {
                 continue;
@@ -895,6 +898,16 @@ public final class ChainBuilder {
      */
     public static Built find(Recipe recipe, String name, long baseSeed, int threads, int want, long timeoutSeconds)
             throws InterruptedException {
+        return find(recipe, name, baseSeed, threads, want, timeoutSeconds, java.util.Collections.emptyMap());
+    }
+
+    /**
+     * Like {@link #find(Recipe, String, long, int, int, long)}, but keeps the animals you place in a level
+     * varied: {@code recent} counts the animals placed in the levels just before this one, and candidates
+     * whose hand repeats the most common of those lose points, so rarer animals win.
+     */
+    public static Built find(Recipe recipe, String name, long baseSeed, int threads, int want, long timeoutSeconds,
+                             java.util.Map<Animal, Integer> recent) throws InterruptedException {
         LevelRules rules = recipe.rules();
         List<Built> found = Collections.synchronizedList(new ArrayList<>());
         java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
@@ -923,10 +936,13 @@ public final class ChainBuilder {
         pool.shutdownNow();
         pool.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
         Built best = null;
+        double bestValue = 0;
         synchronized (found) {
             for (Built b : found) {
-                if (best == null || b.score > best.score) {
+                double value = b.score - handPenalty(b.level.inventory, recent);
+                if (best == null || value > bestValue) {
                     best = b;
+                    bestValue = value;
                 }
             }
         }
@@ -1026,6 +1042,22 @@ public final class ChainBuilder {
             }
         }
         return true;
+    }
+
+    /** Points off for placing animals that were already common in the levels just before (0 when no history). */
+    static double handPenalty(List<Animal> hand, java.util.Map<Animal, Integer> recent) {
+        int total = 0;
+        for (int c : recent.values()) {
+            total += c;
+        }
+        if (total == 0) {
+            return 0;
+        }
+        double penalty = 0;
+        for (Animal a : hand) {
+            penalty += 100.0 * recent.getOrDefault(a, 0) / total;
+        }
+        return penalty;
     }
 
     static Animal prey(Animal a) {
