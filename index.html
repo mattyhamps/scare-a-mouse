@@ -146,6 +146,11 @@
   /* Kitchen walls are counters: a butcher-block top over a wooden cupboard front */
   .board.walls-counter .wall{background:linear-gradient(180deg,#e6c79a 0 30%,#7b4f2c 30% 34%,#a46e43 34%);border-radius:4px;
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 rgba(0,0,0,.25)}
+  /* Library walls are bookshelves: a wooden case with two rows of book spines */
+  .board.walls-shelf .wall{border-radius:4px;background:
+      linear-gradient(180deg,#5b3a22 0 8%,transparent 8% 46%,#5b3a22 46% 54%,transparent 54% 92%,#5b3a22 92%),
+      repeating-linear-gradient(90deg,#a8423a 0 14%,#d8b65a 14% 24%,#3f6a8a 24% 40%,#6b8a4a 40% 52%,#8a5a9a 52% 64%,#c7783a 64% 78%,#3a4a7a 78% 88%,#d9c7a3 88% 100%);
+    box-shadow:inset 0 0 0 2px #5b3a22,inset 0 0 0 3px rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.25)}
   .board.walls-counter .wall::after{content:"";position:absolute;left:50%;top:62%;width:12%;height:8%;border-radius:2px;
     transform:translateX(-50%);background:#e8c37c;box-shadow:0 1px 0 rgba(0,0,0,.35)}
   .hole i{display:block;width:62%;height:62%;background:#120f14;border-radius:50% 50% 8% 8%;box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.0)}
@@ -336,7 +341,7 @@ Promise.all([
     'Stables':        ['#ecdcae','#e1cd95','#b0a088','#998a72','#766953'],
     'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56'],
     'Kitchens':       ['#f2e2cc','#e0b48e','#ad9a88','#968371','#736252', 'counter'],
-    'Library':        ['#e7decf','#dbcfba','#9d98a8','#868192','#66626f'],
+    'Library':        ['#e7decf','#dbcfba','#9d98a8','#868192','#66626f', 'shelf'],
     'Secret passage': ['#d9d2c4','#cbc3b3','#86828c','#716d77','#55525a'],
     'Chapel':         ['#ebe6dc','#ded8cc','#aeaabb','#9893a6','#767184'],
     'Armory':         ['#e2dfd8','#d4d0c7','#999da3','#83878d','#65686d'],
