@@ -223,7 +223,7 @@ public final class Recipe {
             case 98: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN);
             case 99: return new Recipe(Animal.BEAR, 1, false, "", Trick.PLAIN).withCatches(1);
             case 100: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withCatches(1); // boss
-            // 101-110: the first 8x8 boards, in the Great hall. Same difficulty as 91-100; about half start
+            // 101-110: the first 8x8 boards, in the cellars (Storeroom). Same difficulty as 91-100; about half start
             // moving on their own when you press Go, and your animals swerve, catch or stop the runners.
             case 101: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
             case 102: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
@@ -235,7 +235,7 @@ public final class Recipe {
             case 108: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
             case 109: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.STOP);
             case 110: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            // 111-170: the rest of the Great hall (8x8). Same difficulty as 101-110, about half already moving.
+            // 111-170: the rest of the Storeroom, the Wine cellar and the Dungeon (8x8). Same difficulty as 101-110, about half already moving.
             case 111: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
             case 112: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
             case 113: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withCatches(1);
@@ -296,7 +296,7 @@ public final class Recipe {
             case 168: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
             case 169: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
             case 170: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH); // tougher
-            // 171-200: the Kitchens (8x8). Same difficulty as the Great hall, about half already moving, and
+            // 171-200: the Kitchens (8x8). Same difficulty as 101-170, about half already moving, and
             // 2-4 walls in every level (drawn as kitchen counters). Walls do the stopping here, so no STOP moves.
             // Most are already moving: with walls, a missing link is what puts cats and dogs in your hand.
             case 171: return new Recipe(Animal.ELEPHANT, 1, false, "New: kitchen counters! Animals can't run through them, so watch out for the counters.", Trick.WAITING_RUNNER).withWalls(2, 4);
