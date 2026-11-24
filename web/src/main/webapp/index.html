@@ -23,6 +23,11 @@
   .app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:12px;
     padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 14px)}
   header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hdr-right{display:flex;align-items:center;gap:8px}
+  .soundbtn{font-size:18px;line-height:1;background:var(--bg2);border:2px solid #4a4155;border-radius:12px;padding:7px 9px;cursor:pointer}
+  .soundbtn.off{opacity:.6}
+  .brand,.lvlbtn{white-space:nowrap}
+  @media (max-width:420px){ .brand{font-size:19px;gap:6px} .brand .crest{font-size:21px} .lvlbtn{padding:7px 10px} }
   .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:22px;letter-spacing:.3px}
   .preview-banner{background:var(--gold);color:#2b1d05;font-size:13px;font-weight:600;text-align:center;border-radius:10px;padding:6px 10px}
   .brand .crest{font-size:24px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.4))}
@@ -213,7 +218,8 @@
 <div class="app">
   <header>
     <div class="brand"><span class="crest">🐭</span>Scare-a-Mouse</div>
-    <button class="lvlbtn" id="lvlBtn"></button>
+    <div class="hdr-right"><button class="soundbtn" id="soundBtn" aria-label="Sound on">🔊</button>
+    <button class="lvlbtn" id="lvlBtn"></button></div>
   </header>
   <div class="title"><h2 id="lvlName"></h2><span class="sub" id="lvlSub"></span></div>
   <div class="tip" id="tip"></div>
@@ -267,6 +273,43 @@ Promise.all([
   const KEY = PREVIEW ? `preview${PREVIEW[1]}_` : '';
   const store = { get(k,d){ try{ const v=localStorage.getItem(KEY+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
                   set(k,v){ try{ localStorage.setItem(KEY+k,JSON.stringify(v)); }catch(e){} } };
+
+  // Sound: small effects made on the fly with the Web Audio API (no sound files). On by default; the
+  // speaker button mutes it, and the choice is remembered for this browser (all previews too).
+  const Sound = (() => {
+    let ctx = null, on = true;
+    try { on = localStorage.getItem('sam_sound') !== 'off'; } catch(e) {}
+    const audio = () => {
+      if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    };
+    // one note: frequency (slides to `to`), length in seconds, wave shape, volume, start delay
+    const note = (f, len, type='sine', vol=0.12, delay=0, to=null) => {
+      if (!on) return; const a = audio(); if (!a) return;
+      const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + len);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      o.connect(g).connect(a.destination); o.start(t); o.stop(t + len + 0.02);
+    };
+    // each animal's "eek!" when it gets scared: small animals high, big ones low
+    const VOICE = { mouse:[1500,1900,'sine'], cat:[880,1100,'triangle'], dog:[520,420,'square'], bear:[200,160,'sawtooth'],
+                    lion:[260,180,'sawtooth'], elephant:[330,520,'square'] };
+    return {
+      get on(){ return on; },
+      toggle(){ on = !on; try { localStorage.setItem('sam_sound', on ? 'on' : 'off'); } catch(e) {} if (on) this.place(); return on; },
+      unlock(){ audio(); },
+      place(){ note(660, 0.07, 'triangle', 0.10); note(990, 0.06, 'triangle', 0.06, 0.04); },
+      lift(){ note(520, 0.06, 'triangle', 0.08, 0, 380); },
+      go(){ note(330, 0.18, 'triangle', 0.08, 0, 660); },
+      scared(t){ const v = VOICE[t] || VOICE.cat; note(v[0], 0.12, v[2], t==='bear'||t==='lion'||t==='elephant' ? 0.06 : 0.08, 0, v[1]); },
+      bump(){ note(140, 0.12, 'square', 0.07, 0, 90); },
+      win(){ [523,659,784,1047].forEach((f,k)=>note(f, 0.22, 'triangle', 0.10, k*0.11)); },
+      fail(){ note(392, 0.16, 'triangle', 0.08); note(294, 0.28, 'triangle', 0.08, 0.15); },
+      door(){ [784,988,1319].forEach((f,k)=>note(f, 0.5, 'sine', 0.07, k*0.09)); },
+      cheer(){ [523,659,784,1047,1319].forEach((f,k)=>note(f, 0.25, 'triangle', 0.09, k*0.09)); },
+    };
+  })();
 
   // Progress is keyed by each level's exact layout, so a rebuilt level automatically shows as unplayed.
   // solved = { layoutKey: [placed animals of the winning setup] }
@@ -524,7 +567,7 @@ Promise.all([
     if(!rem.length){ toast('All your animals are placed. Tap one to pick it up.'); return; }
     const want = L.solution.slice(0,hintCount).find(s=>s.x===x&&s.y===y);
     const t = want && rem.includes(want.t) ? want.t : rem[Math.min(selected, rem.length-1)];
-    placed.push({t,x,y}); selected=0;
+    placed.push({t,x,y}); selected=0; Sound.place();
     renderTray(); renderAnimals(); updateButtons();
   }
 
@@ -567,15 +610,18 @@ Promise.all([
     $('board').style.setProperty('--glide', `${Math.round(glide)}ms`);
     const prev=res.frames[f-1], cur=res.frames[f];
     const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
+    let voice=null, bumped=false;
     cur.forEach(a=>{
       const el=animalEls[a.id]; const p=prev[a.id];
       el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
       const startedMoving = (p.x!==a.x||p.y!==a.y) && (f===1 || (res.frames[f-2][a.id].x===p.x && res.frames[f-2][a.id].y===p.y));
-      if(startedMoving){ el.classList.remove('scared'); void el.offsetWidth; el.classList.add('scared'); }
+      if(startedMoving){ el.classList.remove('scared'); void el.offsetWidth; el.classList.add('scared'); voice = a.t; }
       el.classList.toggle('stuck', stuckNow.has(a.id));
-      if(stuckNow.has(a.id) && !stuckBefore.has(a.id)){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+      if(stuckNow.has(a.id) && !stuckBefore.has(a.id)){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); bumped=true; }
       if(a.gone) setTimeout(()=>el.classList.add('gone'),140);
     });
+    if(voice) Sound.scared(voice);
+    if(bumped) Sound.bump();
   }
   const showStart = res => renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=L.fixed.length})));
 
@@ -598,6 +644,7 @@ Promise.all([
     clearHint();
     mode='running'; updateButtons(); renderTray();
     $('board').className='board running' + boardTheme;
+    Sound.go();
     const res = simulate(L, placed);
     lastRun = res;
     animate(res, ()=>170, ()=>finish(res));
@@ -665,15 +712,16 @@ Promise.all([
         const next = room(rIdx+1);
         $('winTitle').textContent = `${room(rIdx).name} cleared!`;
         $('winText').textContent = `The door to the ${next.name} is open.` + (last ? ' More puzzles are on the way.' : '');
-        confetti();
+        confetti(); Sound.cheer();
       } else {
+        Sound.win();
         $('winTitle').textContent = last ? 'Castle cleared!' : 'Mouse escaped!';
         $('winText').textContent = last ? 'You finished every level. More puzzles are on the way.' : `Level ${li+1} solved${hintShown?' (with a hint)':''}.`;
       }
       $('nextBtn').textContent = last ? 'Play again' : 'Next level';
       setTimeout(()=>$('win').classList.add('show'), 350);
     } else {
-      mode='failed';
+      mode='failed'; Sound.fail();
       const last=(res.bumps||[])[res.frames.length-1]||[];
       toast(res.loop ? 'The animals are stuck going back and forth.'
           : last.length ? 'Stuck! Two animals tried to move into the same square.'
@@ -757,6 +805,7 @@ Promise.all([
     if(ok){
       if(d.placedIdx!=null){ placed[d.placedIdx]={t:d.t,x:d.target.x,y:d.target.y}; }
       else placed.push({t:d.t,x:d.target.x,y:d.target.y});
+      Sound.place();
       selected=0;
     } else if(d.placedIdx!=null && !d.target){ placed.splice(d.placedIdx,1); } // dragged off the board: back to the tray
     renderTray(); renderAnimals(); updateButtons();
@@ -802,7 +851,7 @@ Promise.all([
     const yIn = el => { let y=0; for (let e=el; e && e!==m; e=e.offsetParent) y+=e.offsetTop; return y; };
     const scrollTo = (el, smooth) => { m.style.scrollBehavior = smooth ? 'smooth' : 'auto';
       m.scrollTop = yIn(el) - m.clientHeight/2; if (!smooth) m.style.scrollBehavior=''; };
-    const openDoor = dw => { dw.classList.remove('to-open'); dw.classList.add('open');
+    const openDoor = dw => { dw.classList.remove('to-open'); dw.classList.add('open'); Sound.door();
       for (let k=0;k<8;k++){ const sp=document.createElement('span'); sp.className='spark'; sp.textContent=k%2?'✨':'⭐';
         const a=k/8*Math.PI*2; sp.style.setProperty('--dx',`${Math.cos(a)*46}px`); sp.style.setProperty('--dy',`${Math.sin(a)*34}px`);
         dw.querySelector('.arch').appendChild(sp); setTimeout(()=>sp.remove(),1300); }
@@ -854,6 +903,12 @@ Promise.all([
       });
     }
   }
+  const showSound = () => { $('soundBtn').textContent = Sound.on ? '🔊' : '🔇'; $('soundBtn').classList.toggle('off', !Sound.on);
+    $('soundBtn').setAttribute('aria-label', Sound.on ? 'Sound on' : 'Sound off'); };
+  $('soundBtn').onclick = () => { Sound.toggle(); showSound(); };
+  showSound();
+  // Phones only allow sound after the first tap, so wake the audio up then.
+  document.addEventListener('pointerdown', () => Sound.unlock(), { once: true });
   $('lvlBtn').onclick=()=>{ if(mode!=='running' && mode!=='replay') openPicker(); };
   $('replayBtn').onclick=replay;
   $('replayDone').onclick=endReplay;
