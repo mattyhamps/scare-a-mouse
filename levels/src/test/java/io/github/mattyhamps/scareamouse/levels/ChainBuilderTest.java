@@ -17,8 +17,13 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 class ChainBuilderTest {
 
+    /**
+     * The first level made with each distinct recipe. Many levels share a recipe (with different layouts),
+     * and building each kind once is enough to show it can still be built.
+     */
     static IntStream recipes() {
-        return IntStream.rangeClosed(61, 260);
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        return IntStream.rangeClosed(61, 260).filter(n -> seen.add(Recipe.forLevel(n).key()));
     }
 
     @ParameterizedTest(name = "recipe for level {0}")
