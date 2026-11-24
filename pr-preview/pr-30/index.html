@@ -211,6 +211,23 @@
   .stairs.down:empty{display:none}
   .doorway.soon{justify-content:center;color:#2a2420}
   .reveal{animation:reveal 1.3s ease-out both}
+  /* fog over rooms and floors you haven't reached: you can see they're there, not what they are */
+  .fogged{overflow:hidden}
+  .fog{position:absolute;inset:-20% -30%;z-index:1;pointer-events:none;filter:blur(3px);
+    background:radial-gradient(ellipse 40% 30% at 25% 35%,rgba(255,255,255,.85),transparent 70%),
+      radial-gradient(ellipse 45% 35% at 70% 60%,rgba(246,244,240,.8),transparent 70%),
+      radial-gradient(ellipse 35% 25% at 45% 85%,rgba(255,255,255,.7),transparent 70%),rgba(214,210,204,.72);
+    animation:fogDrift 8s ease-in-out infinite alternate}
+  .band-floor .fog{background:radial-gradient(ellipse 30% 60% at 20% 40%,rgba(200,196,214,.5),transparent 70%),
+      radial-gradient(ellipse 35% 70% at 75% 55%,rgba(190,186,204,.45),transparent 70%),rgba(120,114,134,.35)}
+  .fog.lift{inset:0;animation:fogLift 1.8s .3s ease-out both}
+  .fogged > :not(.fog){position:relative;z-index:2}
+  .plan-room.next .fog-q{font:700 22px Fredoka,system-ui;color:#6b4a24}
+  .band-floor.locked.fogged{justify-content:center;gap:12px}
+  .band-floor.locked.fogged b{font-size:16px}
+  .band-floor.locked.fogged small{margin-left:0}
+  @keyframes fogDrift{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
+  @keyframes fogLift{from{opacity:1;transform:none}to{opacity:0;transform:translateX(25%) scale(1.4)}}
   @keyframes reveal{0%{transform:scale(.6);opacity:0;filter:brightness(1.8)}60%{transform:scale(1.06);opacity:1}100%{transform:none;filter:none}}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,184,75,0)}50%{box-shadow:0 0 0 6px rgba(242,184,75,.45)}}
   @keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
@@ -602,20 +619,21 @@ Promise.all([
       if (roomReached(r)) {
         const n = rm.end - rm.start, s = solvedIn(r), done = roomCleared(r), here = r === mouseRoom;
         const fresh = !seenRooms.includes(r) ? ' reveal' : '';
+        const lift = fresh ? '<span class="fog lift"></span>' : '';  // the fog clears off a room you just reached
         const boss = rm.end === areaEnd(a) ? '<span class="crown">👑</span>' : '';
         blocks += `<button class="plan-room${outside?' place':''}${done?' done':''}${here?' here':''}${fresh}" data-r="${r}" style="${pos}">
           ${outside ? `<span class="art">${PLACE_ART[rm.name]||''}</span>` : ''}
           <span class="pr-ic">${rm.ic}</span><b>${rm.name}</b><small>${done ? '✓ ' : ''}${s}/${n}</small>${boss}
-          ${here ? '<span class="pr-mouse">🐭</span>' : ''}</button>`;
+          ${here ? '<span class="pr-mouse">🐭</span>' : ''}${lift}</button>`;
       } else if (r === firstMissing) {
-        blocks += `<div class="plan-room next${w < 20 ? ' narrow' : ''}" style="${pos}">${roomExists(r) ? '?' : `<small>coming${w < 20 ? ' ' : '<br>'}soon</small>`}</div>`;
+        blocks += `<div class="plan-room next fogged${w < 20 ? ' narrow' : ''}" style="${pos}"><span class="fog"></span><span class="fog-q">${roomExists(r) ? '?' : `<small>coming${w < 20 ? ' ' : '<br>'}soon</small>`}</span></div>`;
       } else {
-        blocks += `<div class="plan-room far" style="${pos}"></div>`;
+        blocks += `<div class="plan-room far fogged" style="${pos}"><span class="fog"></span></div>`;
       }
     });
     const up = AREAS[a+1] && roomsOf(a+1).length ? a+1 : null, down = a > 0 ? a-1 : null;
     const stairs = `${down!==null ? `<button class="stairs down" data-a="${down}">${outside ? '' : (a===1 ? '⬇ Outside' : `⬇ ${AREAS[down].name}`)}</button>` : ''}
-      ${up!==null ? `<button class="stairs up${areaReached(up)?'':' locked'}" data-a="${up}" ${areaReached(up)?'':'disabled'}>${areaReached(up)?'⬆':'🔒'} ${outside ? 'Into the castle' : AREAS[up].name}</button>` : ''}`;
+      ${up!==null ? `<button class="stairs up${areaReached(up)?'':' locked'}" data-a="${up}" ${areaReached(up)?'':'disabled'}>${areaReached(up) ? `⬆ ${outside ? 'Into the castle' : AREAS[up].name}` : (outside ? '🔒 Into the castle' : '🔒 Upstairs')}</button>` : ''}`;
     return `<div class="plan ${outside ? 'outside' : 'floor'}">
       ${outside ? '<span class="castle-wall"></span><span class="moat"></span>' : ''}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="corridors">${corridors}</svg>
@@ -630,11 +648,12 @@ Promise.all([
       const reached = areaReached(a), done = areaCleared(a), here = mouseRoom !== null && room(mouseRoom).area === a;
       const prevReached = a === 0 || areaReached(a-1);
       const fresh = reached && !seenAreas.includes(a) ? ' reveal' : '';
-      if (!reached) return `<div class="band-floor locked ${cls}${prevReached && roomExists(rs[0]) ? ' next' : ''}"><span class="bf-ic">${A.ic}</span>
-        <b>🔒 ${A.name}</b><small>${roomExists(rs[0]) ? `${rs.length} rooms` : 'coming soon'}</small></div>`;
+      // Floors you haven't reached are under fog: you can see there's a floor, not what's on it.
+      if (!reached) return `<div class="band-floor locked fogged ${cls}${prevReached && roomExists(rs[0]) ? ' next' : ''}"><span class="fog"></span>
+        <b>🔒</b><small>${roomExists(rs[0]) ? `${rs.length} room${rs.length > 1 ? 's' : ''}` : 'coming soon'}</small></div>`;
       return `<button class="band-floor ${cls}${done?' done':''}${here?' here':''}${fresh}" data-a="${a}"><span class="bf-ic">${A.ic}</span>
-        <span class="bf-text"><b>${A.name}</b><small>${rs.map(r=>room(r).name).join(' · ')}</small></span>
-        <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?'<span class="pr-mouse">🐭</span>':''}</button>`;
+        <span class="bf-text"><b>${A.name}</b><small>${rs.map(r => roomReached(r) ? room(r).name : '?').join(' · ')}</small></span>
+        <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?'<span class="pr-mouse">🐭</span>':''}${fresh ? '<span class="fog lift"></span>' : ''}</button>`;
     };
     const order = [7,6,5,3,2,1];  // floors inside the keep, top to bottom
     return `<div class="castle-view">
