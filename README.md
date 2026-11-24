@@ -114,9 +114,8 @@ Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's m
 (`SCENES`): you come in at the bottom and the road winds up past the room's furniture (`PROP`) to the
 door out at the top. A room without an entry in `SCENES` gets a plain stone room.
 
-**Hints and cheese.** Each animal you place has three hints, one per press: the board animal it has
-to scare (or block) glows, then a 3×3 patch it goes in is shaded, then the exact square. Hints cost
-cheese (1, 1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
+**Hints and cheese.** Each animal you place has two hints, one per press: a 3×3 patch it goes in is
+shaded, then the exact square glows. Hints cost cheese (1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
 with hints, double on boss levels, plus 5 🧀 for clearing a room. New players start with 5 🧀.
 Hints you've bought stay bought for that level.
 
