@@ -135,8 +135,13 @@
   .card.pick .map{flex:1;min-height:0;max-height:none}
   .pick-head{display:flex;align-items:center;justify-content:center;gap:10px;min-height:36px}
   .pick-head h3{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .pick-back:not([hidden]) + h3{flex:1;text-align:left;font-size:20px}
-  .pick-back{flex:none;font:600 14px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:10px;padding:5px 10px;cursor:pointer;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* Big buttons back to the whole castle and (in a room) to its floor */
+  .pick-nav{display:flex;gap:8px;margin-bottom:8px}
+  .pick-nav[hidden]{display:none}
+  .pick-nav button{flex:1;min-width:0;height:46px;border-radius:12px;font:600 17px Fredoka,system-ui;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 10px}
+  .nav-castle{color:#3a2f22;background:linear-gradient(180deg,#ffe7a8,#f2b84b);border:0;box-shadow:0 3px 0 #b77d14}
+  .nav-castle:active{transform:translateY(2px);box-shadow:0 1px 0 #b77d14}
+  .pick-back{color:var(--ink);background:var(--bg2);border:2px solid #4a4155}
   .castle-view-wrap{background:#1b2342}
   .castle-view{position:relative;min-height:100%;box-sizing:border-box;padding:118px 10px 12px;display:flex;flex-direction:column;
     background:linear-gradient(180deg,#1b2342 0,#3b4a78 150px,#7a8fb8 300px,#7a8fb8 70%,#4d7a33 70%,#3d5a35 100%)}
@@ -156,7 +161,6 @@
     text-align:left;font-family:inherit;color:#3a2f22;cursor:pointer;background:linear-gradient(180deg,#fff3d6,#e9cf9a);box-shadow:inset 0 0 0 2px #b77d14}
   .band-floor.here{box-shadow:inset 0 0 0 3px var(--gold),0 0 18px rgba(242,184,75,.6)}
   .band-floor.locked{cursor:default;color:#7d7489;background:#2a2531;box-shadow:inset 0 0 0 2px #3a3342}
-  .band-floor.locked.next{box-shadow:inset 0 0 0 2px rgba(242,184,75,.55);animation:pulse 1.8s ease-in-out infinite}
   .band-floor .bf-ic{font-size:22px} .band-floor.locked .bf-ic{opacity:.35}
   .bf-text{display:flex;flex-direction:column;flex:1;min-width:0}
   .bf-text b,.band-floor.locked b{font:600 15px Fredoka,system-ui}
@@ -166,9 +170,11 @@
   .band-floor .pr-mouse{position:absolute;right:48px;top:-12px;font-size:18px;animation:bob 1.2s ease-in-out infinite}
   .outside-band .band-floor{min-height:64px}
   .area-view{background:radial-gradient(circle at 50% 50%,#efdfba,#d4b882 75%,#a8854a)}
-  .plan{position:relative;margin:14px 14px 8px;height:clamp(340px,calc(100dvh - 350px),560px)}
+  .plan{position:relative;margin:14px 14px 8px;height:clamp(320px,calc(100dvh - 400px),560px)}
   .plan.floor{border-radius:6px;background:#e7d3a6;box-shadow:inset 0 0 0 8px #8a6a3a,inset 0 0 0 10px #6b4a24}
   .plan.floor .plan-room:first-of-type{}
+  .plan.cellars .corridors polyline{stroke:#9c8660}
+  .plan.floor.cellars{background:#cbb98f;box-shadow:inset 0 0 0 8px #5d564d,inset 0 0 0 10px #3f3a34}
   .plan.outside{border-radius:18px;background:radial-gradient(circle at 50% 60%,#d3e3a8,#b5cc86 80%)}
   .plan .castle-wall{position:absolute;left:0;right:0;top:0;height:9%;border-radius:12px 12px 0 0;background:repeating-linear-gradient(0deg,#9a9083 0 12px,#857b70 12px 14px)}
   .plan .moat{position:absolute;left:0;right:0;top:9%;height:5%;background:#6fa3c4;animation:ripple 3s ease-in-out infinite}
@@ -260,14 +266,14 @@
   .wall{background:linear-gradient(180deg,#9c9284,#6b635a);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.2),0 3px 0 rgba(0,0,0,.25);border-radius:4px}
   .hole{background:linear-gradient(180deg,var(--stone-l),var(--stone) 55%,var(--stone-d))}
   /* Kitchen walls are counters: a butcher-block top over a wooden cupboard front */
-  .board.walls-counter .wall{background:linear-gradient(180deg,#e6c79a 0 30%,#7b4f2c 30% 34%,#a46e43 34%);border-radius:4px;
+  .board.walls-counter .wall,.g-counter{background:linear-gradient(180deg,#e6c79a 0 30%,#7b4f2c 30% 34%,#a46e43 34%);border-radius:4px;
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 rgba(0,0,0,.25)}
   /* Library walls are bookshelves: a wooden case with two rows of book spines */
-  .board.walls-shelf .wall{border-radius:4px;background:
+  .board.walls-shelf .wall,.g-shelf{border-radius:4px;background:
       linear-gradient(180deg,#5b3a22 0 8%,transparent 8% 46%,#5b3a22 46% 54%,transparent 54% 92%,#5b3a22 92%),
       repeating-linear-gradient(90deg,#a8423a 0 14%,#d8b65a 14% 24%,#3f6a8a 24% 40%,#6b8a4a 40% 52%,#8a5a9a 52% 64%,#c7783a 64% 78%,#3a4a7a 78% 88%,#d9c7a3 88% 100%);
     box-shadow:inset 0 0 0 2px #5b3a22,inset 0 0 0 3px rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.25)}
-  .board.walls-counter .wall::after{content:"";position:absolute;left:50%;top:62%;width:12%;height:8%;border-radius:2px;
+  .board.walls-counter .wall::after,.g-counter::after{content:"";position:absolute;left:50%;top:62%;width:12%;height:8%;border-radius:2px;
     transform:translateX(-50%);background:#e8c37c;box-shadow:0 1px 0 rgba(0,0,0,.35)}
   .hole i{display:block;width:62%;height:62%;background:#120f14;border-radius:50% 50% 8% 8%;box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.0)}
   .hole.in{background:var(--floor-a)} .hole.in.alt{background:var(--floor-b)}
@@ -317,6 +323,25 @@
   .toast.show{opacity:1;transform:translate(-50%,0)}
   .overlay{position:fixed;inset:0;background:rgba(15,12,18,.7);display:none;place-items:center;z-index:10;padding:24px}
   .overlay.show{display:grid}
+  /* How-to-play cards: before level 1, and when a new animal or board piece first appears */
+  #guide{z-index:12}
+  .card.guide{max-width:360px}
+  .guide-art{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 8px;min-height:96px;margin:-4px 0 10px;
+    border-radius:16px;background:radial-gradient(circle at 50% 60%,#4a3f58,#2f2838);padding:10px;font-size:44px;line-height:1}
+  .guide-art span{display:inline-block;animation:bob 1.4s ease-in-out infinite}
+  .guide-art span:nth-of-type(2n){animation-delay:.35s}
+  .guide-art i{font:600 13px Fredoka,system-ui;font-style:normal;color:var(--gold)}
+  .guide-art .g-row{display:flex;align-items:center;gap:8px;width:100%;justify-content:center}
+  .guide-art .g-sq{width:40px;height:40px;border-radius:6px;background:#e7dcc6;box-shadow:inset 0 0 0 2px #b9a98d;animation:none}
+  .guide-art .g-go{font:700 18px Fredoka,system-ui;color:#1d3a10;background:#8fd16a;border-radius:10px;padding:8px 12px;animation:none}
+  .guide-art .g-counter,.guide-art .g-shelf{position:relative;width:56px;height:56px;animation:none}
+  .card.guide h3{margin:0 0 6px}
+  .card.guide p{margin:0 0 14px;font-size:16px;line-height:1.4;color:var(--ink)}
+  .guide-dots{display:flex;justify-content:center;gap:6px;margin:-4px 0 12px}
+  .guide-dots b{width:8px;height:8px;border-radius:50%;background:#574a66} .guide-dots b.on{background:var(--gold)}
+  .guide-skip{margin-top:10px;background:transparent;box-shadow:none;color:var(--muted);font-size:15px;padding:6px}
+  .guide-skip[hidden]{display:none}
+  .link-btn{background:none;border:0;padding:0;font:inherit;color:var(--gold);text-decoration:underline;cursor:pointer}
   .card{background:linear-gradient(180deg,#3a3046,#2a2533);border:2px solid #574a66;border-radius:22px;padding:24px 22px;text-align:center;max-width:340px;width:100%;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
   @keyframes pop{from{transform:scale(.7);opacity:0}}
   .card .big{font-size:56px}
@@ -353,8 +378,9 @@
   </div>
 </div>
 <div class="overlay" id="picker"><div class="card pick">
-  <div class="pick-head"><button class="pick-back" id="pickBack" hidden>‹</button><h3 id="pickTitle">The castle</h3></div>
-  <p id="progress"></p>
+  <div class="pick-nav" id="pickNav" hidden><button class="nav-castle" id="pickCastle">🏰 Castle</button><button class="pick-back" id="pickBack" hidden>‹</button></div>
+  <div class="pick-head"><h3 id="pickTitle">The castle</h3></div>
+  <p><span id="progress"></span><span id="howToWrap"> · <button class="link-btn" id="howTo">How to play</button></span></p>
   <div class="map" id="dots"></div>
   <button class="btn" id="closePick">Close</button>
   <!-- Developer mode only (see DEV_HASH) -->
@@ -365,6 +391,13 @@
   <button class="btn go" id="nextBtn">Next level</button>
   <button class="btn" id="winLevelsBtn" style="margin-top:12px">All levels</button>
   <button class="btn replay" id="replayBtn">⏪ Instant replay</button>
+</div></div>
+<div class="overlay" id="guide"><div class="card guide">
+  <div class="guide-art" id="guideArt"></div>
+  <h3 id="guideTitle"></h3><p id="guideText"></p>
+  <div class="guide-dots" id="guideDots"></div>
+  <button class="btn go" id="guideNext">Next</button>
+  <button class="btn guide-skip" id="guideSkip">Skip</button>
 </div></div>
 <!-- The physics: the Java engine, compiled to JavaScript by TeaVM. Defines scareSimulate(). -->
 <script src="js/engine.js"></script>
@@ -480,10 +513,10 @@ Promise.all([
   // starts with a new area.
   const AREAS = [
     {name:'Outside',         ic:'🌳', kind:'outside'},
-    {name:'First floor',     ic:'🛡️'},
-    {name:'Second floor',    ic:'📚'},
-    {name:'Third floor',     ic:'⚔️'},
     {name:'Cellars',         ic:'🍷', kind:'cellars'},
+    {name:'First floor',     ic:'📚'},
+    {name:'Second floor',    ic:'⚔️'},
+    {name:'Third floor',     ic:'🏆'},
     {name:'Fourth floor',    ic:'💰'},
     {name:'Towers and roof', ic:'🚩'},
     {name:'Royal floor',     ic:'👑'},
@@ -498,22 +531,24 @@ Promise.all([
     {end:60,  area:0, name:'Stables',        ic:'🐴', bg:'#6b5434',        plan:[4,42,44,20],  top:['🐴','🌾','🐎'], deco:['🌾','🥕','🪵','🧺','🐓','🍎']},
     {end:80,  area:0, name:'Moat bridge',    ic:'🌉', bg:'#3f5f6a', out:1, plan:[52,24,44,18], top:['🌊','🦆','🌉','🦆','🌊'], deco:['🦆','🐸','🪷','🐟','🌾','🪨']},
     {end:100, area:0, name:'Gate',           ic:'🏰', bg:'#4b5a3a', out:1, plan:[28,2,44,18],  top:['🌲','🚩','🏰','🚩','🌲'], deco:['🌿','🪨','🌼','🍄','🛡️','🐌']},
-    {end:120, area:1, name:'Entrance hall',  ic:'🚪', bg:'#5a4a40', plan:[32,74,36,20], top:['🛡️','🚪','🛡️'], deco:['🪴','🕯️','🧥','🪑','🗝️','🪞']},
-    {end:145, area:1, name:'Great hall',     ic:'🛡️', bg:'#5b3c3a', plan:[18,40,64,28], top:['🛡️','🍗','🛡️'], deco:['🕯️','🍷','🍗','🪑','🎺','🥧']},
-    {end:170, area:1, name:'Ballroom',       ic:'🎻', bg:'#5b3a5c', plan:[4,6,56,28],   top:['🎻','🪩','🎺'], deco:['💃','🎶','🥂','🎭','🕺','🌹']},
-    {end:200, area:1, name:'Kitchens',       ic:'🍲', bg:'#664a32', plan:[64,6,32,28],  top:['🍳','🍲','🥖'], deco:['🧀','🥖','🧅','🥕','🫖','🍯']},
+    // Into the castle through the cellars
+    {end:120, area:1, name:'Storeroom',      ic:'📦', bg:'#4a3e30', plan:[6,70,42,24], top:['🛢️','📦','🧺'], deco:['📦','🧺','🥔','🕸️','🐀','🕯️']},
+    {end:145, area:1, name:'Wine cellar',    ic:'🍷', bg:'#40302e', plan:[54,62,40,32],  top:['🛢️','🍷','🛢️'], deco:['🛢️','🍇','🍷','🕸️','🧀','🐀']},
+    {end:170, area:1, name:'Dungeon',        ic:'⛓️', bg:'#2f2f36', plan:[54,24,40,30], top:['⛓️','💀','⛓️'], deco:['⛓️','🦴','🕸️','🐀','💀','🪨']},
+    {end:200, area:1, name:'Kitchens',       ic:'🍲', bg:'#664a32', plan:[6,6,42,56],  top:['🍳','🍲','🥖'], deco:['🧀','🥖','🧅','🥕','🫖','🍯']},
     {end:230, area:2, name:'Library',        ic:'📚', bg:'#3f3a5a', plan:[4,54,34,40],  top:['📚','🕯️','📚'], deco:['📜','📖','🪶','🕯️','🔭','📚']},
     {end:260, area:2, name:'Study',          ic:'🪶', bg:'#4a3f36', plan:[4,6,34,42],   top:['🗺️','🪶','🕯️'], deco:['🪶','📜','🔍','🕯️','🌍','📐']},
-    {end:290, area:2, name:'Secret passage', ic:'🗝️', bg:'#2a2833', plan:[44,6,14,60],  top:['🕸️','🗝️','🕸️'], deco:['🕸️','🕷️','🗝️','🦴','🪨','🕯️']},
-    {end:320, area:2, name:'Chapel',         ic:'🔔', bg:'#4d4a63', plan:[64,6,32,42],  top:['🕯️','🔔','🕯️'], deco:['🌸','🕯️','📿','💐','🕊️','🔔']},
-    {end:350, area:2, name:'Gallery',        ic:'🖼️', bg:'#5a4048', plan:[44,72,52,22], top:['🖼️','🏺','🖼️'], deco:['🏺','🗿','🪞','🖼️','🎨','💐']},
-    {end:400, area:3, name:'Armory',         ic:'⚔️', bg:'#45484f', plan:[6,58,42,34],  top:['🛡️','⚔️','🛡️'], deco:['⚔️','🏹','🪓','🛡️','🔨','🪖']},
-    {end:450, area:3, name:'Guard room',     ic:'🪖', bg:'#4a4540', plan:[52,58,42,34], top:['🪖','🔥','🪖'], deco:['🎲','🍺','🪖','🕯️','🗡️','🪑']},
-    {end:500, area:3, name:'Map room',       ic:'🗺️', bg:'#4a4a36', plan:[20,8,60,40],  top:['🗺️','🧭','🗺️'], deco:['🧭','📜','🌍','🕯️','📐','🔭']},
-    {end:550, area:4, name:'Wine cellar',    ic:'🍷', bg:'#40302e', plan:[6,30,42,40],  top:['🛢️','🍷','🛢️'], deco:['🛢️','🍇','🍷','🕸️','🧀','🐀']},
-    {end:600, area:4, name:'Dungeon',        ic:'⛓️', bg:'#2f2f36', plan:[52,30,42,40], top:['⛓️','💀','⛓️'], deco:['⛓️','🦴','🕸️','🐀','💀','🪨']},
+    {end:290, area:2, name:'Great hall',     ic:'🛡️', bg:'#5b3c3a', plan:[44,6,52,34], top:['🛡️','🍗','🛡️'], deco:['🕯️','🍷','🍗','🪑','🎺','🥧']},
+    {end:320, area:2, name:'Ballroom',       ic:'🎻', bg:'#5b3a5c', plan:[44,46,52,24],   top:['🎻','🪩','🎺'], deco:['💃','🎶','🥂','🎭','🕺','🌹']},
+    {end:350, area:2, name:'Gallery',        ic:'🖼️', bg:'#5a4048', plan:[44,76,52,18], top:['🖼️','🏺','🖼️'], deco:['🏺','🗿','🪞','🖼️','🎨','💐']},
+    {end:390, area:3, name:'Chapel',         ic:'🔔', bg:'#4d4a63', plan:[6,58,40,34],  top:['🕯️','🔔','🕯️'], deco:['🌸','🕯️','📿','💐','🕊️','🔔']},
+    {end:420, area:3, name:'Secret passage', ic:'🗝️', bg:'#2a2833', plan:[52,72,42,14],  top:['🕸️','🗝️','🕸️'], deco:['🕸️','🕷️','🗝️','🦴','🪨','🕯️']},
+    {end:460, area:3, name:'Map room',       ic:'🗺️', bg:'#4a4a36', plan:[52,24,42,36],  top:['🗺️','🧭','🗺️'], deco:['🧭','📜','🌍','🕯️','📐','🔭']},
+    {end:500, area:3, name:'Armory',         ic:'⚔️', bg:'#45484f', plan:[6,6,40,40],  top:['🛡️','⚔️','🛡️'], deco:['⚔️','🏹','🪓','🛡️','🔨','🪖']},
+    {end:550, area:4, name:'Guard room',     ic:'🪖', bg:'#4a4540', plan:[6,50,42,40], top:['🪖','🔥','🪖'], deco:['🎲','🍺','🪖','🕯️','🗡️','🪑']},
+    {end:600, area:4, name:'Trophy room',    ic:'🏆', bg:'#4f4030', plan:[52,10,42,40], top:['🏆','🦌','🏆'], deco:['🏆','🛡️','🦌','🏅','⚔️','🖼️']},
     {end:650, area:5, name:'Treasury',       ic:'💎', bg:'#5a4a25', plan:[6,58,42,34],  top:['💎','👑','💎'], deco:['💰','🪙','💎','📦','🏆','💍']},
-    {end:700, area:5, name:'Trophy room',    ic:'🏆', bg:'#4f4030', plan:[52,58,42,34], top:['🏆','🦌','🏆'], deco:['🏆','🛡️','🦌','🏅','⚔️','🖼️']},
+    {end:700, area:5, name:'Music room',     ic:'🎼', bg:'#4a3a52', plan:[52,58,42,34], top:['🎻','🎼','🎺'], deco:['🎵','🎹','🎻','🪕','🎶','🕯️']},
     {end:750, area:5, name:'Clock tower',    ic:'🕰️', bg:'#4a4440', plan:[30,8,40,40],  top:['⚙️','🕰️','⚙️'], deco:['⚙️','🦉','🔔','🪜','🕸️','⏳']},
     {end:800, area:6, name:'Battlements',    ic:'🚩', bg:'#4e5866', out:1, plan:[6,44,88,26], top:['🚩','☁️','🏹','☁️','🚩'], deco:['☁️','🐦','🪨','🏹','🦅','🌬️']},
     {end:850, area:6, name:'Watchtower',     ic:'🔭', bg:'#4a5060', plan:[34,6,32,30],  top:['🔭','🦅','🔭'], deco:['🔭','🦅','☁️','🏹','🪶','🌬️']},
@@ -529,7 +564,7 @@ Promise.all([
     'Orchard':        ['#ece4c4','#dfd6ae','#aca48a','#968e74','#746d58'],
     'Stables':        ['#ecdcae','#e1cd95','#b0a088','#998a72','#766953'],
     'Moat bridge':    ['#e2e4d6','#d2d8c8','#9fa7a6','#89918f','#6a716f'],
-    'Entrance hall':  ['#ece0d0','#dfd0bc','#a99b8e','#928477','#71665c'],
+    'Storeroom':      ['#e6d9c4','#d8c8ae','#998a78','#837464','#63574b'],
     'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56'],
     'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d'],
     'Kitchens':       ['#f2e2cc','#e0b48e','#ad9a88','#968371','#736252', 'counter'],
@@ -545,6 +580,7 @@ Promise.all([
     'Dungeon':        ['#d6d2cc','#c8c3bb','#817f87','#6c6a72','#504f55'],
     'Treasury':       ['#f0e4c4','#e6d6a8','#b2a47c','#9b8d66','#796d4c'],
     'Trophy room':    ['#ede0c8','#e0d0b2','#aa9a80','#93836a','#726552'],
+    'Music room':     ['#ece2e8','#dfd2da','#a898a6','#918190','#71636f'],
     'Clock tower':    ['#e3dcd1','#d6cdbf','#a29a8f','#8b8378','#6b645b'],
     'Battlements':    ['#e2e2df','#d3d4d0','#a5abb3','#8f959d','#70757c'],
     'Watchtower':     ['#e0e2e6','#d0d3d9','#9fa4ae','#898e98','#6b6f78'],
@@ -562,7 +598,8 @@ Promise.all([
   const roomsOf = a => { const out=[]; for (let r=0; r<ROOMS.length || room(r).start < LEVELS.length; r++) if (room(r).area===a) out.push(r); return out; };
 
   // Doors already seen opening (room numbers), and the level the map's mouse last stood on.
-  let doorsSeen = store.get('cm_doors', []);
+  // (cm_doors2: room numbers changed with the castle floors, so the old cm_doors list is set aside)
+  let doorsSeen = store.get('cm_doors2', null);
   const roomIndexOf = i => { let r=0; while (room(r).end <= i) r++; return r; };
   const areaOf = i => room(roomIndexOf(i)).area;
   const areaEnd = a => { const rs=roomsOf(a); return room(rs[rs.length-1]).end; };
@@ -580,6 +617,7 @@ Promise.all([
   // Progress from before the maps existed counts as seen.
   let seenRooms = store.get('cm_seen_rooms', null), seenAreas = store.get('cm_seen_areas', null);
   if (!seenRooms) { seenRooms = []; for (let r=0; roomExists(r); r++) if (roomReached(r)) seenRooms.push(r); store.set('cm_seen_rooms', seenRooms); }
+  if (!doorsSeen) { doorsSeen = []; for (let r=0; roomExists(r); r++) if (roomCleared(r)) doorsSeen.push(r); store.set('cm_doors2', doorsSeen); }
   if (!seenAreas) { seenAreas = AREAS.map((_,a)=>a).filter(a => roomsOf(a).length && areaReached(a)); store.set('cm_seen_areas', seenAreas); }
   const markSeen = () => {
     for (let r=0; roomExists(r); r++) if (roomReached(r) && !seenRooms.includes(r)) seenRooms.push(r);
@@ -634,7 +672,7 @@ Promise.all([
     const up = AREAS[a+1] && roomsOf(a+1).length ? a+1 : null, down = a > 0 ? a-1 : null;
     const stairs = `${down!==null ? `<button class="stairs down" data-a="${down}">${outside ? '' : (a===1 ? '⬇ Outside' : `⬇ ${AREAS[down].name}`)}</button>` : ''}
       ${up!==null ? `<button class="stairs up${areaReached(up)?'':' locked'}" data-a="${up}" ${areaReached(up)?'':'disabled'}>${areaReached(up) ? `⬆ ${outside ? 'Into the castle' : AREAS[up].name}` : (outside ? '🔒 Into the castle' : '🔒 Upstairs')}</button>` : ''}`;
-    return `<div class="plan ${outside ? 'outside' : 'floor'}">
+    return `<div class="plan ${outside ? 'outside' : 'floor'}${AREAS[a].kind === 'cellars' ? ' cellars' : ''}">
       ${outside ? '<span class="castle-wall"></span><span class="moat"></span>' : ''}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="corridors">${corridors}</svg>
       ${blocks}</div><div class="stairs-row">${stairs}</div>`;
@@ -655,13 +693,13 @@ Promise.all([
         <span class="bf-text"><b>${A.name}</b><small>${rs.map(r => roomReached(r) ? room(r).name : '?').join(' · ')}</small></span>
         <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?'<span class="pr-mouse">🐭</span>':''}${fresh ? '<span class="fog lift"></span>' : ''}</button>`;
     };
-    const order = [7,6,5,3,2,1];  // floors inside the keep, top to bottom
+    const order = [7,6,5,4,3,2];  // floors inside the keep, top to bottom
     return `<div class="castle-view">
       <span class="star" style="left:14%;top:4%">✦</span><span class="star" style="left:46%;top:7%;animation-delay:.8s">✦</span>
       <div class="tower"><div class="roof"></div>${band(8,'tower-band')}</div>
       <span class="flag">🚩</span>
       <div class="keep"><div class="battlement"></div>${order.map(a=>band(a)).join('')}</div>
-      <div class="cellars">${band(4)}</div>
+      <div class="cellars">${band(1)}</div>
       <div class="moat-band"><span class="drawbridge"></span></div>
       <div class="outside-band">${band(0)}</div>
     </div>`;
@@ -745,7 +783,11 @@ Promise.all([
     m.scrollTop = 0;
     if (view.kind === 'castle') centerOn('.band-floor.reveal') || centerOn('.band-floor.here');
     $('pickTitle').textContent = title;
-    $('pickBack').hidden = !back;
+    // Castle button on every map but the castle; in a room, a second button back to its floor
+    $('pickNav').hidden = view.kind === 'castle';
+    $('howToWrap').hidden = view.kind !== 'castle';
+    $('pickCastle').onclick = () => { view = { kind:'castle' }; renderDots(); };
+    $('pickBack').hidden = !back || back.kind === 'castle';
     if (back) { $('pickBack').textContent = `‹ ${back.label}`; $('pickBack').onclick = () => { view = back; renderDots(); }; }
     // taps: areas open their map, rooms their road, levels load
     m.querySelectorAll('.band-floor[data-a], .stairs[data-a]:not([disabled])').forEach(b => b.onclick = () => { view = { kind:'area', a: +b.dataset.a }; renderDots(); });
@@ -756,7 +798,7 @@ Promise.all([
       const r = +btn.dataset.r, rm = room(r);
       for (let i = rm.start; i < rm.end - 1; i++) solved[levelKey(LEVELS[i])] = LEVELS[i].solution.map(p=>({...p}));
       delete solved[levelKey(LEVELS[rm.end-1])]; store.set('cm_solved', solved);
-      doorsSeen = doorsSeen.filter(x => x !== r); store.set('cm_doors', doorsSeen);
+      doorsSeen = doorsSeen.filter(x => x !== r); store.set('cm_doors2', doorsSeen);
       $('picker').classList.remove('show'); load(rm.end - 1);
       toast(`Developer: the ${rm.name} is solved except level ${rm.end}. Solve it to clear the room.`);
     });
@@ -772,6 +814,50 @@ Promise.all([
     m.style.scrollBehavior='auto'; m.scrollTop = y - m.clientHeight/2; m.style.scrollBehavior=''; return true;
   }
 
+  // How-to-play cards. INTRO runs before level 1 (and from "How to play" in the level picker);
+  // NEW_CARDS show once, the first time you open the level where something new appears.
+  const scares = (a, b) => `<span>${a}</span><i>scares</i><span>${b}</span>`;
+  const INTRO = [
+    { art: '<span>🐭</span><i>➜</i><span>🕳️</span>', title: 'Help the mouse escape!',
+      text: 'Scare the mouse so it runs into the hole.' },
+    { art: `<div class="g-row">${scares('🐱','🐭')}</div><div class="g-row">${scares('🐶','🐱')}</div><div class="g-row">${scares('🐻','🐶')}</div>`,
+      title: 'Animals scare each other',
+      text: 'Each animal scares just one other. A scared animal runs straight away, and it can scare the next animal on its way.' },
+    { art: '<span>👆</span><span>🐱</span><i>➜</i><span class="g-sq"></span><i>then</i><span class="g-go">▶ Go</span>', title: 'Set up a chain reaction',
+      text: 'Tap an animal in your hand, then tap a square to place it. When you\'re ready, press Go and watch!' },
+    { art: '<span>🧱</span><span>🥶</span>', title: 'Good to know',
+      text: 'Running animals stop at walls and at the edge of the board. An animal touching two animals it fears freezes until one of them moves away.' },
+  ];
+  const NEW_CARDS = {
+    12: { art: scares('🦁','🐻'), title: 'New animal: the lion!', text: 'Lions scare bears.' },
+    32: { art: `<div class="g-row">${scares('🐘','🦁')}</div><div class="g-row">${scares('🐭','🐘')}</div>`, title: 'New animal: the elephant!',
+          text: 'Elephants scare lions. And elephants are scared of mice!' },
+    170: { art: '<span class="g-counter"></span><span class="g-counter"></span>', title: 'New: kitchen counters!',
+           text: 'Animals can\'t run through counters. A running animal stops when it reaches one.' },
+    204: { art: '<span class="g-shelf"></span><span class="g-shelf"></span>', title: 'New: bookshelves!',
+           text: 'Like the counters, animals can\'t run through bookshelves.' },
+  };
+  let cardsSeen = store.get('cm_cards', []);
+  function showGuide(cards, done) {
+    let k = 0;
+    const close = () => { $('guide').classList.remove('show'); if (done) done(); };
+    const draw = () => {
+      const c = cards[k];
+      $('guideArt').innerHTML = c.art; $('guideTitle').textContent = c.title; $('guideText').textContent = c.text;
+      $('guideDots').innerHTML = cards.length > 1 ? cards.map((_, j) => `<b class="${j === k ? 'on' : ''}"></b>`).join('') : '';
+      $('guideNext').textContent = k < cards.length - 1 ? 'Next' : (cards === INTRO ? "Let's play!" : 'Got it');
+      $('guideSkip').hidden = cards.length < 2 || k === cards.length - 1;
+    };
+    $('guideNext').onclick = () => { if (k < cards.length - 1) { k++; draw(); } else close(); };
+    $('guideSkip').onclick = close;
+    draw(); $('guide').classList.add('show');
+  }
+  function showNewCard(i) {
+    if (!NEW_CARDS[i] || cardsSeen.includes(i)) return;
+    cardsSeen = [...cardsSeen, i]; store.set('cm_cards', cardsSeen);
+    showGuide([NEW_CARDS[i]]);
+  }
+
   function load(i){
     if(!isOpen(i)) i=unlockedUpTo();
     clearTimeout(timer); clearTimeout(backTimer);
@@ -782,10 +868,11 @@ Promise.all([
     const boss = isBoss(li);
     $('lvlSub').textContent = (boss ? '👑 Boss · ' : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`);
     const areaName = AREAS[areaOf(li)].name;
-    $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : 'on the ' + areaName.toLowerCase()}.`
+    $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
     $('tip').classList.toggle('boss', boss);
     renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
+    showNewCard(li);
   }
 
   function buildBoard(){
@@ -1116,7 +1203,7 @@ Promise.all([
       for (let k=0;k<8;k++){ const sp=document.createElement('span'); sp.className='spark'; sp.textContent=k%2?'✨':'⭐';
         const a=k/8*Math.PI*2; sp.style.setProperty('--dx',`${Math.cos(a)*46}px`); sp.style.setProperty('--dy',`${Math.sin(a)*34}px`);
         dw.querySelector('.arch').appendChild(sp); setTimeout(()=>sp.remove(),1300); }
-      doorsSeen = [...new Set([...doorsSeen, +dw.dataset.r])]; store.set('cm_doors', doorsSeen); };
+      doorsSeen = [...new Set([...doorsSeen, +dw.dataset.r])]; store.set('cm_doors2', doorsSeen); };
     if (cleared !== undefined) {
       view = { kind:'room', r: cleared }; renderDots();
       const dw = $('dots').querySelector(`.doorway[data-r="${cleared}"]`);
@@ -1162,12 +1249,13 @@ Promise.all([
   $('speed1').onclick=()=>{ rp.slow=false; rpShow(); };
   $('speedHalf').onclick=()=>{ rp.slow=true; rpShow(); };
   $('closePick').onclick=()=>$('picker').classList.remove('show');
+  $('howTo').onclick=()=>showGuide(INTRO);
   // Developer mode only (hidden for players). Two taps to confirm.
   $('resetProgress').onclick=()=>{
     const b=$('resetProgress');
     if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent='Tap again to erase all progress'; clearTimeout(b._t); b._t=setTimeout(()=>{ b.classList.remove('armed'); b.textContent='Reset progress (testing)'; },3000); return; }
     clearTimeout(b._t); b.classList.remove('armed'); b.textContent='Reset progress (testing)';
-    solved={}; store.set('cm_solved',solved); doorsSeen=[]; store.set('cm_doors',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
+    solved={}; store.set('cm_solved',solved); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
   };
   $('picker').onclick=e=>{ if(e.target.id==='picker') $('picker').classList.remove('show'); };
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
@@ -1191,6 +1279,8 @@ Promise.all([
   }
 
   load(li);
+  // First time playing: the how-to-play cards before level 1
+  if (!store.get('cm_intro', false) && doneCount() === 0) showGuide(INTRO, () => store.set('cm_intro', true));
   checkDevLink();
   window.addEventListener('hashchange', checkDevLink);
 })(); }).catch(e => {
