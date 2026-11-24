@@ -59,6 +59,9 @@ Every level must pass these checks (`LevelChecker`, numbers per level in `LevelR
 - **No clutter:** every animal and wall affects the puzzle. Remove any one and either the solution
   breaks or the puzzle gets easier (so blockers and pinning animals count, decorations don't).
 - Every animal in your hand is needed, and you never place a mouse.
+- **Board size grows as you go:** 1–100 are 7×7, 101–200 are 8×8, 201–350 are 9×9, and from 351
+  on they are 10×10, the original game's size (`Recipe.sizeForLevel`). Boards bigger than
+  7×7 get a thinner castle wall on screen so the squares stay easy to tap.
 
 ## How levels are made
 

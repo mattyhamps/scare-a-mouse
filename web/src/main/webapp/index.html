@@ -142,10 +142,8 @@
 <!-- The physics: the Java engine, compiled to JavaScript by TeaVM. Defines scareSimulate(). -->
 <script src="js/engine.js"></script>
 <script>
-// ?set=samples plays a separate set of trial levels (all open, their own progress) instead of the game.
-const SET = new URLSearchParams(location.search).get('set') === 'samples' ? 'samples' : '';
 Promise.all([
-  fetch(SET ? 'samples.json' : 'levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
+  fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
   fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => [])
 ]).then(([LEVELS, LEGACY]) => { (function(){
   const ORDER = ['mouse','cat','dog','bear','lion','elephant'];
@@ -157,7 +155,7 @@ Promise.all([
   // Pull request previews live at /pr-preview/pr-N/ on the same site: keep their progress separate
   // so testing never marks levels solved in the real game.
   const PREVIEW = /\/pr-preview\/pr-(\d+)\//.exec(location.pathname);
-  const KEY = (PREVIEW ? `preview${PREVIEW[1]}_` : '') + (SET ? `${SET}_` : '');
+  const KEY = PREVIEW ? `preview${PREVIEW[1]}_` : '';
   const store = { get(k,d){ try{ const v=localStorage.getItem(KEY+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
                   set(k,v){ try{ localStorage.setItem(KEY+k,JSON.stringify(v)); }catch(e){} } };
 
@@ -188,7 +186,7 @@ Promise.all([
                     set(on){ try{ on ? localStorage.setItem('sam_dev','1') : localStorage.removeItem('sam_dev'); }catch(e){} } };
   let DEV = devFlag.get();
   const unlockedUpTo = () => {
-    if(DEV || SET) return LEVELS.length-1;
+    if(DEV) return LEVELS.length-1;
     let hi=-1; LEVELS.forEach((_,i)=>{ if(isDone(i)) hi=i; });
     return Math.min(hi+1, LEVELS.length-1);
   };
