@@ -38,7 +38,7 @@
   .title{display:flex;align-items:baseline;justify-content:space-between}
   .title h2{margin:0;font-size:20px;font-weight:600}
   .title .sub{color:var(--muted);font-size:14px}
-  .tip{background:var(--bg2);border:1px solid #3d3548;border-radius:14px;padding:10px 12px;font-size:15px;color:#e8dfcf;line-height:1.35;min-height:44px}
+  .tip{background:var(--bg2);border:1px solid #3d3548;border-radius:14px;padding:10px 12px;font-size:15px;color:#e8dfcf;line-height:1.35;min-height:62px;box-sizing:border-box}
   .chain{display:flex;align-items:center;justify-content:center;gap:2px;font-size:20px;background:rgba(255,255,255,.04);border-radius:12px;padding:6px 4px}
   .chain .arrow{font-size:11px;color:var(--muted);margin:0 1px}
   .chain .cap{font-size:11px;color:var(--muted);margin-right:6px;font-weight:500}
@@ -99,6 +99,7 @@
   .node.boss::before{content:"👑";position:absolute;top:-13px;right:-10px;font-size:17px;transform:rotate(18deg);filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
   .node.boss.locked{border-color:#7a3a40}
   .tip.boss{border-color:#b8323a;background:rgba(184,50,58,.15)}
+  .tip.hinting{border-color:var(--gold);background:rgba(242,184,75,.12);color:var(--ink)}
   /* your mouse, standing on the current level; it walks the road to a newly opened level */
   .walker{position:absolute;z-index:3;font-size:22px;transform:translate(-50%,-150%);pointer-events:none;
     transition:left .26s ease-in-out,top .26s ease-in-out}
@@ -305,6 +306,9 @@
     box-shadow:0 2px 0 rgba(0,0,0,.3)}
   .animal.bump span{animation:bump .35s ease-in-out}
   @keyframes bump{25%{transform:translateX(-9%)}50%{transform:translateX(9%)}75%{transform:translateX(-5%)}}
+  /* gentler hints: the animal your piece has to deal with, then a patch of board it goes in */
+  .hint-aim{position:absolute;border:4px solid var(--gold);border-radius:50%;z-index:3;pointer-events:none;box-shadow:0 0 14px 3px rgba(242,184,75,.75),inset 0 0 10px rgba(242,184,75,.5);animation:pulse 1s ease-in-out infinite}
+  .hint-area{position:absolute;z-index:1;pointer-events:none;border-radius:8px;background:rgba(242,184,75,.28);box-shadow:inset 0 0 0 3px rgba(242,184,75,.85)}
   .hint-ring{position:absolute;border:3px solid var(--gold);border-radius:30%;z-index:3;pointer-events:none;animation:pulse 1s ease-in-out infinite}
   @keyframes pulse{50%{transform:scale(.86);opacity:.6}}
   .tray{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid #3d3548;border-radius:16px;padding:10px 12px;min-height:66px}
@@ -489,7 +493,7 @@ Promise.all([
   };
   const isOpen = i => i <= unlockedUpTo();
   let li = Math.min(store.get('cm_level', 0), unlockedUpTo());
-  let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintCount=0;
+  let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintStep=0, hintPlan=null;
   // edge: thickness of the castle wall around the board, in px. Boards bigger than 7x7 get a thinner
   // wall so their squares stay big enough to tap. P(v) is the pixel offset of column or row v.
   let edge = 0, boardTheme = '';
@@ -863,14 +867,14 @@ Promise.all([
     clearTimeout(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
-    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false; hintCount=0;
+    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false; hintStep=0; hintPlan=null;
     $('lvlName').textContent = L.name;
     const boss = isBoss(li);
     $('lvlSub').textContent = (boss ? '👑 Boss · ' : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`);
     const areaName = AREAS[areaOf(li)].name;
     $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
-    $('tip').classList.toggle('boss', boss);
+    $('tip').classList.toggle('boss', boss); $('tip').classList.remove('hinting');
     renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
     showNewCard(li);
   }
@@ -914,7 +918,7 @@ Promise.all([
     if(occupied(x,y)) return;
     const rem=remaining();
     if(!rem.length){ toast('All your animals are placed. Tap one to pick it up.'); return; }
-    const want = L.solution.slice(0,hintCount).find(s=>s.x===x&&s.y===y);
+    const want = revealedSquares().find(s=>s.x===x&&s.y===y);
     const t = want && rem.includes(want.t) ? want.t : rem[Math.min(selected, rem.length-1)];
     placed.push({t,x,y}); selected=0; Sound.place();
     renderTray(); renderAnimals(); updateButtons();
@@ -946,9 +950,9 @@ Promise.all([
 
   function updateButtons(){
     $('goBtn').disabled = mode==='running' || mode==='replay';
-    const n = L.solution.length;
-    $('hintBtn').disabled = mode!=='edit' || hintCount>=n;
-    $('hintBtn').textContent = n>1 && hintCount>0 ? `Hint ${hintCount}/${n}` : 'Hint';
+    const n = plan().length;
+    $('hintBtn').disabled = mode!=='edit' || hintStep>=n;
+    $('hintBtn').textContent = hintStep>0 ? `Hint ${hintStep}/${n}` : 'Hint';
     $('resetBtn').disabled = mode==='running' || mode==='replay' || (mode==='edit' && !placed.length);
     $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
   }
@@ -1160,36 +1164,93 @@ Promise.all([
     renderTray(); renderAnimals(); updateButtons();
   }
 
-  // Hints reveal one solution piece per press. Revealed hints stay through runs and Reset.
-  function clearHint(){ $('board').querySelectorAll('.hint-ring').forEach(e=>e.remove()); }
+  // Hints come as a ladder for each animal you place, in solution order: first the animal on the
+  // board it has to scare (or stop), then a 3x3 patch of board it goes somewhere in, and only then
+  // the exact square. Revealed hints stay through runs and Reset. The words go in the tip box.
+  const PREDATOR = t => ORDER[(ORDER.indexOf(t)+1) % ORDER.length];
+  function plan(){
+    if (hintPlan) return hintPlan;
+    const sol = L.solution, nf = L.fixed.length, full = simulate(L, sol);
+    hintPlan = [];
+    sol.forEach((s, j) => {
+      const aim = firstEffect(full, j);
+      if (aim) hintPlan.push({ j, kind:'aim', aim });
+      const k = 3, w = Math.min(k, L.w), h = Math.min(k, L.h);
+      // the patch doesn't always centre on the square
+      const ax = Math.max(0, Math.min(L.w - w, s.x - (s.x*7 + s.y*3 + li) % w));
+      const ay = Math.max(0, Math.min(L.h - h, s.y - (s.x*5 + s.y*11 + li) % h));
+      hintPlan.push({ j, kind:'area', ax, ay, w, h });
+      hintPlan.push({ j, kind:'square' });
+    });
+    return hintPlan;
+  }
+  // The first animal whose run changes because piece j is there: run the solution with and without it.
+  function firstEffect(full, j){
+    const sol = L.solution, s = sol[j], nf = L.fixed.length, pid = nf + j;
+    const without = simulate(L, sol.filter((_, k) => k !== j));
+    const at = (res, f) => res.frames[Math.min(f, res.frames.length - 1)];
+    const len = Math.max(full.frames.length, without.frames.length);
+    for (let f = 1; f < len; f++) {
+      const a = at(full, f), b = at(without, f), me = at(full, f-1)[pid];
+      const diff = a.filter(x => x.id !== pid && (() => { const y = b[x.id < pid ? x.id : x.id - 1]; return y.x !== x.x || y.y !== x.y; })());
+      if (!diff.length) continue;
+      const near = x => Math.abs(x.x - me.x) + Math.abs(x.y - me.y);
+      diff.sort((p, q) => (PREDATOR(q.t) === s.t) - (PREDATOR(p.t) === s.t) || near(p) - near(q));
+      const t = diff[0], start = full.frames[0][t.id];
+      return { id: t.id, t: t.t, x: start.x, y: start.y, mine: t.id >= nf, scares: PREDATOR(t.t) === s.t };
+    }
+    return null;
+  }
+  const shownRungs = () => plan().slice(0, hintStep);
+  const revealedSquares = () => shownRungs().filter(r => r.kind === 'square').map(r => L.solution[r.j]);
+  function clearHint(){ $('board').querySelectorAll('.hint-ring,.hint-aim,.hint-area').forEach(e=>e.remove()); }
   function drawHints(){
     clearHint();
     if(mode!=='edit') return;
-    L.solution.slice(0,hintCount).forEach(s=>{
-      const r=document.createElement('div'); r.className='hint-ring';
-      r.innerHTML=`<b>${EMOJI[s.t]}</b>`;
-      r.style.cssText=`left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`;
-      $('board').appendChild(r);
+    const rungs = shownRungs(), squared = new Set(rungs.filter(r => r.kind === 'square').map(r => r.j));
+    const add = (cls, css, html='') => { const e=document.createElement('div'); e.className=cls; e.style.cssText=css; e.innerHTML=html; $('board').appendChild(e); };
+    rungs.forEach(r => {
+      if (r.kind === 'square') { const s = L.solution[r.j];
+        add('hint-ring', `left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`, `<b>${EMOJI[s.t]}</b>`); }
+      else if (squared.has(r.j)) return;
+      else if (r.kind === 'area') add('hint-area', `left:${P(r.ax)}px;top:${P(r.ay)}px;width:${cell*r.w}px;height:${cell*r.h}px`);
+      else if (!r.aim.mine) add('hint-aim', `left:${P(r.aim.x)-cell*.04}px;top:${P(r.aim.y)-cell*.04}px;width:${cell*1.08}px;height:${cell*1.08}px`);
     });
+  }
+  function hintText(r){
+    const s = L.solution[r.j], n = NAME[s.t], your = L.solution.length > 1 ? 'your ' : 'the ';
+    if (r.kind === 'aim') {
+      const verb = r.aim.scares ? 'scare' : 'block';
+      return r.aim.mine ? `${your}${n} has to ${verb} your ${NAME[r.aim.t]}.` : `${your}${n} has to ${verb} the circled ${NAME[r.aim.t]}.`;
+    }
+    if (r.kind === 'area') return `${your}${n} goes somewhere in the shaded squares.`;
+    return `put ${your}${n} on the glowing square.`;
   }
   function hint(){
     if(mode==='failed') backToStart();
     if(mode!=='edit') return;
-    const sol=L.solution;
-    if(hintCount>=sol.length) return;
-    const s=sol[hintCount++]; hintShown=true;
+    const sol=L.solution, rungs=plan();
     const onSolution = p => sol.some(q=>q.t===p.t&&q.x===p.x&&q.y===p.y);
-    // A different animal sitting on the hinted square goes back to the tray.
-    const here=placed.findIndex(p=>p.x===s.x&&p.y===s.y);
-    if(here>=0 && placed[here].t!==s.t) placed.splice(here,1);
-    // If every animal of the hinted kind is placed somewhere wrong, send one back so it can be placed.
-    if(!placed.some(p=>p.t===s.t&&p.x===s.x&&p.y===s.y) && !remaining().includes(s.t)){
-      let k=placed.findIndex(p=>p.t===s.t&&!onSolution(p));
-      if(k<0) k=placed.findIndex(p=>p.t===s.t);
-      if(k>=0) placed.splice(k,1);
+    const isPlaced = j => placed.some(p=>p.t===sol[j].t&&p.x===sol[j].x&&p.y===sol[j].y);
+    // Skip the hints for animals you've already put in the right place.
+    while (hintStep < rungs.length && isPlaced(rungs[hintStep].j)) hintStep++;
+    if(hintStep>=rungs.length) return;
+    const rung=rungs[hintStep++]; hintShown=true;
+    if (rung.kind === 'square') {
+      const s=sol[rung.j];
+      // A different animal sitting on the hinted square goes back to the tray.
+      const here=placed.findIndex(p=>p.x===s.x&&p.y===s.y);
+      if(here>=0 && placed[here].t!==s.t) placed.splice(here,1);
+      // If every animal of the hinted kind is placed somewhere wrong, send one back so it can be placed.
+      if(!placed.some(p=>p.t===s.t&&p.x===s.x&&p.y===s.y) && !remaining().includes(s.t)){
+        let k=placed.findIndex(p=>p.t===s.t&&!onSolution(p));
+        if(k<0) k=placed.findIndex(p=>p.t===s.t);
+        if(k>=0) placed.splice(k,1);
+      }
     }
+    const t = hintText(rung);
+    $('tip').textContent = `💡 ${t[0].toUpperCase()}${t.slice(1)}`; $('tip').classList.add('hinting');
     renderTray(); renderAnimals(); updateButtons();
-    toast(sol.length>1 ? `Hint ${hintCount} of ${sol.length}: put the ${NAME[s.t]} on the glowing square.` : `Put the ${NAME[s.t]} on the glowing square.`);
   }
 
   // Opens the castle map at the current level's room. After you clear a room (cleared = that room's
@@ -1227,12 +1288,13 @@ Promise.all([
     store.set('cm_map_at', li);
     if (walker && from < li && li - from <= 8 && roomIndexOf(from) === roomIndexOf(li)) {
       const at = i => m.querySelector(`.node[data-i="${i}"]`);
-      const place = i => { const n=at(i); walker.style.left=n.style.left; walker.style.top=n.style.top; };
+      const place = i => { const n=at(i); if (!n) return false; walker.style.left=n.style.left; walker.style.top=n.style.top; return true; };
       walker.style.transition='none'; place(from); walker.offsetWidth; walker.style.transition='';
       let i = from;
       later(opening.length ? 1300 : 450, function step(){
         if (i >= li) { walker.classList.remove('walking'); return; }
-        walker.classList.add('walking'); place(++i); later(280, step);
+        // (stops if you've left the room view meanwhile)
+        walker.classList.add('walking'); if (place(++i)) later(280, step);
       });
     }
   }
