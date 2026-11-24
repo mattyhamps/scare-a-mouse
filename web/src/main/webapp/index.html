@@ -162,9 +162,9 @@
   .animal{position:absolute;left:0;top:0;display:grid;place-items:center;transition:transform var(--glide,.15s) linear,opacity .25s;pointer-events:none;z-index:2}
   /* instant replay */
   .btn.replay{margin-top:12px;background:transparent;box-shadow:none;border:2px solid #574a66;font-size:15px;padding:10px}
-  .replay-controls{display:none}
+  .controls.replay-controls{display:none}
   .replaying .controls:not(.replay-controls){display:none}
-  .replaying .replay-controls{display:grid}
+  .replaying .controls.replay-controls{display:grid}
   .replay-controls .speed{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border:2px solid #4a4155;border-radius:16px;padding:3px;gap:3px}
   .replay-controls .speed button{font:600 16px Fredoka,system-ui;color:var(--muted);background:transparent;border:0;border-radius:12px;cursor:pointer}
   .replay-controls .speed button.on{background:var(--gold);color:#2b1d05}
