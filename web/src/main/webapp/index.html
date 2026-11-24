@@ -148,6 +148,8 @@
   .scene.f-hall    {--floor-bg:linear-gradient(90deg,rgba(0,0,0,.16) 0 2px,transparent 2px) 0 0/70px 54px,linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px) 0 0/70px 54px,linear-gradient(180deg,#8a7058,#74604c)}
   .scene.f-marble  {--floor-bg:repeating-conic-gradient(#efe6ee 0 25%,#d6c8d6 0 50%) 0 0/48px 48px}
   .scene.f-parquet {--floor-bg:repeating-linear-gradient(45deg,#9a6a3e 0 14px,#86592f 14px 16px,#a8743f 16px 30px,#86592f 30px 32px),#9a6a3e}
+  .scene.f-chapel  {--floor-bg:linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px) 0 0/60px 60px,linear-gradient(0deg,rgba(0,0,0,.12) 0 2px,transparent 2px) 0 0/60px 60px,radial-gradient(circle at 50% 20%,rgba(180,160,255,.15),transparent 60%),linear-gradient(180deg,#b8b0a4,#a39b8f)}
+  .scene.f-tunnel  {--floor-bg:radial-gradient(circle at 30% 40%,rgba(255,255,255,.05) 0 3px,transparent 4px) 0 0/30px 30px,radial-gradient(circle at 70% 70%,rgba(0,0,0,.18) 0 5px,transparent 6px) 0 0/44px 44px,linear-gradient(90deg,#2a2830,#3a3640 18%,#3a3640 82%,#2a2830)}
   .scene.f-wood    {--floor-bg:repeating-linear-gradient(90deg,#6b4a30 0 34px,#5d4029 34px 36px),#6b4a30}
   .scene.f-wood2   {--floor-bg:repeating-linear-gradient(90deg,#7a5434 0 30px,#6b482b 30px 32px),#7a5434}
   .scene.dark .room-body::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(0,0,0,.35))}
@@ -200,6 +202,10 @@
   .h-frame{position:absolute;top:26px;border-radius:2px;background:radial-gradient(circle at 50% 38%,var(--c1) 0 20%,transparent 22%),linear-gradient(180deg,var(--c2),#1c1a22);box-shadow:0 0 0 5px #c9a24a,0 0 0 7px #7a5a2a,0 7px 0 6px rgba(0,0,0,.2)}
   .scene.f-parquet .h-wall{background:linear-gradient(180deg,#3f6a4a,#2f5a3e)}
   @keyframes twirl{0%,100%{transform:rotate(-10deg) translateX(0)}50%{transform:rotate(10deg) translateX(6px)}}
+  .h-rose{position:absolute;left:50%;top:6px;width:64px;height:64px;transform:translateX(-50%);border-radius:50%;background:repeating-conic-gradient(#a8323a 0 30deg,#2f5a8a 30deg 60deg,#e8c85a 60deg 90deg);box-shadow:0 0 0 5px #8d8478,0 0 18px rgba(255,220,140,.5)}
+  .h-glass{position:absolute;top:20px;width:34px;height:120px;border-radius:17px 17px 2px 2px;background:linear-gradient(180deg,#a8323a 0 25%,#e8c85a 25% 40%,#2f5a8a 40% 70%,#3f6a4a 70%);box-shadow:0 0 0 4px #8d8478;opacity:.9}
+  .h-cave{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 50% 100%,#3a3640 0 60%,transparent 61%),repeating-linear-gradient(20deg,#4e4a56 0 30px,#45414c 30px 34px),#4e4a56}
+  .h-worldmap{position:absolute;left:18%;right:18%;top:10px;height:64px;border-radius:3px;background:radial-gradient(ellipse at 25% 45%,#8fb36a 0 16%,transparent 18%),radial-gradient(ellipse at 60% 35%,#8fb36a 0 12%,transparent 14%),radial-gradient(ellipse at 75% 65%,#8fb36a 0 10%,transparent 12%),linear-gradient(180deg,#9cc3e6,#7fa8d0);box-shadow:0 0 0 5px #c9a24a,0 0 0 7px #6b4423}
   .h-portrait{position:absolute;top:22px;width:50px;height:62px;border-radius:4px;background:radial-gradient(ellipse at 50% 70%,#c9a080 0 30%,transparent 31%),linear-gradient(180deg,#3f4f7a,#2a3456);box-shadow:0 0 0 5px #c9a24a,0 6px 0 4px rgba(0,0,0,.25)}
   .h-banner{position:absolute;top:0;width:28px;height:70px;clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%);transform-origin:top;animation:wave 3.2s ease-in-out infinite}
   .scene .exit{position:absolute;left:50%;top:84px;transform:translateX(-50%);z-index:3}
@@ -392,6 +398,20 @@
   .board.walls-pillar .wall,.g-pillar{border-radius:3px;background:radial-gradient(circle at 42% 38%,#ffffff 0,#ebe5ee 30%,#c9c0cf 56%,#9a90a2 62%,transparent 64%),
     linear-gradient(135deg,#d9d2de,#b4abba);box-shadow:inset 0 0 0 2px #8f8698,0 3px 0 rgba(0,0,0,.25)}
   .board.walls-pillar .wall::after,.g-pillar::after{content:"";position:absolute;inset:16%;border-radius:50%;border:2px solid rgba(201,162,74,.75)}
+  /* Chapel walls are pews, seen from above: a bench with a backrest */
+  .board.walls-pew .wall,.g-pew{border-radius:4px;background:linear-gradient(180deg,#6b4423 0 26%,#8a5a32 26% 34%,#b07a45 34% 92%,#6b4423 92%);box-shadow:inset 0 0 0 2px #5a3a1e,0 3px 0 rgba(0,0,0,.28)}
+  .board.walls-pew .wall::after,.g-pew::after{content:"";position:absolute;left:12%;right:12%;top:52%;height:10%;border-radius:2px;background:#7a2a3a}
+  /* Secret passage walls are rough rock */
+  .board.walls-rock .wall,.g-rock{border-radius:38% 46% 40% 50%/44% 38% 52% 46%;background:radial-gradient(circle at 34% 30%,#a8a2a8,#77717a 55%,#55505a);box-shadow:inset -3px -4px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.3)}
+  .board.walls-rock .wall::after,.g-rock::after{content:"";position:absolute;left:24%;top:30%;width:30%;height:12%;border-radius:50%;background:rgba(255,255,255,.18);transform:rotate(-20deg)}
+  /* Map room walls are map tables: a table with a chart on it */
+  .board.walls-maptable .wall,.g-maptable{border-radius:4px;background:#7b4f2c;box-shadow:inset 0 0 0 2px #5a3a1e,0 3px 0 rgba(0,0,0,.28)}
+  .board.walls-maptable .wall::after,.g-maptable::after{content:"";position:absolute;inset:16%;border-radius:2px;transform:rotate(-6deg);
+    background:radial-gradient(ellipse at 35% 40%,#8fb36a 0 22%,transparent 24%),radial-gradient(ellipse at 70% 65%,#8fb36a 0 14%,transparent 16%),linear-gradient(135deg,#f2e2b8,#d8bf88)}
+  /* Armory walls are weapon racks: a wooden frame holding blades */
+  .board.walls-rack .wall,.g-rack{border-radius:3px;background:linear-gradient(90deg,transparent 18%,#c9ced6 18% 24%,transparent 24% 46%,#c9ced6 46% 52%,transparent 52% 74%,#c9ced6 74% 80%,transparent 80%),
+    linear-gradient(180deg,#6b4423 0 12%,transparent 12% 82%,#6b4423 82%),#3f3a44;box-shadow:inset 0 0 0 2px #5a3a1e,0 3px 0 rgba(0,0,0,.28)}
+  .board.walls-rack .wall::after,.g-rack::after{content:"";position:absolute;left:16%;right:16%;top:28%;height:8%;background:#c9a24a;border-radius:2px}
   /* Gallery walls are statues: a bust on a stone plinth */
   .board.walls-statue .wall,.g-statue{border-radius:3px;background:linear-gradient(180deg,#cfc9c0,#a9a297);box-shadow:inset 0 0 0 2px #857e74,inset 0 -6px 0 rgba(0,0,0,.12),0 3px 0 rgba(0,0,0,.25)}
   .board.walls-statue .wall::before,.g-statue::before{content:"";position:absolute;left:22%;right:22%;bottom:16%;height:30%;border-radius:50% 50% 12% 12%;background:linear-gradient(180deg,#f4f1ec,#d8d2c8)}
@@ -457,7 +477,7 @@
   .guide-art .g-row{display:flex;align-items:center;gap:8px;width:100%;justify-content:center}
   .guide-art .g-sq{width:40px;height:40px;border-radius:6px;background:#e7dcc6;box-shadow:inset 0 0 0 2px #b9a98d;animation:none}
   .guide-art .g-go{font:700 18px Fredoka,system-ui;color:#1d3a10;background:#8fd16a;border-radius:10px;padding:8px 12px;animation:none}
-  .guide-art .g-table,.guide-art .g-pillar,.guide-art .g-statue{position:relative;width:56px;height:56px;animation:none}
+  .guide-art .g-pew,.guide-art .g-rock,.guide-art .g-maptable,.guide-art .g-rack,.guide-art .g-table,.guide-art .g-pillar,.guide-art .g-statue{position:relative;width:56px;height:56px;animation:none}
   .guide-art .g-counter,.guide-art .g-shelf{position:relative;width:56px;height:56px;animation:none}
   .card.guide h3{margin:0 0 6px}
   .card.guide p{margin:0 0 14px;font-size:16px;line-height:1.4;color:var(--ink)}
@@ -695,12 +715,12 @@ Promise.all([
     'Kitchens':       ['#f2e2cc','#e0b48e','#ad9a88','#968371','#736252', 'counter'],
     'Library':        ['#e7decf','#dbcfba','#9d98a8','#868192','#66626f', 'shelf'],
     'Study':          ['#ebe0cc','#ddd0b8','#a29a8e','#8b8378','#6b655c', 'shelf'],
-    'Secret passage': ['#d9d2c4','#cbc3b3','#86828c','#716d77','#55525a'],
-    'Chapel':         ['#ebe6dc','#ded8cc','#aeaabb','#9893a6','#767184'],
     'Gallery':        ['#ece2df','#e0d3cf','#a99a96','#928380','#716462', 'statue'],
-    'Armory':         ['#e2dfd8','#d4d0c7','#999da3','#83878d','#65686d'],
+    'Chapel':         ['#ebe6dc','#ded8cc','#aeaabb','#9893a6','#767184', 'pew'],
+    'Secret passage': ['#d6cfc2','#c6beb0','#86828c','#716d77','#55525a', 'rock'],
+    'Map room':       ['#ece3c8','#dfd4b2','#a59d84','#8f876e','#6e6853', 'maptable'],
+    'Armory':         ['#e2dfd8','#d4d0c7','#999da3','#83878d','#65686d', 'rack'],
     'Guard room':     ['#e4ddd2','#d6cdbf','#a1988d','#8a8177','#6a635b'],
-    'Map room':       ['#ece3c8','#dfd4b2','#a59d84','#8f876e','#6e6853'],
     'Wine cellar':    ['#e3d3c6','#d6c2b2','#927e77','#7b6862','#5d4d48'],
     'Dungeon':        ['#d6d2cc','#c8c3bb','#817f87','#6c6a72','#504f55'],
     'Treasury':       ['#f0e4c4','#e6d6a8','#b2a47c','#9b8d66','#796d4c'],
@@ -993,6 +1013,37 @@ Promise.all([
     ropes: () => [10, 54, 98].map(l => S(`left:${l}px;top:40px;width:10px;height:46px;border-radius:5px 5px 2px 2px;background:linear-gradient(90deg,#8a6a2a,#e8c85a 50%,#8a6a2a)`) + S(`left:${l - 3}px;top:82px;width:16px;height:6px;border-radius:3px;background:#8a6a2a`)).join('') +
       S('left:16px;top:44px;width:44px;height:18px;border-radius:0 0 22px 22px;box-sizing:border-box;border:4px solid #a8323a;border-top:0') + S('left:60px;top:44px;width:44px;height:18px;border-radius:0 0 22px 22px;box-sizing:border-box;border:4px solid #a8323a;border-top:0') + E('🏺', 'left:46px;top:0;font-size:30px'),
     bench: () => shade(10, 82, 100, 12) + S('left:12px;top:44px;width:96px;height:28px;border-radius:10px;background:linear-gradient(180deg,#3f6a4a,#2a4a33);box-shadow:0 5px 0 rgba(0,0,0,.28)') + plank(20, 70, 8, 16, '#5a3a1e') + plank(92, 70, 8, 16, '#5a3a1e') + E('🎩', 'left:24px;top:28px;font-size:20px') + E('📖', 'left:72px;top:30px;font-size:18px'),
+    // Chapel
+    pews: () => [6, 40, 74].map(t => S(`left:6px;top:${t - 4}px;width:108px;height:24px;border-radius:4px;background:linear-gradient(180deg,#6b4423 0 26%,#b07a45 26%);box-shadow:inset 0 0 0 2px #5a3a1e,0 3px 0 rgba(0,0,0,.28)`)).join('') + E('📖', 'left:20px;top:44px;font-size:14px') + E('🕊️', 'left:84px;top:-12px;font-size:18px;animation:ambfly 7s ease-in-out infinite'),
+    altar: () => shade(8, 84, 104, 12) + S('left:10px;top:36px;width:100px;height:48px;border-radius:4px;background:linear-gradient(180deg,#f4efe6,#d8d2c8);box-shadow:0 5px 0 rgba(0,0,0,.25)') + S('left:46px;top:36px;width:28px;height:48px;background:linear-gradient(180deg,#a8323a,#7a2028)') +
+      S('left:56px;top:4px;width:8px;height:34px;background:#c9a24a;border-radius:2px') + S('left:46px;top:12px;width:28px;height:7px;background:#c9a24a;border-radius:2px') + E('🕯️', 'left:16px;top:16px;font-size:18px;animation:sflick 1.3s ease-in-out infinite') + E('🕯️', 'left:88px;top:16px;font-size:18px;animation:sflick 1.6s ease-in-out infinite') + E('💐', 'left:24px;top:40px;font-size:16px'),
+    organ: () => shade(8, 86, 104, 10) + [0, 1, 2, 3, 4, 5, 6, 7].map(k => { const h = 30 + Math.abs(3.5 - k) * -6 + 40; return S(`left:${14 + k * 12}px;top:${70 - h}px;width:9px;height:${h}px;border-radius:5px 5px 0 0;background:linear-gradient(90deg,#9a8a6a,#e8d8a8 50%,#9a8a6a)`); }).join('') +
+      S('left:10px;top:66px;width:100px;height:22px;border-radius:3px;background:linear-gradient(180deg,#6b4423,#4a2e16)') + S('left:24px;top:68px;width:72px;height:7px;background:repeating-linear-gradient(90deg,#f4efe6 0 5px,#2a2630 5px 6px)') + E('🎵', 'left:96px;top:4px;font-size:14px;animation:ambmote 2.6s ease-in-out infinite'),
+    font: () => shade(30, 84, 60, 12) + S('left:48px;top:46px;width:24px;height:38px;background:linear-gradient(90deg,#9a9083,#c9c0b2 50%,#9a9083)') + S('left:28px;top:22px;width:64px;height:30px;border-radius:0 0 32px 32px;background:linear-gradient(180deg,#c9c0b2,#9a9083)') +
+      S('left:32px;top:22px;width:56px;height:12px;border-radius:50%;background:radial-gradient(ellipse,#9ad6ee,#5a9ac8)') + S('left:46px;top:24px;width:20px;height:7px;border-radius:50%;border:2px solid rgba(255,255,255,.6);animation:sripple 2.4s ease-out infinite'),
+    lectern: () => shade(36, 84, 48, 10) + plank(56, 40, 8, 46, '#6b4423') + S('left:34px;top:22px;width:52px;height:24px;transform:skewX(-10deg);background:#8a5a32;box-shadow:0 3px 0 rgba(0,0,0,.25)') + E('📖', 'left:44px;top:14px;font-size:24px') + E('🕯️', 'left:86px;top:30px;font-size:16px;animation:sflick 1.5s ease-in-out infinite'),
+    // Secret passage
+    cobwebs: () => E('🕸️', 'left:4px;top:0;font-size:46px;opacity:.75') + E('🕸️', 'left:66px;top:36px;font-size:40px;opacity:.6') + E('🕷️', 'left:52px;top:20px;font-size:16px;animation:drip 3s ease-in-out infinite alternate'),
+    bones: () => S('left:16px;top:58px;width:88px;height:28px;border-radius:50%;background:rgba(0,0,0,.22)') + E('💀', 'left:44px;top:34px;font-size:26px') + E('🦴', 'left:16px;top:56px;font-size:20px;transform:rotate(30deg)') + E('🦴', 'left:74px;top:58px;font-size:20px;transform:rotate(-20deg)') + E('🗝️', 'left:84px;top:30px;font-size:16px'),
+    chest: () => shade(16, 84, 88, 12) + S('left:20px;top:40px;width:80px;height:44px;border-radius:4px;background:repeating-linear-gradient(90deg,#8a5a32 0 18px,#7a4a28 18px 20px);box-shadow:inset 0 0 0 3px #c9a24a,0 4px 0 rgba(0,0,0,.3)') +
+      S('left:20px;top:22px;width:80px;height:24px;border-radius:30px 30px 0 0;background:repeating-linear-gradient(90deg,#9a6a3a 0 18px,#8a5a32 18px 20px);box-shadow:inset 0 0 0 3px #c9a24a;transform-origin:bottom;transform:rotateX(35deg)') +
+      S('left:54px;top:44px;width:12px;height:14px;border-radius:3px;background:#e8c85a') + E('🪙', 'left:30px;top:22px;font-size:14px;animation:twinkle 1.8s infinite') + E('💎', 'left:70px;top:20px;font-size:14px;animation:twinkle 2.2s infinite'),
+    lever: () => S('left:30px;top:20px;width:60px;height:66px;border-radius:6px;background:repeating-linear-gradient(0deg,#77717a 0 16px,#6a646e 16px 18px);box-shadow:inset 0 0 0 3px #4a4550') + S('left:56px;top:44px;width:10px;height:10px;border-radius:50%;background:#2a2630') +
+      S('left:58px;top:16px;width:6px;height:34px;background:#5a5a64;transform-origin:bottom;transform:rotate(25deg)') + S('left:64px;top:10px;width:14px;height:14px;border-radius:50%;background:#a8323a') + E('❓', 'left:92px;top:18px;font-size:14px;animation:bob 1.6s ease-in-out infinite'),
+    // Map room
+    chartdesk: () => shade(4, 86, 112, 10) + S('left:6px;top:26px;width:108px;height:56px;border-radius:6px;background:linear-gradient(90deg,#6b4423,#8a5a32 50%,#6b4423);box-shadow:0 6px 0 rgba(0,0,0,.28)') +
+      S('left:16px;top:30px;width:88px;height:46px;transform:rotate(-4deg);border-radius:2px;background:radial-gradient(ellipse at 30% 40%,#8fb36a 0 18%,transparent 20%),radial-gradient(ellipse at 72% 62%,#8fb36a 0 14%,transparent 16%),linear-gradient(135deg,#f2e2b8,#d8bf88)') +
+      E('🧭', 'left:66px;top:34px;font-size:18px') + E('⛵', 'left:44px;top:48px;font-size:14px;animation:bob 2s ease-in-out infinite') + E('📍', 'left:28px;top:30px;font-size:14px'),
+    scrolls: () => shade(10, 86, 100, 10) + S('left:10px;top:16px;width:100px;height:70px;border-radius:3px;background:radial-gradient(circle,#efdcae 0 7px,#c9a870 8px 10px,#5a3a1e 11px) 0 0/20px 20px,#5a3a1e;box-shadow:inset 0 0 0 4px #4a2e16') + E('📜', 'left:92px;top:66px;font-size:18px'),
+    ship: () => shade(28, 86, 64, 10) + S('left:30px;top:20px;width:60px;height:56px;border-radius:30px 30px 4px 4px;background:rgba(200,230,255,.25);box-shadow:inset 0 0 0 3px rgba(255,255,255,.5)') + E('⛵', 'left:40px;top:28px;font-size:36px;animation:bob 2.4s ease-in-out infinite') + S('left:24px;top:74px;width:72px;height:12px;border-radius:2px;background:#6b4423'),
+    // Armory
+    weapons: () => shade(8, 86, 104, 10) + S('left:8px;top:6px;width:104px;height:80px;border-radius:3px;background:linear-gradient(180deg,#6b4423 0 10%,#3f3a44 10% 88%,#6b4423 88%);box-shadow:inset 0 0 0 3px #5a3a1e') +
+      E('⚔️', 'left:14px;top:20px;font-size:30px') + E('🗡️', 'left:48px;top:18px;font-size:28px;transform:rotate(-45deg)') + E('🪓', 'left:78px;top:20px;font-size:28px') + E('🏹', 'left:30px;top:54px;font-size:22px') + E('🔱', 'left:70px;top:52px;font-size:22px'),
+    shields: () => ['#a8323a:#f2e6cc', '#2f5a8a:#e8c85a', '#3f6a4a:#f2e6cc'].map((cc, k) => { const [a, b] = cc.split(':');
+        return S(`left:${8 + k * 36}px;top:${16 + (k % 2) * 10}px;width:32px;height:40px;border-radius:4px 4px 50% 50%;background:linear-gradient(90deg,${a} 50%,${b} 50%);box-shadow:0 0 0 3px #c9a24a,0 4px 0 3px rgba(0,0,0,.25)`); }).join('') + E('🛡️', 'left:48px;top:62px;font-size:22px'),
+    anvil: () => shade(20, 84, 80, 12) + S('left:44px;top:56px;width:32px;height:28px;background:linear-gradient(90deg,#3a3a42,#5a5a64 50%,#3a3a42)') + S('left:26px;top:40px;width:68px;height:18px;border-radius:2px 14px 4px 2px;background:linear-gradient(180deg,#6a6a74,#3a3a42)') +
+      E('🔨', 'left:66px;top:6px;font-size:26px;transform-origin:80% 80%;animation:swing 1.2s ease-in-out infinite') + E('✨', 'left:52px;top:26px;font-size:14px;animation:twinkle .6s infinite') + E('🔥', 'left:4px;top:52px;font-size:20px;animation:sflick 1s ease-in-out infinite'),
+    target: () => shade(28, 86, 64, 10) + plank(36, 56, 6, 30, '#6b4423') + plank(78, 56, 6, 30, '#6b4423') + S('left:28px;top:4px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,#ffd666 0 14%,#d8322c 15% 30%,#f4efe6 31% 46%,#2f5a8a 47% 62%,#f4efe6 63% 78%,#3a3a42 79%)') + E('🏹', 'left:56px;top:18px;font-size:20px;transform:rotate(-30deg)'),
     maps: () => S('left:16px;top:8px;width:88px;height:64px;border-radius:3px;background:linear-gradient(135deg,#efdcae,#d8bf88);box-shadow:0 0 0 4px #6b4423,0 5px 0 4px rgba(0,0,0,.25)') + S('left:28px;top:20px;width:40px;height:26px;border-radius:40% 60% 50% 40%;background:#8fb36a;opacity:.8') + S('left:62px;top:36px;width:24px;height:20px;border-radius:50%;background:#8fb36a;opacity:.8') + E('❌', 'left:66px;top:34px;font-size:11px') + E('🧭', 'left:84px;top:62px;font-size:20px'),
   };
   // Floors (the scene background), road looks and heads (the top of the scene, around the door out).
@@ -1022,6 +1073,10 @@ Promise.all([
     'Great hall':  { floor:'hall',    road:'carpet', head:'greathall', props:['feast','armor','minstrels','hound','feast','armor','hearth','barrels'], ambient:['·','·'], small:['🍗','🍷','🦴','🕯️','🍺'], torch:1 },
     'Ballroom':    { floor:'marble',  road:'gold',   head:'ballroom', props:['dancers','musicians','columns','punch','chandelier','dancers','piano','vase'], ambient:['✨','✨','🎵'], small:['🌹','🥂','🎀','🪭','✨'], torch:1 },
     'Gallery':     { floor:'parquet', road:'green',  head:'gallery',  props:['easel','bust','paintings','ropes','horse','bench','easel','paintings'], ambient:['·','·'], small:['🖌️','🎨','🏺','🕯️','📜'], torch:1 },
+    'Chapel':      { floor:'chapel',  road:'carpet', head:'chapel',   props:['pews','altar','organ','font','pews','lectern','candles','pews'], ambient:['·','·','🕊️'], small:['🕯️','📿','💐','🕊️','📖'], torch:1 },
+    'Secret passage': { floor:'tunnel', road:'dark', head:'passage', props:['cobwebs','bones','chest','lever','brazier','rocks','cobwebs','chains'], ambient:['🦇','💧','🦇'], small:['🕸️','🪨','🦴','🐀','🕯️'], torch:1, dark:1 },
+    'Map room':    { floor:'wood2',   road:'rug',    head:'maproom',  props:['chartdesk','globe','scrolls','telescope','ship','maps','chartdesk','candles'], ambient:['·','·'], small:['📜','🧭','📐','🪶','📍'], torch:1 },
+    'Armory':      { floor:'flags',   road:'stone',  head:'armory',   props:['weapons','armor','shields','anvil','target','barrels','weapons','armor'], ambient:['✨'], small:['🛡️','⚔️','🔩','🪖','🏹'], torch:1 },
     'Study':       { floor:'wood2',   road:'carpet', head:'study',    props:['desk','globe','telescope','bookshelf','maps','armchair','candles','desk'], ambient:['·','·'], small:['📜','🪶','🔍','📐','🕯️'], torch:1 },
   };
   const DEFAULT_SCENE = { floor:'flags', road:'stone', head:'wall', props:['barrels','candles','crates','bookshelf'], ambient:[], small:['🕯️','🪨','🕸️'], torch:1 };
@@ -1046,6 +1101,10 @@ Promise.all([
       case 'study': return wall(win('10%', 22) + `<i class="h-portrait" style="right:10%"></i>` + banner('34%', '#2f5a8a') + banner('62%', '#a8323a')) + E('🦉', 'left:10%;top:94px;font-size:22px;animation:breathe 3s ease-in-out infinite');
       case 'greathall': return wall(`<i class="h-fireplace"></i>` + banner('8%', '#a8323a') + banner('84%', '#2f5a8a') + `<i class="h-shield" style="left:22%"></i><i class="h-shield" style="right:22%"></i>`) + E('🔥', 'left:14%;top:104px;font-size:26px;animation:sflick 1s ease-in-out infinite') + E('🦌', 'right:6%;top:84px;font-size:26px');
       case 'ballroom': return wall(`<i class="h-tallwin" style="left:6%"></i><i class="h-tallwin" style="right:6%"></i><i class="h-curtain" style="left:2%"></i><i class="h-curtain" style="left:24%"></i><i class="h-curtain" style="right:24%"></i><i class="h-curtain" style="right:2%"></i>`) + E('🪩', 'left:30%;top:4px;font-size:26px;animation:spin 6s linear infinite') + E('🪩', 'right:30%;top:4px;font-size:26px;animation:spin 7s linear infinite reverse');
+      case 'chapel': return wall(`<i class="h-rose"></i><i class="h-glass" style="left:8%"></i><i class="h-glass" style="right:8%"></i>`) + E('🔔', 'left:30%;top:10px;font-size:20px;transform-origin:top;animation:swing 2.4s ease-in-out infinite') + E('🔔', 'right:30%;top:10px;font-size:20px;transform-origin:top;animation:swing 2.8s ease-in-out infinite');
+      case 'passage': return `<div class="h-cave"></div>` + E('🕸️', 'left:2%;top:4px;font-size:34px;opacity:.7') + E('🕸️', 'right:2%;top:10px;font-size:28px;opacity:.6') + E('🦇', 'left:24%;top:40px;font-size:18px;animation:ambfly 6s ease-in-out infinite') + E('📚', 'right:16%;top:96px;font-size:26px');
+      case 'maproom': return wall(`<i class="h-worldmap"></i>` + win('6%', 30) + win('88%', 30)) + E('🧭', 'left:4%;top:110px;font-size:22px') + E('🔭', 'right:4%;top:104px;font-size:24px');
+      case 'armory': return wall(`<i class="h-shield" style="left:8%"></i><i class="h-shield" style="left:26%;top:44px"></i><i class="h-shield" style="right:26%;top:44px"></i><i class="h-shield" style="right:8%"></i>` + banner('40%', '#a8323a') + banner('56%', '#2f5a8a')) + E('⚔️', 'left:16%;top:84px;font-size:28px') + E('⚔️', 'right:16%;top:84px;font-size:28px');
       case 'gallery': return wall(`<i class="h-frame" style="left:4%;width:54px;height:66px;--c1:#e8b86a;--c2:#8a3a3a"></i><i class="h-frame" style="left:24%;width:44px;height:44px;top:40px;--c1:#9cc3e6;--c2:#4a7a3a"></i><i class="h-frame" style="right:24%;width:44px;height:56px;--c1:#f2e6cc;--c2:#3a4a7a"></i><i class="h-frame" style="right:4%;width:54px;height:44px;top:44px;--c1:#ffd666;--c2:#2a5a6a"></i>`) + E('💡', 'left:9%;top:6px;font-size:14px') + E('💡', 'right:9%;top:6px;font-size:14px');
       default: return wall(win('12%', 24) + win('80%', 24) + banner('30%', '#a8323a') + banner('64%', '#2f5a8a'));
     }
@@ -1194,6 +1253,14 @@ Promise.all([
            text: 'Animals can\'t run through the tables. A running animal stops when it reaches one.' },
     292: { art: '<span class="g-pillar"></span><span class="g-pillar"></span>', title: 'New: marble pillars!',
            text: 'Animals can\'t run through the pillars either.' },
+    352: { art: '<span class="g-pew"></span><span class="g-pew"></span>', title: 'New: chapel pews!',
+           text: 'Animals can\'t run through the pews. A running animal stops when it reaches one.' },
+    392: { art: '<span class="g-rock"></span><span class="g-rock"></span>', title: 'New: rock walls!',
+           text: 'The secret passage twists through solid rock. Animals can\'t run through it.' },
+    422: { art: '<span class="g-maptable"></span><span class="g-maptable"></span>', title: 'New: map tables!',
+           text: 'Animals can\'t run through the map tables.' },
+    462: { art: '<span class="g-rack"></span><span class="g-rack"></span>', title: 'New: weapon racks!',
+           text: 'Animals can\'t run through the weapon racks. Careful, they\'re sharp!' },
     322: { art: '<span class="g-statue"></span><span class="g-statue"></span>', title: 'New: statues!',
            text: 'Animals can\'t run through the statues. Mind the art!' },
   };

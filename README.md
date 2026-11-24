@@ -99,8 +99,8 @@ easier solution. Like every board piece, each wall has to matter to the puzzle.
 
 Each castle room also tints the board (floor, stone and wall look) so it fits the room; in the
 Kitchens the walls are drawn as counters, in the Library and Study as bookshelves, in the Great hall as banquet
-tables, in the Ballroom as marble pillars and in the Gallery as statues (from the Library on, only about 1 level
-in 5 has walls). The First floor gets harder room by room: the Great hall is about as hard as the Study, the
+tables, in the Ballroom as marble pillars and in the Gallery as statues, in the Chapel as pews, in the Secret passage as rock, in the Map room as map tables and in the Armory as weapon racks (from the Library on, only about 1 level
+in 5 has walls). The Second floor (351–500, the first 10×10 boards) eases in with the Chapel, has rock walls in most Secret passage levels, then gets harder through the Map room and Armory to its boss at 500. The First floor gets harder room by room: the Great hall is about as hard as the Study, the
 Ballroom and Gallery use more two-animal moves and more blockers, and level 350 is its boss.
 
 Recipes are mixed through each batch of ten rather than grouped.
