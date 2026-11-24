@@ -116,9 +116,8 @@ door out at the top. **Every room's drawing ships with its levels:** when you ad
 add its scene to `SCENES` and its board look to `BOARDS` in the same change. `LevelsTest` fails if a
 room has levels but no scene or board look.
 
-**Hints and cheese.** Each animal you place has three hints, one per press: the board animal it has
-to scare (or block) glows, then a 3×3 patch it goes in is shaded, then the exact square. Hints cost
-cheese (1, 1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
+**Hints and cheese.** Each animal you place has two hints, one per press: a 3×3 patch it goes in is
+shaded, then the exact square glows. Hints cost cheese (1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
 with hints, double on boss levels, plus 5 🧀 for clearing a room. New players start with 5 🧀.
 Hints you've bought stay bought for that level.
 
