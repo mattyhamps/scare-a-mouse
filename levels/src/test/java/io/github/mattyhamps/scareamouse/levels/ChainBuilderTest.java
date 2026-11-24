@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class ChainBuilderTest {
 
     static IntStream recipes() {
-        return IntStream.rangeClosed(61, 100);
+        return IntStream.rangeClosed(61, 110);
     }
 
     @ParameterizedTest(name = "recipe for level {0}")
