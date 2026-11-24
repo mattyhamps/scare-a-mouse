@@ -57,6 +57,7 @@ public final class ChainBuilder {
         final List<Integer> guards = new ArrayList<>();  // fixed indices
         int holeX = -1;                                  // (-1,-1) is a corner, so no hole yet
         int holeY = -1;
+        final List<int[]> walls = new ArrayList<>();
         boolean moving;                                  // the starter is on the board: no "still" check
         int tx;                                          // where the starter is
         int ty;
@@ -66,13 +67,18 @@ public final class ChainBuilder {
         }
 
         Level level() {
-            return new Level("", "", n, n, holeX, holeY, Collections.<int[]>emptyList(), fixed,
+            return new Level("", "", n, n, holeX, holeY, walls, fixed,
                     Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
         }
 
         boolean free(int x, int y) {
             if (x < 0 || y < 0 || x >= n || y >= n || (x == holeX && y == holeY)) {
                 return false;
+            }
+            for (int[] w : walls) {
+                if (w[0] == x && w[1] == y) {
+                    return false;
+                }
             }
             for (Piece p : fixed) {
                 if (p.x == x && p.y == y) {
@@ -179,7 +185,7 @@ public final class ChainBuilder {
             }
         }
         for (Recipe.Move m : recipe.moves) {
-            if (m == Recipe.Move.STOP && !addStop(d, rng)) {
+            if (m == Recipe.Move.STOP && !addStop(d, rng, false)) {
                 return null;
             }
         }
@@ -187,6 +193,12 @@ public final class ChainBuilder {
             if (m == Recipe.Move.CATCH && !takeOffBoard(d, rng)) {
                 return null;
             }
+        }
+        // Walls that stop a runner before a spoiler: up to half the walls, the rest come from closing off
+        // other solutions (see candidate()).
+        int stopWalls = recipe.wallsMax == 0 ? 0 : (int) (rng.next() * (recipe.wallsMax / 2 + 1));
+        for (int k = 0; k < stopWalls; k++) {
+            addStop(d, rng, true);
         }
         return assemble(d, recipe, name);
     }
@@ -737,7 +749,7 @@ public final class ChainBuilder {
      * STOP: a chain runner gets a "spoiler" beside the rest of its path (an animal it scares, which would
      * run off and ruin the level), and you place an animal in the runner's path to halt it before that.
      */
-    private static boolean addStop(Draft d, LevelGenerator.Rng rng) {
+    private static boolean addStop(Draft d, LevelGenerator.Rng rng, boolean wall) {
         List<int[]> options = new ArrayList<>(); // {chain idx, k, side x, side y, j}
         java.util.Map<Integer, List<int[]>> paths = new java.util.HashMap<>();
         for (int idx : d.chain) {
@@ -787,14 +799,23 @@ public final class ChainBuilder {
             Animal stopper = rng.pick(neutral);
             int spoiler = d.add(prey(type), sx, sy);
             boolean spoils = !Simulator.run(d.level(), d.placed).win;
-            d.placed.add(new Piece(stopper, stopAt[0], stopAt[1]));
+            if (wall) {
+                d.walls.add(new int[] {stopAt[0], stopAt[1]});
+            } else {
+                d.placed.add(new Piece(stopper, stopAt[0], stopAt[1]));
+            }
             SimResult with = Simulator.record(d.level(), d.placed);
             int stopperId = d.fixed.size() + d.placed.size() - 1;
-            if (spoils && with.win && firstMove(with.frames, spoiler) < 0 && firstMove(with.frames, stopperId) < 0) {
+            if (spoils && with.win && firstMove(with.frames, spoiler) < 0
+                    && (wall || firstMove(with.frames, stopperId) < 0) && allChainMoved(d)) {
                 d.guards.add(spoiler);
                 return true;
             }
-            d.placed.remove(d.placed.size() - 1);
+            if (wall) {
+                d.walls.remove(d.walls.size() - 1);
+            } else {
+                d.placed.remove(d.placed.size() - 1);
+            }
             d.removeLast(1);
         }
         return false;
@@ -811,7 +832,7 @@ public final class ChainBuilder {
             }
             List<Piece> fixed = new ArrayList<>(d.fixed);
             fixed.remove(idx);
-            Level without = new Level("", "", d.n, d.n, d.holeX, d.holeY, Collections.<int[]>emptyList(), fixed,
+            Level without = new Level("", "", d.n, d.n, d.holeX, d.holeY, d.walls, fixed,
                     Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
             List<Piece> placed = new ArrayList<>(d.placed);
             if (Simulator.run(without, placed).win) {
@@ -849,7 +870,7 @@ public final class ChainBuilder {
             hand.add(p.type);
         }
         hand.sort((a, b) -> a.id().compareTo(b.id()));
-        return new Level(name, recipe.tip, d.n, d.n, d.holeX, d.holeY, Collections.<int[]>emptyList(), d.fixed, hand,
+        return new Level(name, recipe.tip, d.n, d.n, d.holeX, d.holeY, d.walls, d.fixed, hand,
                 new ArrayList<>(d.placed));
     }
 
@@ -882,7 +903,7 @@ public final class ChainBuilder {
             pool.submit(() -> {
                 LevelGenerator.Rng rng = new LevelGenerator.Rng(seed);
                 while (found.size() < want && !Thread.currentThread().isInterrupted()) {
-                    Level candidate = build(recipe, rng, name);
+                    Level candidate = candidate(recipe, rng, name);
                     if (candidate == null) {
                         continue;
                     }
@@ -910,6 +931,101 @@ public final class ChainBuilder {
             }
         }
         return best;
+    }
+
+    /**
+     * One candidate level: built by {@link #build}, then, for recipes with walls, other solutions are
+     * closed off with walls on the squares they use. Returns null if the wall count is out of range.
+     * The caller still runs {@link LevelChecker}.
+     */
+    static Level candidate(Recipe recipe, LevelGenerator.Rng rng, String name) {
+        Level level = build(recipe, rng, name);
+        if (level == null || recipe.wallsMax == 0) {
+            return level;
+        }
+        level = closeOffOtherSolutions(level, recipe.wallsMax);
+        if (level == null || level.walls.size() < recipe.wallsMin || level.walls.size() > recipe.wallsMax) {
+            return null;
+        }
+        return level;
+    }
+
+    /**
+     * While the level has other solutions besides the intended one, puts a wall on the square that rules
+     * out the most of them (never one the intended run needs). Each such wall matters: take it away and
+     * an easier solution comes back.
+     */
+    private static Level closeOffOtherSolutions(Level level, int maxWalls) {
+        for (int guard = 0; guard < 8; guard++) {
+            List<List<Piece>> all = LevelChecker.solutions(level, level.inventory, 12);
+            List<List<Piece>> others = new ArrayList<>();
+            for (List<Piece> s : all) {
+                if (!sameSet(s, level.solution)) {
+                    others.add(s);
+                }
+            }
+            if (others.isEmpty()) {
+                return level;
+            }
+            if (all.size() >= 12 || level.walls.size() >= maxWalls) {
+                return null; // too many to close off
+            }
+            java.util.Set<String> used = usedSquares(level);
+            java.util.Map<String, Integer> votes = new java.util.HashMap<>();
+            for (List<Piece> s : others) {
+                for (Piece p : s) {
+                    if (!used.contains(p.x + "," + p.y)) {
+                        votes.merge(p.x + "," + p.y, 1, Integer::sum);
+                    }
+                }
+            }
+            List<String> squares = new ArrayList<>(votes.keySet());
+            squares.sort((a, b) -> votes.get(b) - votes.get(a));
+            Level next = null;
+            for (String sq : squares) {
+                String[] xy = sq.split(",");
+                List<int[]> walls = new ArrayList<>(level.walls);
+                walls.add(new int[] {Integer.parseInt(xy[0]), Integer.parseInt(xy[1])});
+                Level tryLevel = new Level(level.name, level.tip, level.w, level.h, level.holeX, level.holeY, walls,
+                        level.fixed, level.inventory, level.solution);
+                if (Simulator.run(tryLevel, tryLevel.solution).win) {
+                    next = tryLevel;
+                    break;
+                }
+            }
+            if (next == null) {
+                return null;
+            }
+            level = next;
+        }
+        return null;
+    }
+
+    /** Squares the intended run uses: where your animals go and every square an animal passes through. */
+    private static java.util.Set<String> usedSquares(Level level) {
+        java.util.Set<String> used = new java.util.HashSet<>();
+        for (List<SimResult.Snapshot> frame : Simulator.record(level, level.solution).frames) {
+            for (SimResult.Snapshot s : frame) {
+                used.add(s.x + "," + s.y);
+            }
+        }
+        return used;
+    }
+
+    private static boolean sameSet(List<Piece> a, List<Piece> b) {
+        if (a.size() != b.size()) {
+            return false;
+        }
+        java.util.Set<String> s = new java.util.HashSet<>();
+        for (Piece p : a) {
+            s.add(p.type + "," + p.x + "," + p.y);
+        }
+        for (Piece p : b) {
+            if (!s.contains(p.type + "," + p.x + "," + p.y)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     static Animal prey(Animal a) {

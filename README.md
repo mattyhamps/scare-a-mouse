@@ -92,6 +92,13 @@ instead of starting it:
 | Catch | A chain link is missing from the board; place it where a runner passes so it carries the chain on. |
 | Stop | Place an animal in a runner's path to halt it before it scares a "spoiler" that would ruin the run. |
 
+**Walls** (from the Kitchens, level 171): recipes can ask for 2–4 walls. Some stop a runner on the
+right square before it reaches a spoiler; the rest close off squares that would give a second,
+easier solution. Like every board piece, each wall has to matter to the puzzle.
+
+Each castle room also tints the board (floor, stone and wall look) so it fits the room; in the
+Kitchens the walls are drawn as counters.
+
 Recipes are mixed through each batch of ten rather than grouped.
 
 Level tools:

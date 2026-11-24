@@ -143,6 +143,11 @@
   .border{background:linear-gradient(180deg,var(--stone-l),var(--stone) 55%,var(--stone-d));box-shadow:inset 0 0 0 1px rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.18)}
   .wall{background:linear-gradient(180deg,#9c9284,#6b635a);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.2),0 3px 0 rgba(0,0,0,.25);border-radius:4px}
   .hole{background:linear-gradient(180deg,var(--stone-l),var(--stone) 55%,var(--stone-d))}
+  /* Kitchen walls are counters: a butcher-block top over a wooden cupboard front */
+  .board.walls-counter .wall{background:linear-gradient(180deg,#e6c79a 0 30%,#7b4f2c 30% 34%,#a46e43 34%);border-radius:4px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 rgba(0,0,0,.25)}
+  .board.walls-counter .wall::after{content:"";position:absolute;left:50%;top:62%;width:12%;height:8%;border-radius:2px;
+    transform:translateX(-50%);background:#e8c37c;box-shadow:0 1px 0 rgba(0,0,0,.35)}
   .hole i{display:block;width:62%;height:62%;background:#120f14;border-radius:50% 50% 8% 8%;box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.0)}
   .hole.in{background:var(--floor-a)} .hole.in.alt{background:var(--floor-b)}
   .hole.in i{width:66%;height:66%;border-radius:50%;box-shadow:inset 0 5px 7px rgba(0,0,0,.85),0 0 0 3px var(--stone-d)}
@@ -273,7 +278,7 @@ Promise.all([
   let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintCount=0;
   // edge: thickness of the castle wall around the board, in px. Boards bigger than 7x7 get a thinner
   // wall so their squares stay big enough to tap. P(v) is the pixel offset of column or row v.
-  let edge = 0;
+  let edge = 0, boardTheme = '';
   const P = v => edge + v*cell;
 
   if (PREVIEW) {
@@ -314,6 +319,30 @@ Promise.all([
     {end:980,  name:'Throne room',    ic:'👑', bg:'#5e2f35', top:['🚩','👑','🚩'], deco:['👑','🕯️','🛡️','🎺','🏆','🌹']},
     {end:1000, name:'Tower top',      ic:'🌙', bg:'#2e3557', out:1, night:1, top:['⭐','🌙','⭐'], deco:['⭐','🦇','✨','🦉','☁️','🌟']},
   ];
+  // Each room's board: floor tiles, castle-wall stone and the look of walls. Kept close to the
+  // original board, just tinted to fit the room. [floor A, floor B, stone light, stone, stone dark]
+  const BOARDS = {
+    'Courtyard':      ['#e4e2c8','#d6d6b4','#a3a28c','#8d8c76','#6c6b58'],
+    'Stables':        ['#ecdcae','#e1cd95','#b0a088','#998a72','#766953'],
+    'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56'],
+    'Kitchens':       ['#f2e2cc','#e0b48e','#ad9a88','#968371','#736252', 'counter'],
+    'Library':        ['#e7decf','#dbcfba','#9d98a8','#868192','#66626f'],
+    'Secret passage': ['#d9d2c4','#cbc3b3','#86828c','#716d77','#55525a'],
+    'Chapel':         ['#ebe6dc','#ded8cc','#aeaabb','#9893a6','#767184'],
+    'Armory':         ['#e2dfd8','#d4d0c7','#999da3','#83878d','#65686d'],
+    'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d'],
+    'Wine cellar':    ['#e3d3c6','#d6c2b2','#927e77','#7b6862','#5d4d48'],
+    'Dungeon':        ['#d6d2cc','#c8c3bb','#817f87','#6c6a72','#504f55'],
+    'Gallery':        ['#ece2df','#e0d3cf','#a99a96','#928380','#716462'],
+    'Treasury':       ['#f0e4c4','#e6d6a8','#b2a47c','#9b8d66','#796d4c'],
+    'Clock tower':    ['#e3dcd1','#d6cdbf','#a29a8f','#8b8378','#6b645b'],
+    'Battlements':    ['#e2e2df','#d3d4d0','#a5abb3','#8f959d','#70757c'],
+    'Royal chambers': ['#f0e0e2','#e5cfd3','#ad979b','#968084','#756367'],
+    'Tower stairs':   ['#ddd6cf','#cfc6bd','#9a928b','#837b74','#655f59'],
+    'Throne room':    ['#f0dcd6','#e5c9c1','#ad8b85','#96746e','#755853'],
+    'Tower top':      ['#dcdde8','#cccede','#959ab2','#80859d','#62667c'],
+  };
+
   // Room r covers levels (start, end]; past level 1000 the castle grows new wings of 50.
   const room = r => r < ROOMS.length ? {...ROOMS[r], start: r ? ROOMS[r-1].end : 0}
     : {name:`East wing ${r-ROOMS.length+1}`, ic:'🏯', bg:'#4a4155', top:['🕯️','🏯','🕯️'], deco:['🕯️','🪨','🌿','🕸️'],
@@ -436,7 +465,11 @@ Promise.all([
     cell = Math.floor(Math.min(maxW/(L.w+2*ef), maxH/(L.h+2*ef)));
     edge = Math.round(cell*ef);
     b.style.width=(cell*L.w+2*edge)+'px'; b.style.height=(cell*L.h+2*edge)+'px';
-    b.className='board edit armed';
+    // dress the board for the room this level is in
+    const theme = BOARDS[room(roomIndexOf(li)).name];
+    ['--floor-a','--floor-b','--stone-l','--stone','--stone-d'].forEach((v,k)=> theme ? b.style.setProperty(v, theme[k]) : b.style.removeProperty(v));
+    boardTheme = theme && theme[5] ? ` walls-${theme[5]}` : '';
+    b.className='board edit armed' + boardTheme;
     const walls=new Set(L.walls.map(w=>w.join(',')));
     let html='';
     for(let y=-1;y<=L.h;y++) for(let x=-1;x<=L.w;x++){
@@ -507,7 +540,7 @@ Promise.all([
     clearTimeout(backTimer);
     clearHint();
     mode='running'; updateButtons(); renderTray();
-    const b=$('board'); b.className='board running';
+    const b=$('board'); b.className='board running' + boardTheme;
     const res = simulate(L, placed);
     const fixedN=L.fixed.length;
     // build elements keyed by engine id
@@ -574,7 +607,7 @@ Promise.all([
 
   function backToStart(){
     clearInterval(timer); clearTimeout(backTimer);
-    mode='edit'; $('board').className='board edit';
+    mode='edit'; $('board').className='board edit' + boardTheme;
     renderTray(); renderAnimals(); updateButtons();
   }
   function reset(){ placed=[]; selected=0; clearHint(); backToStart(); }

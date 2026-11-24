@@ -44,22 +44,28 @@ public final class Recipe {
     public final boolean wrapAround;
     /**
      * Shown in the game as the level's tip. After level 10, tips never describe the solution or the
-     * trick: leave it empty, or announce a new animal ("New animal: ..."). LevelsTest enforces this.
+     * trick: leave it empty, or announce something new without saying how to use it ("New animal: ..."
+     * or "New: ..."). LevelsTest enforces this.
      */
     public final String tip;
     /** Width and height of the board, in squares. */
     public final int size;
     /** Empty for normal levels. Otherwise the starter is on the board and you place one animal per move. */
     public final Move[] moves;
+    /** How many walls the level must have (0 and 0 for none). Each wall has to matter to the puzzle. */
+    public final int wallsMin;
+    public final int wallsMax;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
-        this(7, new Move[0], trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
+        this(7, new Move[0], 0, 0, trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
     }
 
-    private Recipe(int size, Move[] moves, Animal trigger, int laneBlockers, boolean wrapAround, String tip,
-                   Animal[] blockers, Trick... tricks) {
+    private Recipe(int size, Move[] moves, int wallsMin, int wallsMax, Animal trigger, int laneBlockers,
+                   boolean wrapAround, String tip, Animal[] blockers, Trick... tricks) {
         this.size = size;
         this.moves = moves;
+        this.wallsMin = wallsMin;
+        this.wallsMax = wallsMax;
         this.blockers = blockers;
         this.trigger = trigger;
         this.laneBlockers = laneBlockers;
@@ -72,6 +78,14 @@ public final class Recipe {
         return (moves.length > 0 ? moves.length : 1) + laneBlockers;
     }
 
+    /**
+     * The same recipe with walls: some stop a runner before it reaches a spoiler, the rest close off
+     * squares that would give a second, easier solution.
+     */
+    public Recipe withWalls(int min, int max) {
+        return new Recipe(size, moves, min, max, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+    }
+
     /** True if the board starts moving on its own when you press Go. */
     public boolean moving() {
         return moves.length > 0;
@@ -79,7 +93,7 @@ public final class Recipe {
 
     /** The same recipe as an already-moving level: the starter is on the board, and you make these moves. */
     public Recipe withMoves(Move... newMoves) {
-        return new Recipe(size, newMoves, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+        return new Recipe(size, newMoves, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
     }
 
     /** Checker rules that go with this recipe. */
@@ -94,7 +108,7 @@ public final class Recipe {
 
     /** The same recipe, with only these blocker animals (for example only dogs, so you place lions not elephants). */
     public Recipe withBlockers(Animal... types) {
-        return new Recipe(size, moves, trigger, laneBlockers, wrapAround, tip, types, tricks);
+        return new Recipe(size, moves, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, types, tricks);
     }
 
     /**
@@ -108,7 +122,7 @@ public final class Recipe {
 
     /** The same recipe on a bigger (or smaller) square board. */
     public Recipe withSize(int newSize) {
-        return new Recipe(newSize, moves, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+        return new Recipe(newSize, moves, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
     }
 
     public boolean has(Trick t) {
@@ -247,6 +261,38 @@ public final class Recipe {
             case 168: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
             case 169: return new Recipe(Animal.BEAR, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG);
             case 170: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.STOP);
+            // 171-200: the Kitchens (8x8). Same difficulty as the Great hall, about half already moving, and
+            // 2-4 walls in every level (drawn as kitchen counters). Walls do the stopping here, so no STOP moves.
+            case 171: return new Recipe(Animal.ELEPHANT, 1, false, "New: kitchen counters! Animals can't run through them, so watch out for the counters.", Trick.WAITING_RUNNER).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 172: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
+            case 173: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 174: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.CATCH).withWalls(2, 4);
+            case 175: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withMoves(Move.CATCH).withWalls(2, 4);
+            case 176: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 177: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 178: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 179: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 180: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
+            case 181: return new Recipe(Animal.BEAR, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 182: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 183: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
+            case 184: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 185: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
+            case 186: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 187: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN).withWalls(2, 4);
+            case 188: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withMoves(Move.CATCH).withWalls(2, 4);
+            case 189: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 190: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withWalls(2, 4);
+            case 191: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 192: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 193: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 194: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN).withWalls(2, 4);
+            case 195: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.CATCH).withWalls(2, 4);
+            case 196: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withMoves(Move.CATCH).withWalls(2, 4);
+            case 197: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 198: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 199: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
+            case 200: return new Recipe(Animal.BEAR, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withWalls(2, 4);
             default: return null;
         }
     }
