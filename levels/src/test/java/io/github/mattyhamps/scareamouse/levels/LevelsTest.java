@@ -50,6 +50,16 @@ class LevelsTest {
         assertNotNull(v, "level " + n + " \"" + l.name + "\" fails its rules");
     }
 
+    /** Boards grow as you go: 7x7, then 8x8, 9x9 and 10x10 (see Recipe.sizeForLevel). */
+    @ParameterizedTest(name = "level {0} board size")
+    @MethodSource("all")
+    void boardSizeFollowsTheLevelNumber(int n) {
+        Level l = levels.get(n - 1);
+        int want = Recipe.sizeForLevel(n);
+        assertTrue(l.w == want && l.h == want,
+                "level " + n + " is " + l.w + "x" + l.h + ", should be " + want + "x" + want);
+    }
+
     /** After the first ten levels, tips never describe the solution; they can only announce a new animal. */
     @ParameterizedTest(name = "level {0} tip")
     @MethodSource("afterTenth")
@@ -61,6 +71,10 @@ class LevelsTest {
 
     static IntStream afterTenth() throws IOException {
         return IntStream.rangeClosed(11, read().size());
+    }
+
+    static IntStream all() throws IOException {
+        return IntStream.rangeClosed(1, read().size());
     }
 
     static IntStream tutorials() {

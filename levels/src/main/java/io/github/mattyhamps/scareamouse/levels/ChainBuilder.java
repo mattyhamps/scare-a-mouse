@@ -21,7 +21,6 @@ import java.util.List;
  * animals in hand. {@link LevelChecker} still has the final say on every level.
  */
 public final class ChainBuilder {
-    static final int N = 7;
     private static final int[][] DIRS = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
     private static final int TRIES_PER_STEP = 40;
 
@@ -45,6 +44,7 @@ public final class ChainBuilder {
 
     /** A level under construction. */
     private static final class Draft {
+        final int n;                                     // board size
         final List<Piece> fixed = new ArrayList<>();
         final List<Piece> placed = new ArrayList<>();
         final List<Integer> chain = new ArrayList<>();   // fixed indices, in chain order
@@ -52,13 +52,17 @@ public final class ChainBuilder {
         int holeX = -1;                                  // (-1,-1) is a corner, so no hole yet
         int holeY = -1;
 
+        Draft(int n) {
+            this.n = n;
+        }
+
         Level level() {
-            return new Level("", "", N, N, holeX, holeY, Collections.<int[]>emptyList(), fixed,
+            return new Level("", "", n, n, holeX, holeY, Collections.<int[]>emptyList(), fixed,
                     Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
         }
 
         boolean free(int x, int y) {
-            if (x < 0 || y < 0 || x >= N || y >= N || (x == holeX && y == holeY)) {
+            if (x < 0 || y < 0 || x >= n || y >= n || (x == holeX && y == holeY)) {
                 return false;
             }
             for (Piece p : fixed) {
@@ -95,14 +99,14 @@ public final class ChainBuilder {
         if (plan == null) {
             return null;
         }
-        Draft d = new Draft();
+        Draft d = new Draft(recipe.size);
         boolean wrap = recipe.wrapAround;
 
         // First link: your first animal right behind the first chain animal.
         boolean placedFirst = false;
         for (int t = 0; t < TRIES_PER_STEP && !placedFirst; t++) {
-            int x = 1 + (int) (rng.next() * (N - 2));
-            int y = 1 + (int) (rng.next() * (N - 2));
+            int x = 1 + (int) (rng.next() * (d.n - 2));
+            int y = 1 + (int) (rng.next() * (d.n - 2));
             int[] dir = DIRS[(int) (rng.next() * 4)];
             int tx = x - dir[0];
             int ty = y - dir[1];
@@ -399,7 +403,7 @@ public final class ChainBuilder {
         for (int[] o : options) {
             int cx = o[0];
             int cy = o[1];
-            while (cx >= 0 && cy >= 0 && cx < N && cy < N) {
+            while (cx >= 0 && cy >= 0 && cx < d.n && cy < d.n) {
                 if (Math.abs(cx - mx) + Math.abs(cy - my) == 1) {
                     out.add(o);
                     break;
@@ -634,7 +638,7 @@ public final class ChainBuilder {
             hand.add(p.type);
         }
         hand.sort((a, b) -> a.id().compareTo(b.id()));
-        return new Level(name, recipe.tip, N, N, d.holeX, d.holeY, Collections.<int[]>emptyList(), d.fixed, hand,
+        return new Level(name, recipe.tip, d.n, d.n, d.holeX, d.holeY, Collections.<int[]>emptyList(), d.fixed, hand,
                 new ArrayList<>(d.placed));
     }
 

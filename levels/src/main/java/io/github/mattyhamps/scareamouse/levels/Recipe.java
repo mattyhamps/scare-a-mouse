@@ -34,12 +34,16 @@ public final class Recipe {
      * trick: leave it empty, or announce a new animal ("New animal: ..."). LevelsTest enforces this.
      */
     public final String tip;
+    /** Width and height of the board, in squares. */
+    public final int size;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
-        this(trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
+        this(7, trigger, laneBlockers, wrapAround, tip, new Animal[] {Animal.DOG, Animal.BEAR}, tricks);
     }
 
-    private Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Animal[] blockers, Trick... tricks) {
+    private Recipe(int size, Animal trigger, int laneBlockers, boolean wrapAround, String tip, Animal[] blockers,
+                   Trick... tricks) {
+        this.size = size;
         this.blockers = blockers;
         this.trigger = trigger;
         this.laneBlockers = laneBlockers;
@@ -64,7 +68,21 @@ public final class Recipe {
 
     /** The same recipe, with only these blocker animals (for example only dogs, so you place lions not elephants). */
     public Recipe withBlockers(Animal... types) {
-        return new Recipe(trigger, laneBlockers, wrapAround, tip, types, tricks);
+        return new Recipe(size, trigger, laneBlockers, wrapAround, tip, types, tricks);
+    }
+
+    /**
+     * Board size for level n: the boards grow as you go. Levels 1-100 are 7x7, 101-200 are 8x8,
+     * 201-350 are 9x9, and from 351 on they are 10x10 (the original game's size). Each size change
+     * starts a new room of the castle map.
+     */
+    public static int sizeForLevel(int n) {
+        return n <= 100 ? 7 : n <= 200 ? 8 : n <= 350 ? 9 : 10;
+    }
+
+    /** The same recipe on a bigger (or smaller) square board. */
+    public Recipe withSize(int newSize) {
+        return new Recipe(newSize, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
     }
 
     public boolean has(Trick t) {
@@ -81,6 +99,11 @@ public final class Recipe {
      * with difficulty rising slowly. Returns null for levels that aren't built this way.
      */
     public static Recipe forLevel(int n) {
+        Recipe r = designed(n);
+        return r == null ? null : r.withSize(sizeForLevel(n));
+    }
+
+    private static Recipe designed(int n) {
         switch (n) {
             case 61: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN);
             case 62: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE);
