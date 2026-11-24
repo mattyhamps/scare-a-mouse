@@ -58,7 +58,7 @@ public final class ChainBuilder {
         }
 
         boolean free(int x, int y) {
-            if (x < 0 || y < 0 || x >= N || y >= N) {
+            if (x < 0 || y < 0 || x >= N || y >= N || (x == holeX && y == holeY)) {
                 return false;
             }
             for (Piece p : fixed) {
@@ -364,8 +364,7 @@ public final class ChainBuilder {
                 if (!d.free(mx, my)) {
                     continue;
                 }
-                int[] hole = laneToHole(d, mx, my, s);
-                if (hole != null) {
+                for (int[] hole : laneToHole(d, mx, my, s)) {
                     options.add(new int[] {mx, my, hole[0], hole[1]});
                 }
             }
@@ -415,20 +414,28 @@ public final class ChainBuilder {
         return out;
     }
 
-    /** Ends a wrap-around chain: after the last cat runs, the mouse must escape through a hole we can add. */
+    /**
+     * Ends a wrap-around chain: after the last cat runs, the mouse must get into a hole we can add. The
+     * hole goes on the mouse's second run, so the mouse falls in on the way instead of stopping.
+     */
     private static boolean closeWrapAround(Draft d) {
-        // The mouse (fixed index 0) ran once already. Find where it rests, then try each direction for the hole.
         SimResult r = Simulator.record(d.level(), d.placed);
+        int[] start = mouseRestBeforeLastRun(r.frames);
         List<SimResult.Snapshot> end = r.lastFrame();
-        int mx = end.get(0).x;
-        int my = end.get(0).y;
-        for (int[] h : DIRS) {
-            int[] hole = laneToHole(d, mx, my, h);
-            if (hole == null) {
+        int ex = end.get(0).x;
+        int ey = end.get(0).y;
+        int sx = Integer.signum(ex - start[0]);
+        int sy = Integer.signum(ey - start[1]);
+        if (sx != 0 && sy != 0 || sx == 0 && sy == 0) {
+            return false;
+        }
+        // Farthest first: where the mouse used to stop, then back along its run (at least two squares in).
+        for (int x = ex, y = ey; Math.abs(x - start[0]) + Math.abs(y - start[1]) >= 2; x -= sx, y -= sy) {
+            if (!d.free(x, y)) {
                 continue;
             }
-            d.holeX = hole[0];
-            d.holeY = hole[1];
+            d.holeX = x;
+            d.holeY = y;
             SimResult w = Simulator.record(d.level(), d.placed);
             if (w.win && allChainMoved(d) && mouseRanTwice(w.frames)) {
                 return true;
@@ -439,18 +446,25 @@ public final class ChainBuilder {
         return false;
     }
 
-    /** From (x, y) heading in dir: if the way to the castle edge is clear, the hole square on the border. */
-    private static int[] laneToHole(Draft d, int x, int y, int[] dir) {
+    /**
+     * From (x, y) heading in dir: the squares where the hole could go, each with a clear run to it.
+     * The hole is never right next to the mouse, so the mouse always runs at least two squares.
+     * Farthest squares come first.
+     */
+    private static List<int[]> laneToHole(Draft d, int x, int y, int[] dir) {
+        List<int[]> out = new ArrayList<>();
         int cx = x + dir[0];
         int cy = y + dir[1];
-        while (cx >= 0 && cy >= 0 && cx < N && cy < N) {
-            if (!d.free(cx, cy)) {
-                return null;
+        int steps = 1;
+        while (d.free(cx, cy)) {
+            if (steps >= 2) {
+                out.add(0, new int[] {cx, cy});
             }
             cx += dir[0];
             cy += dir[1];
+            steps++;
         }
-        return new int[] {cx, cy};
+        return out;
     }
 
     private static boolean allChainMoved(Draft d) {
@@ -541,7 +555,7 @@ public final class ChainBuilder {
             return false;
         }
         List<int[]> lane = new ArrayList<>();
-        for (int x = px + hx, y = py + hy; x >= 0 && y >= 0 && x < N && y < N; x += hx, y += hy) {
+        for (int x = px + hx, y = py + hy; x != d.holeX || y != d.holeY; x += hx, y += hy) {
             lane.add(new int[] {x, y});
         }
         // Never lions: a lion is moved by an elephant, and an elephant is started by a mouse, which you never place.

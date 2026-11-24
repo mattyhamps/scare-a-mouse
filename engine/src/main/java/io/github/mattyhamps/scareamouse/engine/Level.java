@@ -50,9 +50,9 @@ public final class Level {
         return false;
     }
 
-    /** True if (x, y) is on the board and holds no wall and no fixed animal. */
+    /** True if (x, y) is on the board and holds no wall, no hole and no fixed animal. */
     public boolean isOpen(int x, int y) {
-        if (x < 0 || y < 0 || x >= w || y >= h || isWall(x, y)) {
+        if (x < 0 || y < 0 || x >= w || y >= h || isWall(x, y) || (x == holeX && y == holeY)) {
             return false;
         }
         for (Piece p : fixed) {
