@@ -234,31 +234,34 @@ Promise.all([
 
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
-  // The castle: 50 levels a room, and the path continues into the next room as levels are added.
-  const ROOM_SIZE = 50;
+  // The castle: rooms of different sizes, like a real castle. `end` is each room's last level. A new
+  // board size (7x7, 8x8 from 101, 9x9 from 201, 10x10 from 351) always starts a new room.
   const ROOMS = [
-    {name:'Gate',            ic:'🏰', bg:'#4b5a3a', deco:['🌿','🪨','🌼']},
-    {name:'Courtyard',       ic:'⛲', bg:'#53643f', deco:['🌳','🌷','🪣']},
-    {name:'Stables',         ic:'🐴', bg:'#6b5434', deco:['🌾','🐴','🪵']},
-    {name:'Great hall',      ic:'🛡️', bg:'#5b3c3a', deco:['🕯️','🛡️','🍷']},
-    {name:'Kitchens',        ic:'🍲', bg:'#664a32', deco:['🧀','🥖','🍲']},
-    {name:'Library',         ic:'📚', bg:'#3f3a5a', deco:['📚','🕯️','📜']},
-    {name:'Chapel',          ic:'🔔', bg:'#4d4a63', deco:['🔔','🕯️','🌸']},
-    {name:'Armory',          ic:'⚔️', bg:'#45484f', deco:['⚔️','🛡️','🏹']},
-    {name:'Gallery',         ic:'🖼️', bg:'#5a4048', deco:['🖼️','🏺','🪞']},
-    {name:'Ballroom',        ic:'🎻', bg:'#5b3a5c', deco:['🎻','💃','🕯️']},
-    {name:'Wine cellar',     ic:'🍷', bg:'#40302e', deco:['🛢️','🍷','🕸️']},
-    {name:'Dungeon',         ic:'⛓️', bg:'#2f2f36', deco:['⛓️','🕸️','💀']},
-    {name:'Secret passage',  ic:'🕯️', bg:'#2a2833', deco:['🕯️','🕸️','🗝️']},
-    {name:'Treasury',        ic:'💰', bg:'#5a4a25', deco:['💰','💎','👑']},
-    {name:'Clock tower',     ic:'🕰️', bg:'#4a4440', deco:['⚙️','🕰️','🦉']},
-    {name:'Battlements',     ic:'🚩', bg:'#4e5866', deco:['🚩','☁️','🐦']},
-    {name:'Royal chambers',  ic:'🛏️', bg:'#5c3646', deco:['🛏️','🕯️','🧸']},
-    {name:'Throne room',     ic:'👑', bg:'#5e2f35', deco:['👑','🕯️','🛡️']},
-    {name:'Tower stairs',    ic:'🪜', bg:'#454049', deco:['🕯️','🪟','🕸️']},
-    {name:'Tower top',       ic:'🌙', bg:'#2e3557', deco:['🌙','⭐','🦇']},
+    {end:25,   name:'Gate',           ic:'🏰', bg:'#4b5a3a', deco:['🌿','🪨','🌼']},
+    {end:70,   name:'Courtyard',      ic:'⛲', bg:'#53643f', deco:['🌳','🌷','🪣']},
+    {end:100,  name:'Stables',        ic:'🐴', bg:'#6b5434', deco:['🌾','🐴','🪵']},
+    {end:170,  name:'Great hall',     ic:'🛡️', bg:'#5b3c3a', deco:['🕯️','🛡️','🍷']},
+    {end:200,  name:'Kitchens',       ic:'🍲', bg:'#664a32', deco:['🧀','🥖','🍲']},
+    {end:260,  name:'Library',        ic:'📚', bg:'#3f3a5a', deco:['📚','🕯️','📜']},
+    {end:280,  name:'Secret passage', ic:'🗝️', bg:'#2a2833', deco:['🕯️','🕸️','🗝️']},
+    {end:350,  name:'Chapel',         ic:'🔔', bg:'#4d4a63', deco:['🔔','🕯️','🌸']},
+    {end:390,  name:'Armory',         ic:'⚔️', bg:'#45484f', deco:['⚔️','🛡️','🏹']},
+    {end:490,  name:'Ballroom',       ic:'🎻', bg:'#5b3a5c', deco:['🎻','💃','🕯️']},
+    {end:520,  name:'Wine cellar',    ic:'🍷', bg:'#40302e', deco:['🛢️','🍷','🕸️']},
+    {end:620,  name:'Dungeon',        ic:'⛓️', bg:'#2f2f36', deco:['⛓️','🕸️','💀']},
+    {end:660,  name:'Gallery',        ic:'🖼️', bg:'#5a4048', deco:['🖼️','🏺','🪞']},
+    {end:740,  name:'Treasury',       ic:'💰', bg:'#5a4a25', deco:['💰','💎','👑']},
+    {end:765,  name:'Clock tower',    ic:'🕰️', bg:'#4a4440', deco:['⚙️','🕰️','🦉']},
+    {end:850,  name:'Battlements',    ic:'🚩', bg:'#4e5866', deco:['🚩','☁️','🐦']},
+    {end:900,  name:'Royal chambers', ic:'🛏️', bg:'#5c3646', deco:['🛏️','🕯️','🧸']},
+    {end:920,  name:'Tower stairs',   ic:'🪜', bg:'#454049', deco:['🕯️','🪟','🕸️']},
+    {end:980,  name:'Throne room',    ic:'👑', bg:'#5e2f35', deco:['👑','🕯️','🛡️']},
+    {end:1000, name:'Tower top',      ic:'🌙', bg:'#2e3557', deco:['🌙','⭐','🦇']},
   ];
-  const roomOf = i => ROOMS[Math.floor(i/ROOM_SIZE)] || {name:`Wing ${Math.floor(i/ROOM_SIZE)+1}`, ic:'🏯', bg:'#4a4155', deco:['🕯️','🪨','🌿']};
+  // Room r covers levels (start, end]; past level 1000 the castle grows new wings of 50.
+  const room = r => r < ROOMS.length ? {...ROOMS[r], start: r ? ROOMS[r-1].end : 0}
+    : {name:`East wing ${r-ROOMS.length+1}`, ic:'🏯', bg:'#4a4155', deco:['🕯️','🪨','🌿'],
+       start: 1000 + (r-ROOMS.length)*50, end: 1000 + (r-ROOMS.length+1)*50};
 
   function renderDots(){
     // Levels zigzag across the room in rows of five; the road loops out at the end of each row.
@@ -272,9 +275,9 @@ Promise.all([
         d += ` C ${b[0]+(c[0]-a[0])/6} ${b[1]+(c[1]-a[1])/6}, ${c[0]-(e[0]-b[0])/6} ${c[1]-(e[1]-b[1])/6}, ${c[0]} ${c[1]}`; }
       return d; };
     let html = '';
-    const rooms = Math.ceil(LEVELS.length/ROOM_SIZE);
-    for (let r = 0; r < rooms; r++) {
-      const room = roomOf(r*ROOM_SIZE), from = r*ROOM_SIZE, to = Math.min(LEVELS.length, from+ROOM_SIZE);
+    let r = 0;
+    for (; room(r).start < LEVELS.length; r++) {
+      const rm = room(r), from = rm.start, to = Math.min(LEVELS.length, rm.end);
       const n = to-from, rows = Math.ceil(n/COLS), h = TOP + (rows-1)*ROW + 52;
       let solvedHere = 0; for (let i=from;i<to;i++) if (isDone(i)) solvedHere++;
       // the path through this room's levels, as a dashed trail
@@ -293,10 +296,11 @@ Promise.all([
       }
       // a few props at the turns of the path
       let deco = '';
-      for (let row=0; row<rows-1; row++) { const e = room.deco[row % room.deco.length];
+      for (let row=0; row<rows-1; row++) { const e = rm.deco[row % rm.deco.length];
         deco += `<span class="deco" style="left:${row%2?92:8}%;top:${TOP+row*ROW+ROW/2}px">${e}</span>`; }
-      html += `<section class="room" style="--rb:${room.bg}">
-        <div class="room-head"><span class="ic">${room.ic}</span><b>${room.name}</b><small>${solvedHere}/${n}</small></div>
+      const lv = LEVELS[from];
+      html += `<section class="room" style="--rb:${rm.bg}">
+        <div class="room-head"><span class="ic">${rm.ic}</span><b>${rm.name}</b><small>${lv.w}×${lv.h} · ${solvedHere}/${rm.end-rm.start}</small></div>
         <div class="room-body" style="height:${h}px">
           <svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
             <path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
@@ -305,7 +309,7 @@ Promise.all([
           ${deco}${nodes}
         </div></section>`;
     }
-    const next = roomOf(rooms*ROOM_SIZE);
+    const next = room(r);
     html += `<section class="room soon" style="--rb:${next.bg}">
       <div class="room-head"><span class="ic">${next.ic}</span><b>${next.name}</b><small>🔒</small></div>
       <div class="room-body">More levels coming soon</div></section>`;
