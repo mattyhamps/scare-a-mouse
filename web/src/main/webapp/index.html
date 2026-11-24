@@ -162,12 +162,15 @@
   .animal{position:absolute;left:0;top:0;display:grid;place-items:center;transition:transform var(--glide,.15s) linear,opacity .25s;pointer-events:none;z-index:2}
   /* instant replay */
   .btn.replay{margin-top:12px;background:transparent;box-shadow:none;border:2px solid #574a66;font-size:15px;padding:10px}
-  .replay-bar{position:absolute;left:50%;top:-14px;transform:translate(-50%,-100%);display:none;align-items:center;gap:8px;z-index:6;
-    background:rgba(20,16,24,.94);border:2px solid #574a66;border-radius:14px;padding:6px 8px 6px 12px;white-space:nowrap}
-  .replay-bar.show{display:flex}
-  .replay-bar b{font:600 14px Fredoka,system-ui;color:var(--gold)}
-  .replay-bar button{font:600 13px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:10px;padding:5px 9px;cursor:pointer}
-  .replay-bar button.on{border-color:var(--gold);color:var(--gold)}
+  .replay-controls{display:none}
+  .replaying .controls:not(.replay-controls){display:none}
+  .replaying .replay-controls{display:grid}
+  .replay-controls .speed{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border:2px solid #4a4155;border-radius:16px;padding:3px;gap:3px}
+  .replay-controls .speed button{font:600 16px Fredoka,system-ui;color:var(--muted);background:transparent;border:0;border-radius:12px;cursor:pointer}
+  .replay-controls .speed button.on{background:var(--gold);color:#2b1d05}
+  .replay-label{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:5;display:none;pointer-events:none;
+    background:rgba(20,16,24,.85);color:var(--gold);font:600 14px Fredoka,system-ui;padding:5px 12px;border-radius:12px}
+  .replaying .replay-label{display:block}
   .animal span{display:block;line-height:1;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25));transition:transform .12s}
   .animal.placed{pointer-events:auto;cursor:pointer}
   .animal.placed::before{content:"";position:absolute;inset:8%;border-radius:30%;background:rgba(242,184,75,.28);border:2px dashed var(--gold-d)}
@@ -216,12 +219,20 @@
   <div class="tip" id="tip"></div>
   <div class="chain" id="chain"></div>
   <div class="board-wrap"><div class="board" id="board"></div><div class="toast" id="toast"></div>
-    <div class="replay-bar" id="replayBar"><b>⏪ Replay</b><button id="speedBtn" aria-pressed="false">🐢 ½ speed</button><button id="replayDone">Done</button></div></div>
+    <div class="replay-label" id="replayLabel">⏪ Instant replay</div></div>
   <div class="tray" id="tray"></div>
   <div class="controls">
     <button class="btn" id="hintBtn">Hint</button>
     <button class="btn" id="resetBtn">Reset</button>
     <button class="btn go" id="goBtn">Go!</button>
+  </div>
+  <!-- Instant replay controls (shown instead of the buttons above while replaying) -->
+  <div class="controls replay-controls" id="replayControls">
+    <button class="btn" id="replayDone">Done</button>
+    <div class="speed" role="group" aria-label="Replay speed">
+      <button id="speed1">1×</button><button id="speedHalf">½×</button>
+    </div>
+    <button class="btn go" id="playBtn">▶ Play</button>
   </div>
 </div>
 <div class="overlay" id="picker"><div class="card pick">
@@ -550,27 +561,31 @@ Promise.all([
     $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
   }
 
-  // Plays a run's frames on the board. stepMs() is read before every step, so a replay can change speed
-  // while it plays; animals glide for the same time as a step lasts.
+  // Shows step f of a run (moving every animal from where it was at step f-1). The animals glide for
+  // `glide` ms, which matches the time between steps.
+  function showStep(res, f, glide){
+    $('board').style.setProperty('--glide', `${Math.round(glide)}ms`);
+    const prev=res.frames[f-1], cur=res.frames[f];
+    const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
+    cur.forEach(a=>{
+      const el=animalEls[a.id]; const p=prev[a.id];
+      el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
+      const startedMoving = (p.x!==a.x||p.y!==a.y) && (f===1 || (res.frames[f-2][a.id].x===p.x && res.frames[f-2][a.id].y===p.y));
+      if(startedMoving){ el.classList.remove('scared'); void el.offsetWidth; el.classList.add('scared'); }
+      el.classList.toggle('stuck', stuckNow.has(a.id));
+      if(stuckNow.has(a.id) && !stuckBefore.has(a.id)){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+      if(a.gone) setTimeout(()=>el.classList.add('gone'),140);
+    });
+  }
+  const showStart = res => renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=L.fixed.length})));
+
+  // Plays a whole run, then calls done.
   function animate(res, stepMs, done){
-    const fixedN=L.fixed.length, b=$('board');
-    renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=fixedN})));
+    showStart(res);
     let f=1;
     const tick=()=>{
       if(f>=res.frames.length){ timer=null; done(); return; }
-      b.style.setProperty('--glide', `${Math.round(stepMs()*0.9)}ms`);
-      const prev=res.frames[f-1], cur=res.frames[f];
-      const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
-      cur.forEach(a=>{
-        const el=animalEls[a.id]; const p=prev[a.id];
-        el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
-        const startedMoving = (p.x!==a.x||p.y!==a.y) && (f===1 || (res.frames[f-2][a.id].x===p.x && res.frames[f-2][a.id].y===p.y));
-        if(startedMoving){ el.classList.remove('scared'); void el.offsetWidth; el.classList.add('scared'); }
-        el.classList.toggle('stuck', stuckNow.has(a.id));
-        if(stuckNow.has(a.id) && !stuckBefore.has(a.id)){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
-        if(a.gone) setTimeout(()=>el.classList.add('gone'),140);
-      });
-      f++;
+      showStep(res, f++, stepMs()*0.9);
       timer=setTimeout(tick, stepMs());
     };
     timer=setTimeout(tick, stepMs());
@@ -588,23 +603,39 @@ Promise.all([
     animate(res, ()=>170, ()=>finish(res));
   }
 
-  // Instant replay: watch the winning run again from the start, at normal or half speed.
-  let replaySlow = store.get('cm_replay_slow', false);
-  function showSpeed(){ $('speedBtn').classList.toggle('on', replaySlow); $('speedBtn').setAttribute('aria-pressed', replaySlow); }
+  // Instant replay: a replay screen with play/pause and 1x or half speed at the bottom. It opens paused at
+  // the start, at half speed.
+  const rp = { f: 1, playing: false, slow: true };
+  const rpStep = () => rp.slow ? 340 : 170;
+  function rpShow(){
+    $('playBtn').textContent = rp.playing ? '⏸ Pause' : rp.f >= lastRun.frames.length ? '↺ Again' : '▶ Play';
+    $('speed1').classList.toggle('on', !rp.slow); $('speedHalf').classList.toggle('on', rp.slow);
+  }
+  function rpTick(){
+    if(rp.f >= lastRun.frames.length){ rp.playing=false; rpShow(); return; }
+    showStep(lastRun, rp.f++, rpStep()*0.9);
+    timer=setTimeout(rpTick, rpStep());
+  }
+  function rpPlay(){
+    if(rp.playing){ rp.playing=false; clearTimeout(timer); rpShow(); return; }
+    if(rp.f >= lastRun.frames.length){ rp.f=1; showStart(lastRun); }
+    rp.playing=true; rpShow(); timer=setTimeout(rpTick, 120);
+  }
   function replay(){
     if(!lastRun || mode!=='won') return;
     clearTimeout(timer);
     $('win').classList.remove('show');
-    mode='replay'; updateButtons();
+    mode='replay';
+    document.body.classList.add('replaying');
     $('board').className='board running' + boardTheme;
-    $('replayBar').classList.add('show'); showSpeed();
-    animate(lastRun, ()=> replaySlow ? 340 : 170, ()=>{ timer=setTimeout(endReplay, 900); });
+    rp.f=1; rp.playing=false; rp.slow=true;
+    showStart(lastRun); rpShow();
   }
   function endReplay(){
     if(mode!=='replay') return;
-    clearTimeout(timer);
-    $('replayBar').classList.remove('show');
-    // finish on the last frame of the run, then back to the win card
+    clearTimeout(timer); rp.playing=false;
+    document.body.classList.remove('replaying');
+    // back on the last step of the run, then the win card again
     renderAnimals(lastRun.frames[lastRun.frames.length-1].map(a=>({...a, placed: a.id>=L.fixed.length})));
     mode='won'; updateButtons();
     $('win').classList.add('show');
@@ -826,7 +857,9 @@ Promise.all([
   $('lvlBtn').onclick=()=>{ if(mode!=='running' && mode!=='replay') openPicker(); };
   $('replayBtn').onclick=replay;
   $('replayDone').onclick=endReplay;
-  $('speedBtn').onclick=()=>{ replaySlow=!replaySlow; store.set('cm_replay_slow', replaySlow); showSpeed(); };
+  $('playBtn').onclick=rpPlay;
+  $('speed1').onclick=()=>{ rp.slow=false; rpShow(); };
+  $('speedHalf').onclick=()=>{ rp.slow=true; rpShow(); };
   $('closePick').onclick=()=>$('picker').classList.remove('show');
   // Developer mode only (hidden for players). Two taps to confirm.
   $('resetProgress').onclick=()=>{
