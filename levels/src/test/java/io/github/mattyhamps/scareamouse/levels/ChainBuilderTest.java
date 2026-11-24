@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * Every recipe must still be buildable. If a rule change makes a recipe impossible, this fails
  * instead of the generator silently searching forever.
  */
+@org.junit.jupiter.api.Tag("builder")
 class ChainBuilderTest {
 
     /**
