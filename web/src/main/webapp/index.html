@@ -94,6 +94,11 @@
   .node.locked{cursor:default;background:#2b2531;border-color:#4a4155;color:#8d8398;font-size:11px;box-shadow:none;
     display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;gap:1px}
   .node.locked .lk{font-size:11px;opacity:.8}
+  /* boss levels: bigger, with a crown and a red rim */
+  .node.boss{width:50px;height:50px;font-size:17px;border-color:#b8323a;box-shadow:0 0 0 3px rgba(184,50,58,.35),0 3px 0 rgba(0,0,0,.35)}
+  .node.boss::before{content:"👑";position:absolute;top:-13px;right:-10px;font-size:17px;transform:rotate(18deg);filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+  .node.boss.locked{border-color:#7a3a40}
+  .tip.boss{border-color:#b8323a;background:rgba(184,50,58,.15)}
   /* your mouse, standing on the current level; it walks the road to a newly opened level */
   .walker{position:absolute;z-index:3;font-size:22px;transform:translate(-50%,-150%);pointer-events:none;
     transition:left .26s ease-in-out,top .26s ease-in-out}
@@ -420,6 +425,8 @@ Promise.all([
   // Doors already seen opening (room numbers), and the level the map's mouse last stood on.
   let doorsSeen = store.get('cm_doors', []);
   const roomIndexOf = i => { let r=0; while (room(r).end <= i) r++; return r; };
+  // The last level of each room is its boss: a harder puzzle, with a crown on the map.
+  const isBoss = i => i + 1 === room(roomIndexOf(i)).end;
   // A room is cleared when all of its levels exist and are solved.
   const roomCleared = r => { const rm=room(r); if (rm.end > LEVELS.length) return false;
     for (let i=rm.start;i<rm.end;i++) if (!isDone(i)) return false; return true; };
@@ -454,9 +461,10 @@ Promise.all([
       let nodes = '';
       for (let k=0;k<n;k++) {
         const i = from+k, pos = `left:${xOf(k)}%;top:${yOf(k)}px`;
+        const boss = isBoss(i) ? ' boss' : '';
         nodes += isOpen(i)
-          ? `<div class="node ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
-          : `<div class="node locked" data-i="${i}" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
+          ? `<div class="node${boss} ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
+          : `<div class="node locked${boss}" data-i="${i}" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
       }
       if (li >= from && li < to) { const k=li-from; nodes += `<div class="walker" style="left:${xOf(k)}%;top:${yOf(k)}px"><span>🐭</span></div>`; }
       // scenery between the rows: one thing on the open side, one in the middle
@@ -521,8 +529,11 @@ Promise.all([
     const saved = solved[levelKey(L)];
     placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false; hintCount=0;
     $('lvlName').textContent = L.name;
-    $('lvlSub').textContent = isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`;
-    $('tip').textContent = L.tip || (L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
+    const boss = isBoss(li);
+    $('lvlSub').textContent = (boss ? '👑 Boss · ' : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`);
+    $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle in the ${room(roomIndexOf(li)).name}.`
+      : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
+    $('tip').classList.toggle('boss', boss);
     renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
   }
 
@@ -703,19 +714,19 @@ Promise.all([
       solved[levelKey(L)] = placed.map(p=>({t:p.t,x:p.x,y:p.y})); store.set('cm_solved',solved);
       renderDots();
       const last = li===LEVELS.length-1, cleared = !wasCleared && roomCleared(rIdx);
-      $('winBig').textContent = cleared ? '🚪✨' : '🐭🕳️';
+      $('winBig').textContent = cleared ? (isBoss(li) ? '👑🚪✨' : '🚪✨') : isBoss(li) ? '👑🐭' : '🐭🕳️';
       clearedRoom = cleared ? rIdx : undefined;
       $('nextBtn').style.display = cleared ? 'none' : '';
       $('winLevelsBtn').textContent = cleared ? 'Open the door 🚪' : 'All levels';
       $('winLevelsBtn').classList.toggle('go', cleared);
       if (cleared) {
         const next = room(rIdx+1);
-        $('winTitle').textContent = `${room(rIdx).name} cleared!`;
+        $('winTitle').textContent = isBoss(li) ? `Boss beaten! ${room(rIdx).name} cleared!` : `${room(rIdx).name} cleared!`;
         $('winText').textContent = `The door to the ${next.name} is open.` + (last ? ' More puzzles are on the way.' : '');
         confetti(); Sound.cheer();
       } else {
         Sound.win();
-        $('winTitle').textContent = last ? 'Castle cleared!' : 'Mouse escaped!';
+        $('winTitle').textContent = last ? 'Castle cleared!' : isBoss(li) ? 'Boss beaten!' : 'Mouse escaped!';
         $('winText').textContent = last ? 'You finished every level. More puzzles are on the way.' : `Level ${li+1} solved${hintShown?' (with a hint)':''}.`;
       }
       $('nextBtn').textContent = last ? 'Play again' : 'Next level';
