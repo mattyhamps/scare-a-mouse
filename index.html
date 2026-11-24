@@ -154,7 +154,15 @@
   .hole.t i{transform:rotate(180deg)} .hole.l i{transform:rotate(90deg)} .hole.r i{transform:rotate(-90deg)}
   .board.running .hole i,.board.edit .hole i{animation:glow 1.6s ease-in-out infinite}
   @keyframes glow{50%{box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.55)}}
-  .animal{position:absolute;left:0;top:0;display:grid;place-items:center;transition:transform .15s linear,opacity .25s;pointer-events:none;z-index:2}
+  .animal{position:absolute;left:0;top:0;display:grid;place-items:center;transition:transform var(--glide,.15s) linear,opacity .25s;pointer-events:none;z-index:2}
+  /* instant replay */
+  .btn.replay{margin-top:12px;background:transparent;box-shadow:none;border:2px solid #574a66;font-size:15px;padding:10px}
+  .replay-bar{position:absolute;left:50%;top:-14px;transform:translate(-50%,-100%);display:none;align-items:center;gap:8px;z-index:6;
+    background:rgba(20,16,24,.94);border:2px solid #574a66;border-radius:14px;padding:6px 8px 6px 12px;white-space:nowrap}
+  .replay-bar.show{display:flex}
+  .replay-bar b{font:600 14px Fredoka,system-ui;color:var(--gold)}
+  .replay-bar button{font:600 13px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:10px;padding:5px 9px;cursor:pointer}
+  .replay-bar button.on{border-color:var(--gold);color:var(--gold)}
   .animal span{display:block;line-height:1;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25));transition:transform .12s}
   .animal.placed{pointer-events:auto;cursor:pointer}
   .animal.placed::before{content:"";position:absolute;inset:8%;border-radius:30%;background:rgba(242,184,75,.28);border:2px dashed var(--gold-d)}
@@ -202,7 +210,8 @@
   <div class="title"><h2 id="lvlName"></h2><span class="sub" id="lvlSub"></span></div>
   <div class="tip" id="tip"></div>
   <div class="chain" id="chain"></div>
-  <div class="board-wrap"><div class="board" id="board"></div><div class="toast" id="toast"></div></div>
+  <div class="board-wrap"><div class="board" id="board"></div><div class="toast" id="toast"></div>
+    <div class="replay-bar" id="replayBar"><b>⏪ Replay</b><button id="speedBtn" aria-pressed="false">🐢 ½ speed</button><button id="replayDone">Done</button></div></div>
   <div class="tray" id="tray"></div>
   <div class="controls">
     <button class="btn" id="hintBtn">Hint</button>
@@ -221,6 +230,7 @@
   <div class="big" id="winBig">🐭🕳️</div><h3 id="winTitle">Mouse escaped!</h3><p id="winText"></p>
   <button class="btn go" id="nextBtn">Next level</button>
   <button class="btn" id="winLevelsBtn" style="margin-top:12px">All levels</button>
+  <button class="btn replay" id="replayBtn">⏪ Instant replay</button>
 </div></div>
 <!-- The physics: the Java engine, compiled to JavaScript by TeaVM. Defines scareSimulate(). -->
 <script src="js/engine.js"></script>
@@ -447,7 +457,7 @@ Promise.all([
 
   function load(i){
     if(!isOpen(i)) i=unlockedUpTo();
-    clearInterval(timer); clearTimeout(backTimer);
+    clearTimeout(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
     placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintShown=false; hintCount=0;
@@ -527,27 +537,23 @@ Promise.all([
   }
 
   function updateButtons(){
-    $('goBtn').disabled = mode==='running';
+    $('goBtn').disabled = mode==='running' || mode==='replay';
     const n = L.solution.length;
     $('hintBtn').disabled = mode!=='edit' || hintCount>=n;
     $('hintBtn').textContent = n>1 && hintCount>0 ? `Hint ${hintCount}/${n}` : 'Hint';
-    $('resetBtn').disabled = mode==='running' || (mode==='edit' && !placed.length);
+    $('resetBtn').disabled = mode==='running' || mode==='replay' || (mode==='edit' && !placed.length);
     $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
   }
 
-  function go(){
-    if(mode==='running' || mode==='won') return;
-    clearTimeout(backTimer);
-    clearHint();
-    mode='running'; updateButtons(); renderTray();
-    const b=$('board'); b.className='board running' + boardTheme;
-    const res = simulate(L, placed);
-    const fixedN=L.fixed.length;
-    // build elements keyed by engine id
+  // Plays a run's frames on the board. stepMs() is read before every step, so a replay can change speed
+  // while it plays; animals glide for the same time as a step lasts.
+  function animate(res, stepMs, done){
+    const fixedN=L.fixed.length, b=$('board');
     renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=fixedN})));
     let f=1;
-    timer=setInterval(()=>{
-      if(f>=res.frames.length){ clearInterval(timer); finish(res); return; }
+    const tick=()=>{
+      if(f>=res.frames.length){ timer=null; done(); return; }
+      b.style.setProperty('--glide', `${Math.round(stepMs()*0.9)}ms`);
       const prev=res.frames[f-1], cur=res.frames[f];
       const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
       cur.forEach(a=>{
@@ -560,7 +566,43 @@ Promise.all([
         if(a.gone) setTimeout(()=>el.classList.add('gone'),140);
       });
       f++;
-    }, 170);
+      timer=setTimeout(tick, stepMs());
+    };
+    timer=setTimeout(tick, stepMs());
+  }
+
+  let lastRun = null;   // the winning run, for the instant replay
+  function go(){
+    if(mode==='running' || mode==='won' || mode==='replay') return;
+    clearTimeout(backTimer);
+    clearHint();
+    mode='running'; updateButtons(); renderTray();
+    $('board').className='board running' + boardTheme;
+    const res = simulate(L, placed);
+    lastRun = res;
+    animate(res, ()=>170, ()=>finish(res));
+  }
+
+  // Instant replay: watch the winning run again from the start, at normal or half speed.
+  let replaySlow = store.get('cm_replay_slow', false);
+  function showSpeed(){ $('speedBtn').classList.toggle('on', replaySlow); $('speedBtn').setAttribute('aria-pressed', replaySlow); }
+  function replay(){
+    if(!lastRun || mode!=='won') return;
+    clearTimeout(timer);
+    $('win').classList.remove('show');
+    mode='replay'; updateButtons();
+    $('board').className='board running' + boardTheme;
+    $('replayBar').classList.add('show'); showSpeed();
+    animate(lastRun, ()=> replaySlow ? 340 : 170, ()=>{ timer=setTimeout(endReplay, 900); });
+  }
+  function endReplay(){
+    if(mode!=='replay') return;
+    clearTimeout(timer);
+    $('replayBar').classList.remove('show');
+    // finish on the last frame of the run, then back to the win card
+    renderAnimals(lastRun.frames[lastRun.frames.length-1].map(a=>({...a, placed: a.id>=L.fixed.length})));
+    mode='won'; updateButtons();
+    $('win').classList.add('show');
   }
 
   let clearedRoom;   // set when the last win cleared a room: the map then plays the door opening
@@ -606,7 +648,7 @@ Promise.all([
   }
 
   function backToStart(){
-    clearInterval(timer); clearTimeout(backTimer);
+    clearTimeout(timer); clearTimeout(backTimer);
     mode='edit'; $('board').className='board edit' + boardTheme;
     renderTray(); renderAnimals(); updateButtons();
   }
@@ -776,7 +818,10 @@ Promise.all([
       });
     }
   }
-  $('lvlBtn').onclick=()=>{ if(mode!=='running') openPicker(); };
+  $('lvlBtn').onclick=()=>{ if(mode!=='running' && mode!=='replay') openPicker(); };
+  $('replayBtn').onclick=replay;
+  $('replayDone').onclick=endReplay;
+  $('speedBtn').onclick=()=>{ replaySlow=!replaySlow; store.set('cm_replay_slow', replaySlow); showSpeed(); };
   $('closePick').onclick=()=>$('picker').classList.remove('show');
   // Developer mode only (hidden for players). Two taps to confirm.
   $('resetProgress').onclick=()=>{
