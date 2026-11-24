@@ -424,68 +424,71 @@ public final class Recipe {
             case 289: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withMoves(Move.CATCH).withWalls(1, 3);
             case 290: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH); // tougher
             // 291-320: the Ballroom. A bit harder: more levels steered with two animals, more blockers in the
-            // mouse's way. About half already moving; about 1 in 5 with walls (marble pillars).
+            // mouse's way (cats and dogs, so the animals you place stay varied). About half already moving;
+            // about 1 in 5 with walls (marble pillars). Hands vary from 1 to 3 animals.
             case 291: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 292: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
-            case 293: return new Recipe(Animal.ELEPHANT, 1, false, "New: marble pillars! Animals can't run through them.", Trick.WAITING_RUNNER).withWalls(1, 3);
+            case 292: return new Recipe(Animal.CAT, 2, true, "", Trick.PLAIN); // starts with a cat: the chain wraps round through the elephant
+            case 293: return new Recipe(Animal.LION, 1, false, "New: marble pillars! Animals can't run through them.", Trick.PLAIN).withWalls(1, 3);
             case 294: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
-            case 295: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
+            case 295: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withCatches(1);
             case 296: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.STOP, Move.CATCH);
-            case 297: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 298: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
-            case 299: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withCatches(1);
-            case 300: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.STOP);
-            case 301: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN);
+            case 297: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 298: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
+            case 299: return new Recipe(Animal.CAT, 0, true, "", Trick.FREEZE_RELEASE).withCatches(1); // starts with a cat: the chain wraps round through the elephant
+            case 300: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.STOP);
+            case 301: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN).withBlockers(Animal.CAT, Animal.DOG);
             case 302: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 303: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
+            case 303: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.CATCH);
             case 304: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE).withWalls(1, 3);
-            case 305: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withCatches(1);
-            case 306: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.STOP);
-            case 307: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE);
-            case 308: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN);
+            case 305: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN).withCatches(1); // starts with a cat: the chain wraps round through the elephant
+            case 306: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.STOP);
+            case 307: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE);
+            case 308: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
             case 309: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
             case 310: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 311: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 312: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 313: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withMoves(Move.CATCH);
-            case 314: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withCatches(1);
+            case 311: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withCatches(1);
+            case 312: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.STOP);
+            case 313: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.CATCH);
+            case 314: return new Recipe(Animal.CAT, 1, true, "", Trick.FREEZE_RELEASE); // starts with a cat: the chain wraps round through the elephant
             case 315: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH).withWalls(1, 3);
-            case 316: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.STOP);
-            case 317: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
-            case 318: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE);
-            case 319: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 320: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH); // tougher
-            // 321-350: the Gallery. Harder again: more blockers and two-animal moves. About 1 in 5 with walls
-            // (statues). 350 is the First floor's boss.
-            case 321: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
-            case 322: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.WAITING_RUNNER);
-            case 323: return new Recipe(Animal.ELEPHANT, 2, false, "New: statues! Animals can't run through them.", Trick.FREEZE_RELEASE).withWalls(1, 3);
-            case 324: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 325: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
-            case 326: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.STOP);
-            case 327: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
+            case 316: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.STOP);
+            case 317: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG);
+            case 318: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE);
+            case 319: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 320: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH); // tougher
+            // 321-350: the Gallery. Harder again: more blockers and two-animal moves. Still boards start with an
+            // elephant or a lion (the only starts the builder manages on 9x9), and more levels are steered
+            // with a catch or a stop, which is how cats and dogs get into your hand. About 1 in 5
+            // with walls (statues). 350 is the First floor's boss.
+            case 321: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 322: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
+            case 323: return new Recipe(Animal.LION, 2, false, "New: statues! Animals can't run through them.", Trick.FREEZE_RELEASE).withWalls(1, 3);
+            case 324: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.CATCH);
+            case 325: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
+            case 326: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.STOP, Move.CATCH);
+            case 327: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
             case 328: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.STOP).withWalls(1, 3);
-            case 329: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN);
-            case 330: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 331: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
+            case 329: return new Recipe(Animal.CAT, 2, true, "", Trick.PLAIN); // starts with a cat: the chain wraps round through the elephant
+            case 330: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 331: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.CATCH);
             case 332: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
-            case 333: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.STOP);
-            case 334: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.WAITING_RUNNER).withWalls(1, 3);
-            case 335: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 336: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN);
-            case 337: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
-            case 338: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withCatches(1);
+            case 333: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.STOP);
+            case 334: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
+            case 335: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.STOP, Move.CATCH);
+            case 336: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN);
+            case 337: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 338: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN).withCatches(1); // starts with a cat: the chain wraps round through the elephant
             case 339: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.CATCH).withWalls(1, 3);
-            case 340: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 341: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
-            case 342: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
-            case 343: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 344: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.WAITING_RUNNER);
-            case 345: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
-            case 346: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
+            case 340: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
+            case 341: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE);
+            case 342: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 343: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 344: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN);
+            case 345: return new Recipe(Animal.CAT, 1, true, "", Trick.PLAIN).withWalls(1, 3); // starts with a cat: the chain wraps round through the elephant
+            case 346: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.CATCH);
             case 347: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN);
-            case 348: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 349: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE);
+            case 348: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.CAT, Animal.DOG).withMoves(Move.SWERVE, Move.CATCH);
+            case 349: return new Recipe(Animal.CAT, 1, true, "", Trick.FREEZE_RELEASE); // starts with a cat: the chain wraps round through the elephant
             case 350: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4); // boss
             default: return null;
         }
