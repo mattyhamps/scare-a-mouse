@@ -97,7 +97,8 @@ right square before it reaches a spoiler; the rest close off squares that would 
 easier solution. Like every board piece, each wall has to matter to the puzzle.
 
 Each castle room also tints the board (floor, stone and wall look) so it fits the room; in the
-Kitchens the walls are drawn as counters.
+Kitchens the walls are drawn as counters, and in the Library as bookshelves (only about 1 level in 5 there has
+walls).
 
 Recipes are mixed through each batch of ten rather than grouped.
 
