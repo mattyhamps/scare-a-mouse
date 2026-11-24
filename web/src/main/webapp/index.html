@@ -130,6 +130,95 @@
   .doorway.open .leaf .lock{display:none}
   .doorway .label{font:600 13px Fredoka,system-ui;color:#2a2420;max-width:120px;text-align:left;line-height:1.2}
   .doorway .spark{position:absolute;font-size:18px;pointer-events:none;animation:spark 1.2s ease-out forwards}
+  /* The castle map: a full-height card with three views (the castle, an area's map, a room's road). */
+  .card.pick{display:flex;flex-direction:column;box-sizing:border-box;width:calc(100vw - 48px);height:calc(100dvh - 48px);max-height:920px;max-width:460px}
+  .card.pick .map{flex:1;min-height:0;max-height:none}
+  .pick-head{display:flex;align-items:center;justify-content:center;gap:10px;min-height:36px}
+  .pick-head h3{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pick-back:not([hidden]) + h3{flex:1;text-align:left;font-size:20px}
+  .pick-back{flex:none;font:600 14px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:10px;padding:5px 10px;cursor:pointer;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .castle-view-wrap{background:#1b2342}
+  .castle-view{position:relative;min-height:100%;box-sizing:border-box;padding:118px 10px 12px;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,#1b2342 0,#3b4a78 150px,#7a8fb8 300px,#7a8fb8 70%,#4d7a33 70%,#3d5a35 100%)}
+  .castle-view .star{position:absolute;color:#fff;font-size:10px;animation:twinkle 2s infinite}
+  .castle-view .flag{position:absolute;left:38%;top:84px;font-size:16px;transform-origin:left;animation:flagwave 2s ease-in-out infinite}
+  .castle-view .tower{position:absolute;right:12px;top:32px;width:104px;height:96px;background:#5d564d;border-radius:4px;padding:6px;box-sizing:border-box}
+  .castle-view .tower .roof{position:absolute;left:-4px;top:-24px;border-left:56px solid transparent;border-right:56px solid transparent;border-bottom:26px solid #7a3a40}
+  .castle-view .tower .band-floor{flex-direction:column;gap:0;text-align:center;padding:4px;min-height:80px;justify-content:center}
+  .castle-view .tower .band-floor small:not(.bf-count),.castle-view .tower .bf-text small{display:none}
+  .castle-view .tower .band-floor b{font-size:12px;line-height:1.1}
+  .keep{position:relative;display:flex;flex-direction:column;gap:6px;padding:10px 8px;border-radius:4px;background:repeating-linear-gradient(0deg,#6c6257 0 20px,#5d564d 20px 22px)}
+  .keep .battlement{position:absolute;left:0;right:0;top:-14px;height:14px;background:repeating-linear-gradient(90deg,#6c6257 0 22px,transparent 22px 36px)}
+  .cellars{padding:8px;background:#2a2420;border-radius:0 0 6px 6px}
+  .moat-band{position:relative;height:18px;margin:8px -10px;background:#6fa3c4;animation:ripple 3s ease-in-out infinite}
+  .moat-band .drawbridge{position:absolute;left:50%;top:-10px;width:46px;height:38px;transform:translateX(-50%);background:repeating-linear-gradient(0deg,#8a5a2b 0 6px,#6f4520 6px 8px)}
+  .band-floor{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:52px;box-sizing:border-box;padding:6px 10px;border:0;border-radius:6px;
+    text-align:left;font-family:inherit;color:#3a2f22;cursor:pointer;background:linear-gradient(180deg,#fff3d6,#e9cf9a);box-shadow:inset 0 0 0 2px #b77d14}
+  .band-floor.here{box-shadow:inset 0 0 0 3px var(--gold),0 0 18px rgba(242,184,75,.6)}
+  .band-floor.locked{cursor:default;color:#7d7489;background:#2a2531;box-shadow:inset 0 0 0 2px #3a3342}
+  .band-floor.locked.next{box-shadow:inset 0 0 0 2px rgba(242,184,75,.55);animation:pulse 1.8s ease-in-out infinite}
+  .band-floor .bf-ic{font-size:22px} .band-floor.locked .bf-ic{opacity:.35}
+  .bf-text{display:flex;flex-direction:column;flex:1;min-width:0}
+  .bf-text b,.band-floor.locked b{font:600 15px Fredoka,system-ui}
+  .bf-text small{font-size:10px;color:#6b5a40;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .band-floor.locked small{margin-left:auto;font-size:11px}
+  .bf-count{font-size:11px;font-weight:700;color:#3b6d11}
+  .band-floor .pr-mouse{position:absolute;right:48px;top:-12px;font-size:18px;animation:bob 1.2s ease-in-out infinite}
+  .outside-band .band-floor{min-height:64px}
+  .area-view{background:radial-gradient(circle at 50% 50%,#efdfba,#d4b882 75%,#a8854a)}
+  .plan{position:relative;margin:14px 14px 8px;height:clamp(340px,calc(100dvh - 350px),560px)}
+  .plan.floor{border-radius:6px;background:#e7d3a6;box-shadow:inset 0 0 0 8px #8a6a3a,inset 0 0 0 10px #6b4a24}
+  .plan.floor .plan-room:first-of-type{}
+  .plan.outside{border-radius:18px;background:radial-gradient(circle at 50% 60%,#d3e3a8,#b5cc86 80%)}
+  .plan .castle-wall{position:absolute;left:0;right:0;top:0;height:9%;border-radius:12px 12px 0 0;background:repeating-linear-gradient(0deg,#9a9083 0 12px,#857b70 12px 14px)}
+  .plan .moat{position:absolute;left:0;right:0;top:9%;height:5%;background:#6fa3c4;animation:ripple 3s ease-in-out infinite}
+  .plan .corridors{position:absolute;inset:0;width:100%;height:100%}
+  .corridors polyline{fill:none;stroke:#cdb486;stroke-width:12;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .plan.outside .corridors polyline{stroke:#c9b38a;stroke-width:16;stroke-linecap:round}
+  .plan-room{position:absolute;box-sizing:border-box;padding:2px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    border:3px solid #6b4a24;border-radius:6px;background:#f6ead0;font-family:inherit;color:#3a2f22;cursor:pointer}
+  .plan-room b{font:600 13px Fredoka,system-ui;line-height:1.1;text-align:center}
+  .plan-room small{font-size:10px;font-weight:700;color:#8a5c10}
+  .plan-room.done small{color:#3b6d11}
+  .plan-room .pr-ic{font-size:20px}
+  .plan-room.here{box-shadow:0 0 0 3px var(--gold),0 0 16px rgba(242,184,75,.8)}
+  .plan-room .pr-mouse{position:absolute;right:4px;top:2px;font-size:16px;animation:bob 1.2s ease-in-out infinite;z-index:2}
+  .plan-room .crown{position:absolute;left:4px;top:2px;font-size:14px;z-index:2}
+  .plan-room.next{cursor:default;display:grid;place-items:center;text-align:center;border:3px dashed #6b4a24;background:#efe0bd;
+    font:600 22px Fredoka,system-ui;color:#6b4a24;animation:pulse 1.8s ease-in-out infinite}
+  .plan-room.next small{font-size:10px;line-height:1.1;color:#6b4a24}
+  .plan-room.next.narrow small{writing-mode:vertical-rl;font-size:11px}
+  .plan-room.far{cursor:default;border:2px solid rgba(107,74,36,.4);background:#e2cc9b}
+  .plan.outside .plan-room.far{background:#a9c27a;border-radius:12px}
+  .plan-room.place{justify-content:flex-end;padding:0 0 4px;border-radius:12px;background:#b5cc86}
+  .plan-room.place .art{position:absolute;inset:0}
+  .plan-room.place .pr-ic{display:none}
+  .plan-room.place b,.plan-room.place small{position:relative;z-index:1;background:rgba(255,248,225,.88);padding:0 6px;border-radius:6px}
+  .pa{position:absolute}
+  .pa.sky{left:0;right:0;top:0;height:45%;background:linear-gradient(#a9d2ee,#d9eef7)}
+  .pa.grass{left:0;right:0;bottom:0;height:55%;background:linear-gradient(#9cc46a,#7aa34c)}
+  .pa.barn{left:10%;bottom:26%;width:42%;height:46%;background:#b0453a;clip-path:polygon(0 35%,50% 0,100% 35%,100% 100%,0 100%);box-shadow:inset 0 -10px 0 #8a3028}
+  .pa.water{inset:0;background:repeating-linear-gradient(0deg,#6fa3c4 0 6px,#7fb2cf 6px 12px);animation:ripple 3s ease-in-out infinite}
+  .pa.bridge{left:38%;top:0;bottom:0;width:24%;background:repeating-linear-gradient(0deg,#8a5a2b 0 6px,#6f4520 6px 8px)}
+  .pa.gatehouse{left:16%;right:16%;bottom:0;top:22%;background:repeating-linear-gradient(0deg,#9a9083 0 10px,#857b70 10px 11px);
+    clip-path:polygon(0 0,14% 0,14% 12%,28% 12%,28% 0,42% 0,42% 12%,58% 12%,58% 0,72% 0,72% 12%,86% 12%,86% 0,100% 0,100% 100%,62% 100%,62% 52%,50% 38%,38% 52%,38% 100%,0 100%)}
+  .pe{position:absolute;font-size:16px;line-height:1}
+  .pe.flutter{animation:flutter 3s ease-in-out infinite} .pe.drop{animation:drop 2.6s ease-in infinite}
+  .pe.paddle{animation:paddle 5s ease-in-out infinite} .pe.wave{transform-origin:left;animation:flagwave 2s ease-in-out infinite}
+  .stairs-row{display:flex;gap:10px;margin:0 14px 14px}
+  .stairs{font:600 14px Fredoka,system-ui;padding:8px 12px;border-radius:10px;border:2px solid #6b4a24;background:#f6ead0;color:#3a2f22;cursor:pointer}
+  .stairs.up{margin-left:auto} .stairs.locked{opacity:.65;cursor:default}
+  .stairs.down:empty{display:none}
+  .doorway.soon{justify-content:center;color:#2a2420}
+  .reveal{animation:reveal 1.3s ease-out both}
+  @keyframes reveal{0%{transform:scale(.6);opacity:0;filter:brightness(1.8)}60%{transform:scale(1.06);opacity:1}100%{transform:none;filter:none}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,184,75,0)}50%{box-shadow:0 0 0 6px rgba(242,184,75,.45)}}
+  @keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+  @keyframes flagwave{0%,100%{transform:skewY(0)}50%{transform:skewY(-8deg)}}
+  @keyframes ripple{0%,100%{opacity:.75}50%{opacity:1}}
+  @keyframes flutter{0%,100%{transform:translate(0,0)}50%{transform:translate(14px,-6px)}}
+  @keyframes drop{0%,60%{transform:translateY(0);opacity:1}90%{transform:translateY(26px);opacity:1}100%{transform:translateY(26px);opacity:0}}
+  @keyframes paddle{0%,100%{transform:translateX(0)}50%{transform:translateX(40px)}}
   @keyframes flicker{0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1)}50%{opacity:.75;transform:translate(-50%,-52%) scale(.92)}}
   @keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   @keyframes drift{from{transform:translateX(-12px)}to{transform:translateX(12px)}}
@@ -247,7 +336,8 @@
   </div>
 </div>
 <div class="overlay" id="picker"><div class="card pick">
-  <h3>The castle</h3><p id="progress"></p>
+  <div class="pick-head"><button class="pick-back" id="pickBack" hidden>‹</button><h3 id="pickTitle">The castle</h3></div>
+  <p id="progress"></p>
   <div class="map" id="dots"></div>
   <button class="btn" id="closePick">Close</button>
   <!-- Developer mode only (see DEV_HASH) -->
@@ -368,147 +458,282 @@ Promise.all([
 
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
-  // The castle: rooms of different sizes, like a real castle. `end` is each room's last level. A new
-  // board size (7x7, 8x8 from 101, 9x9 from 201, 10x10 from 351) always starts a new room.
-  // out: an outdoor room (no torches or windows). top: what stands along the top of the room.
+  // The castle: the Outside, then floors of rooms (plus the cellars below). Each area's last level is
+  // its boss. A new board size (7x7 outside, 8x8 on the first floor, 9x9 on the second, then 10x10)
+  // starts with a new area.
+  const AREAS = [
+    {name:'Outside',         ic:'🌳', kind:'outside'},
+    {name:'First floor',     ic:'🛡️'},
+    {name:'Second floor',    ic:'📚'},
+    {name:'Third floor',     ic:'⚔️'},
+    {name:'Cellars',         ic:'🍷', kind:'cellars'},
+    {name:'Fourth floor',    ic:'💰'},
+    {name:'Towers and roof', ic:'🚩'},
+    {name:'Royal floor',     ic:'👑'},
+    {name:'Tower top',       ic:'🌙', kind:'top'},
+    {name:'East wing',       ic:'🏯'},
+  ];
+  // Rooms in order. `end` is the room's last level, `area` its place in AREAS, `plan` its spot on the
+  // area's map (x, y, width, height in %). out: outdoors (no torches or windows); top/deco: scenery.
   const ROOMS = [
-    {end:25,   name:'Gate',           ic:'🏰', bg:'#4b5a3a', out:1, top:['🌲','🚩','🏰','🚩','🌲'], deco:['🌿','🪨','🌼','🍄','🌾','🐌']},
-    {end:70,   name:'Courtyard',      ic:'⛲', bg:'#53643f', out:1, top:['🌳','🌷','⛲','🌷','🌳'], deco:['🌷','🪣','🐦','🌳','🦋','🌼']},
-    {end:100,  name:'Stables',        ic:'🐴', bg:'#6b5434', top:['🐴','🌾','🐎'], deco:['🌾','🥕','🪵','🧺','🐓','🍎']},
-    {end:170,  name:'Great hall',     ic:'🛡️', bg:'#5b3c3a', top:['🛡️','🍗','🛡️'], deco:['🕯️','🍷','🍗','🪑','🎺','🥧']},
-    {end:200,  name:'Kitchens',       ic:'🍲', bg:'#664a32', top:['🍳','🍲','🥖'], deco:['🧀','🥖','🧅','🥕','🫖','🍯']},
-    {end:260,  name:'Library',        ic:'📚', bg:'#3f3a5a', top:['📚','🕯️','📚'], deco:['📜','📖','🪶','🕯️','🔭','📚']},
-    {end:280,  name:'Secret passage', ic:'🗝️', bg:'#2a2833', top:['🕸️','🗝️','🕸️'], deco:['🕸️','🕷️','🗝️','🦴','🪨','🕯️']},
-    {end:350,  name:'Chapel',         ic:'🔔', bg:'#4d4a63', top:['🕯️','🔔','🕯️'], deco:['🌸','🕯️','📿','💐','🕊️','🔔']},
-    {end:390,  name:'Armory',         ic:'⚔️', bg:'#45484f', top:['🛡️','⚔️','🛡️'], deco:['⚔️','🏹','🪓','🛡️','🔨','🪖']},
-    {end:490,  name:'Ballroom',       ic:'🎻', bg:'#5b3a5c', top:['🎻','🪩','🎺'], deco:['💃','🎶','🥂','🎭','🕺','🌹']},
-    {end:520,  name:'Wine cellar',    ic:'🍷', bg:'#40302e', top:['🛢️','🍷','🛢️'], deco:['🛢️','🍇','🍷','🕸️','🧀','🐀']},
-    {end:620,  name:'Dungeon',        ic:'⛓️', bg:'#2f2f36', top:['⛓️','💀','⛓️'], deco:['⛓️','🦴','🕸️','🐀','💀','🪨']},
-    {end:660,  name:'Gallery',        ic:'🖼️', bg:'#5a4048', top:['🖼️','🏺','🖼️'], deco:['🏺','🗿','🪞','🖼️','🎨','💐']},
-    {end:740,  name:'Treasury',       ic:'💰', bg:'#5a4a25', top:['💎','👑','💎'], deco:['💰','🪙','💎','📦','🏆','💍']},
-    {end:765,  name:'Clock tower',    ic:'🕰️', bg:'#4a4440', top:['⚙️','🕰️','⚙️'], deco:['⚙️','🦉','🔔','🪜','🕸️','⏳']},
-    {end:850,  name:'Battlements',    ic:'🚩', bg:'#4e5866', out:1, top:['🚩','☁️','🏹','☁️','🚩'], deco:['☁️','🐦','🪨','🏹','🦅','🌬️']},
-    {end:900,  name:'Royal chambers', ic:'🛏️', bg:'#5c3646', top:['🖼️','🛏️','🪞'], deco:['🧸','🕯️','👗','🎀','🪞','🌹']},
-    {end:920,  name:'Tower stairs',   ic:'🪜', bg:'#454049', top:['🕸️','🪜','🕸️'], deco:['🕯️','🕸️','🦇','🪨','🗝️','🕷️']},
-    {end:980,  name:'Throne room',    ic:'👑', bg:'#5e2f35', top:['🚩','👑','🚩'], deco:['👑','🕯️','🛡️','🎺','🏆','🌹']},
-    {end:1000, name:'Tower top',      ic:'🌙', bg:'#2e3557', out:1, night:1, top:['⭐','🌙','⭐'], deco:['⭐','🦇','✨','🦉','☁️','🌟']},
+    {end:20,  area:0, name:'Meadow',         ic:'🌼', bg:'#55703f', out:1, plan:[4,76,44,20],  top:['🌳','🌼','🦋','🌷','🌳'], deco:['🌼','🌷','🦋','🐝','🌾','🍄']},
+    {end:40,  area:0, name:'Orchard',        ic:'🍎', bg:'#4f6a3a', out:1, plan:[52,60,44,20], top:['🌳','🍎','🧺','🍐','🌳'], deco:['🍎','🌳','🧺','🐛','🍐','🪜']},
+    {end:60,  area:0, name:'Stables',        ic:'🐴', bg:'#6b5434',        plan:[4,42,44,20],  top:['🐴','🌾','🐎'], deco:['🌾','🥕','🪵','🧺','🐓','🍎']},
+    {end:80,  area:0, name:'Moat bridge',    ic:'🌉', bg:'#3f5f6a', out:1, plan:[52,24,44,18], top:['🌊','🦆','🌉','🦆','🌊'], deco:['🦆','🐸','🪷','🐟','🌾','🪨']},
+    {end:100, area:0, name:'Gate',           ic:'🏰', bg:'#4b5a3a', out:1, plan:[28,2,44,18],  top:['🌲','🚩','🏰','🚩','🌲'], deco:['🌿','🪨','🌼','🍄','🛡️','🐌']},
+    {end:120, area:1, name:'Entrance hall',  ic:'🚪', bg:'#5a4a40', plan:[32,74,36,20], top:['🛡️','🚪','🛡️'], deco:['🪴','🕯️','🧥','🪑','🗝️','🪞']},
+    {end:145, area:1, name:'Great hall',     ic:'🛡️', bg:'#5b3c3a', plan:[18,40,64,28], top:['🛡️','🍗','🛡️'], deco:['🕯️','🍷','🍗','🪑','🎺','🥧']},
+    {end:170, area:1, name:'Ballroom',       ic:'🎻', bg:'#5b3a5c', plan:[4,6,56,28],   top:['🎻','🪩','🎺'], deco:['💃','🎶','🥂','🎭','🕺','🌹']},
+    {end:200, area:1, name:'Kitchens',       ic:'🍲', bg:'#664a32', plan:[64,6,32,28],  top:['🍳','🍲','🥖'], deco:['🧀','🥖','🧅','🥕','🫖','🍯']},
+    {end:230, area:2, name:'Library',        ic:'📚', bg:'#3f3a5a', plan:[4,54,34,40],  top:['📚','🕯️','📚'], deco:['📜','📖','🪶','🕯️','🔭','📚']},
+    {end:260, area:2, name:'Study',          ic:'🪶', bg:'#4a3f36', plan:[4,6,34,42],   top:['🗺️','🪶','🕯️'], deco:['🪶','📜','🔍','🕯️','🌍','📐']},
+    {end:290, area:2, name:'Secret passage', ic:'🗝️', bg:'#2a2833', plan:[44,6,14,60],  top:['🕸️','🗝️','🕸️'], deco:['🕸️','🕷️','🗝️','🦴','🪨','🕯️']},
+    {end:320, area:2, name:'Chapel',         ic:'🔔', bg:'#4d4a63', plan:[64,6,32,42],  top:['🕯️','🔔','🕯️'], deco:['🌸','🕯️','📿','💐','🕊️','🔔']},
+    {end:350, area:2, name:'Gallery',        ic:'🖼️', bg:'#5a4048', plan:[44,72,52,22], top:['🖼️','🏺','🖼️'], deco:['🏺','🗿','🪞','🖼️','🎨','💐']},
+    {end:400, area:3, name:'Armory',         ic:'⚔️', bg:'#45484f', plan:[6,58,42,34],  top:['🛡️','⚔️','🛡️'], deco:['⚔️','🏹','🪓','🛡️','🔨','🪖']},
+    {end:450, area:3, name:'Guard room',     ic:'🪖', bg:'#4a4540', plan:[52,58,42,34], top:['🪖','🔥','🪖'], deco:['🎲','🍺','🪖','🕯️','🗡️','🪑']},
+    {end:500, area:3, name:'Map room',       ic:'🗺️', bg:'#4a4a36', plan:[20,8,60,40],  top:['🗺️','🧭','🗺️'], deco:['🧭','📜','🌍','🕯️','📐','🔭']},
+    {end:550, area:4, name:'Wine cellar',    ic:'🍷', bg:'#40302e', plan:[6,30,42,40],  top:['🛢️','🍷','🛢️'], deco:['🛢️','🍇','🍷','🕸️','🧀','🐀']},
+    {end:600, area:4, name:'Dungeon',        ic:'⛓️', bg:'#2f2f36', plan:[52,30,42,40], top:['⛓️','💀','⛓️'], deco:['⛓️','🦴','🕸️','🐀','💀','🪨']},
+    {end:650, area:5, name:'Treasury',       ic:'💎', bg:'#5a4a25', plan:[6,58,42,34],  top:['💎','👑','💎'], deco:['💰','🪙','💎','📦','🏆','💍']},
+    {end:700, area:5, name:'Trophy room',    ic:'🏆', bg:'#4f4030', plan:[52,58,42,34], top:['🏆','🦌','🏆'], deco:['🏆','🛡️','🦌','🏅','⚔️','🖼️']},
+    {end:750, area:5, name:'Clock tower',    ic:'🕰️', bg:'#4a4440', plan:[30,8,40,40],  top:['⚙️','🕰️','⚙️'], deco:['⚙️','🦉','🔔','🪜','🕸️','⏳']},
+    {end:800, area:6, name:'Battlements',    ic:'🚩', bg:'#4e5866', out:1, plan:[6,44,88,26], top:['🚩','☁️','🏹','☁️','🚩'], deco:['☁️','🐦','🪨','🏹','🦅','🌬️']},
+    {end:850, area:6, name:'Watchtower',     ic:'🔭', bg:'#4a5060', plan:[34,6,32,30],  top:['🔭','🦅','🔭'], deco:['🔭','🦅','☁️','🏹','🪶','🌬️']},
+    {end:900, area:7, name:'Royal chambers', ic:'🛏️', bg:'#5c3646', plan:[6,58,42,34],  top:['🖼️','🛏️','🪞'], deco:['🧸','🕯️','👗','🎀','🪞','🌹']},
+    {end:930, area:7, name:'Tower stairs',   ic:'🪜', bg:'#454049', plan:[56,54,20,40], top:['🕸️','🪜','🕸️'], deco:['🕯️','🕸️','🦇','🪨','🗝️','🕷️']},
+    {end:980, area:7, name:'Throne room',    ic:'👑', bg:'#5e2f35', plan:[18,8,64,38],  top:['🚩','👑','🚩'], deco:['👑','🕯️','🛡️','🎺','🏆','🌹']},
+    {end:1000,area:8, name:'Tower top',      ic:'🌙', bg:'#2e3557', out:1, night:1, plan:[25,25,50,50], top:['⭐','🌙','⭐'], deco:['⭐','🦇','✨','🦉','☁️','🌟']},
   ];
   // Each room's board: floor tiles, castle-wall stone and the look of walls. Kept close to the
   // original board, just tinted to fit the room. [floor A, floor B, stone light, stone, stone dark]
   const BOARDS = {
-    'Courtyard':      ['#e4e2c8','#d6d6b4','#a3a28c','#8d8c76','#6c6b58'],
+    'Meadow':         ['#e8e6c6','#dbdcb4','#a7a68e','#919078','#706f5a'],
+    'Orchard':        ['#ece4c4','#dfd6ae','#aca48a','#968e74','#746d58'],
     'Stables':        ['#ecdcae','#e1cd95','#b0a088','#998a72','#766953'],
+    'Moat bridge':    ['#e2e4d6','#d2d8c8','#9fa7a6','#89918f','#6a716f'],
+    'Entrance hall':  ['#ece0d0','#dfd0bc','#a99b8e','#928477','#71665c'],
     'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56'],
+    'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d'],
     'Kitchens':       ['#f2e2cc','#e0b48e','#ad9a88','#968371','#736252', 'counter'],
     'Library':        ['#e7decf','#dbcfba','#9d98a8','#868192','#66626f', 'shelf'],
+    'Study':          ['#ebe0cc','#ddd0b8','#a29a8e','#8b8378','#6b655c', 'shelf'],
     'Secret passage': ['#d9d2c4','#cbc3b3','#86828c','#716d77','#55525a'],
     'Chapel':         ['#ebe6dc','#ded8cc','#aeaabb','#9893a6','#767184'],
+    'Gallery':        ['#ece2df','#e0d3cf','#a99a96','#928380','#716462'],
     'Armory':         ['#e2dfd8','#d4d0c7','#999da3','#83878d','#65686d'],
-    'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d'],
+    'Guard room':     ['#e4ddd2','#d6cdbf','#a1988d','#8a8177','#6a635b'],
+    'Map room':       ['#ece3c8','#dfd4b2','#a59d84','#8f876e','#6e6853'],
     'Wine cellar':    ['#e3d3c6','#d6c2b2','#927e77','#7b6862','#5d4d48'],
     'Dungeon':        ['#d6d2cc','#c8c3bb','#817f87','#6c6a72','#504f55'],
-    'Gallery':        ['#ece2df','#e0d3cf','#a99a96','#928380','#716462'],
     'Treasury':       ['#f0e4c4','#e6d6a8','#b2a47c','#9b8d66','#796d4c'],
+    'Trophy room':    ['#ede0c8','#e0d0b2','#aa9a80','#93836a','#726552'],
     'Clock tower':    ['#e3dcd1','#d6cdbf','#a29a8f','#8b8378','#6b645b'],
     'Battlements':    ['#e2e2df','#d3d4d0','#a5abb3','#8f959d','#70757c'],
+    'Watchtower':     ['#e0e2e6','#d0d3d9','#9fa4ae','#898e98','#6b6f78'],
     'Royal chambers': ['#f0e0e2','#e5cfd3','#ad979b','#968084','#756367'],
     'Tower stairs':   ['#ddd6cf','#cfc6bd','#9a928b','#837b74','#655f59'],
     'Throne room':    ['#f0dcd6','#e5c9c1','#ad8b85','#96746e','#755853'],
     'Tower top':      ['#dcdde8','#cccede','#959ab2','#80859d','#62667c'],
   };
 
-  // Room r covers levels (start, end]; past level 1000 the castle grows new wings of 50.
+  // Room r covers levels (start, end]; past level 1000 the castle grows an east wing, 50 levels a room.
   const room = r => r < ROOMS.length ? {...ROOMS[r], start: r ? ROOMS[r-1].end : 0}
-    : {name:`East wing ${r-ROOMS.length+1}`, ic:'🏯', bg:'#4a4155', top:['🕯️','🏯','🕯️'], deco:['🕯️','🪨','🌿','🕸️'],
-       start: 1000 + (r-ROOMS.length)*50, end: 1000 + (r-ROOMS.length+1)*50};
+    : {name:`East wing ${r-ROOMS.length+1}`, ic:'🏯', bg:'#4a4155', area:9, plan:[10,10,80,80], top:['🕯️','🏯','🕯️'],
+       deco:['🕯️','🪨','🌿','🕸️'], start: 1000 + (r-ROOMS.length)*50, end: 1000 + (r-ROOMS.length+1)*50};
+  // The rooms of area a, in order (the east wing only grows as far as there are levels for it).
+  const roomsOf = a => { const out=[]; for (let r=0; r<ROOMS.length || room(r).start < LEVELS.length; r++) if (room(r).area===a) out.push(r); return out; };
 
   // Doors already seen opening (room numbers), and the level the map's mouse last stood on.
   let doorsSeen = store.get('cm_doors', []);
   const roomIndexOf = i => { let r=0; while (room(r).end <= i) r++; return r; };
-  // The last level of each room is its boss: a harder puzzle, with a crown on the map.
-  const isBoss = i => i + 1 === room(roomIndexOf(i)).end;
+  const areaOf = i => room(roomIndexOf(i)).area;
+  const areaEnd = a => { const rs=roomsOf(a); return room(rs[rs.length-1]).end; };
+  // The last level of each area (the Gate at 100, the Kitchens at 200, ...) is its boss: a harder
+  // puzzle, with a crown on the map.
+  const isBoss = i => i + 1 === areaEnd(areaOf(i));
+  const roomExists = r => room(r).start < LEVELS.length;
+  const roomReached = r => roomExists(r) && isOpen(room(r).start);
   // A room is cleared when all of its levels exist and are solved.
   const roomCleared = r => { const rm=room(r); if (rm.end > LEVELS.length) return false;
     for (let i=rm.start;i<rm.end;i++) if (!isDone(i)) return false; return true; };
+  const areaReached = a => roomReached(roomsOf(a)[0]);
+  const areaCleared = a => roomsOf(a).every(roomCleared);
+  // Rooms and areas you have seen appear on the map (each appears with a little flourish once).
+  // Progress from before the maps existed counts as seen.
+  let seenRooms = store.get('cm_seen_rooms', null), seenAreas = store.get('cm_seen_areas', null);
+  if (!seenRooms) { seenRooms = []; for (let r=0; roomExists(r); r++) if (roomReached(r)) seenRooms.push(r); store.set('cm_seen_rooms', seenRooms); }
+  if (!seenAreas) { seenAreas = AREAS.map((_,a)=>a).filter(a => roomsOf(a).length && areaReached(a)); store.set('cm_seen_areas', seenAreas); }
+  const markSeen = () => {
+    for (let r=0; roomExists(r); r++) if (roomReached(r) && !seenRooms.includes(r)) seenRooms.push(r);
+    AREAS.forEach((_,a) => { if (roomsOf(a).length && areaReached(a) && !seenAreas.includes(a)) seenAreas.push(a); });
+    store.set('cm_seen_rooms', seenRooms); store.set('cm_seen_areas', seenAreas);
+  };
 
-  function renderDots(){
-    // Levels zigzag across the room in rows of five; the road loops out at the end of each row.
+  // What the castle map shows: the whole castle, one area's map, or one room's road.
+  let view = { kind: 'castle' };
+  let mouseRoom = null;   // where the map's mouse stands (the current level's room, or a room just opened)
+
+  const solvedIn = r => { const rm=room(r); let n=0; for (let i=rm.start; i<Math.min(rm.end, LEVELS.length); i++) if (isDone(i)) n++; return n; };
+  const areaSolved = a => roomsOf(a).reduce((n,r)=>n+solvedIn(r),0);
+  const areaSize = a => roomsOf(a).reduce((n,r)=>n+room(r).end-room(r).start,0);
+
+  // Little illustrations for the places outside the castle.
+  const PLACE_ART = {
+    'Meadow': `<span class="pa sky"></span><span class="pa grass"></span><span class="pe" style="left:12%;top:46%">🌼</span><span class="pe" style="left:30%;top:60%">🌷</span><span class="pe" style="left:70%;top:50%">🌸</span><span class="pe" style="left:84%;top:64%">🌼</span><span class="pe flutter" style="left:52%;top:22%">🦋</span><span class="pe" style="left:4%;top:16%;font-size:22px">🌳</span>`,
+    'Orchard': `<span class="pa sky"></span><span class="pa grass"></span><span class="pe" style="left:4%;top:12%;font-size:26px">🌳</span><span class="pe" style="left:36%;top:6%;font-size:26px">🌳</span><span class="pe" style="left:70%;top:12%;font-size:26px">🌳</span><span class="pe drop" style="left:20%;top:30%">🍎</span><span class="pe" style="left:56%;top:58%">🧺</span><span class="pe" style="left:84%;top:52%">🍐</span>`,
+    'Stables': `<span class="pa sky"></span><span class="pa grass"></span><span class="pa barn"></span><span class="pe" style="left:64%;top:44%;font-size:22px">🐴</span><span class="pe" style="left:86%;top:58%">🌾</span><span class="pe" style="left:6%;top:60%">🐓</span>`,
+    'Moat bridge': `<span class="pa water"></span><span class="pa bridge"></span><span class="pe paddle" style="left:12%;top:58%">🦆</span><span class="pe" style="left:80%;top:30%">🪷</span><span class="pe" style="left:86%;top:62%">🐸</span>`,
+    'Gate': `<span class="pa sky"></span><span class="pa gatehouse"></span><span class="pe wave" style="left:14%;top:2%">🚩</span><span class="pe wave" style="left:78%;top:2%">🚩</span>`,
+  };
+
+  // A map box: one block per room of the area, joined by corridors in order.
+  function areaMap(a) {
+    const rs = roomsOf(a), outside = AREAS[a].kind === 'outside';
+    const firstMissing = rs.find(r => !roomReached(r));
+    let corridors = '', blocks = '';
+    rs.forEach((r, k) => {
+      const rm = room(r), [x,y,w,h] = rm.plan;
+      if (k) { const [px,py,pw,ph] = room(rs[k-1]).plan;
+        // L-shaped corridor: across from the last room, then up or down into this one
+        const ax=px+pw/2, ay=py+ph/2, bx=x+w/2, by=y+h/2;
+        corridors += `<polyline points="${ax},${ay} ${bx},${ay} ${bx},${by}" />`; }
+      const pos = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
+      if (roomReached(r)) {
+        const n = rm.end - rm.start, s = solvedIn(r), done = roomCleared(r), here = r === mouseRoom;
+        const fresh = !seenRooms.includes(r) ? ' reveal' : '';
+        const boss = rm.end === areaEnd(a) ? '<span class="crown">👑</span>' : '';
+        blocks += `<button class="plan-room${outside?' place':''}${done?' done':''}${here?' here':''}${fresh}" data-r="${r}" style="${pos}">
+          ${outside ? `<span class="art">${PLACE_ART[rm.name]||''}</span>` : ''}
+          <span class="pr-ic">${rm.ic}</span><b>${rm.name}</b><small>${done ? '✓ ' : ''}${s}/${n}</small>${boss}
+          ${here ? '<span class="pr-mouse">🐭</span>' : ''}</button>`;
+      } else if (r === firstMissing) {
+        blocks += `<div class="plan-room next${w < 20 ? ' narrow' : ''}" style="${pos}">${roomExists(r) ? '?' : `<small>coming${w < 20 ? ' ' : '<br>'}soon</small>`}</div>`;
+      } else {
+        blocks += `<div class="plan-room far" style="${pos}"></div>`;
+      }
+    });
+    const up = AREAS[a+1] && roomsOf(a+1).length ? a+1 : null, down = a > 0 ? a-1 : null;
+    const stairs = `${down!==null ? `<button class="stairs down" data-a="${down}">${outside ? '' : (a===1 ? '⬇ Outside' : `⬇ ${AREAS[down].name}`)}</button>` : ''}
+      ${up!==null ? `<button class="stairs up${areaReached(up)?'':' locked'}" data-a="${up}" ${areaReached(up)?'':'disabled'}>${areaReached(up)?'⬆':'🔒'} ${outside ? 'Into the castle' : AREAS[up].name}</button>` : ''}`;
+    return `<div class="plan ${outside ? 'outside' : 'floor'}">
+      ${outside ? '<span class="castle-wall"></span><span class="moat"></span>' : ''}
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="corridors">${corridors}</svg>
+      ${blocks}</div><div class="stairs-row">${stairs}</div>`;
+  }
+
+  // The whole castle, side on: the Outside in front, floors stacked inside, cellars below.
+  function castleMap() {
+    const band = (a, cls='') => {
+      const A = AREAS[a], rs = roomsOf(a);
+      if (!rs.length) return '';
+      const reached = areaReached(a), done = areaCleared(a), here = mouseRoom !== null && room(mouseRoom).area === a;
+      const prevReached = a === 0 || areaReached(a-1);
+      const fresh = reached && !seenAreas.includes(a) ? ' reveal' : '';
+      if (!reached) return `<div class="band-floor locked ${cls}${prevReached && roomExists(rs[0]) ? ' next' : ''}"><span class="bf-ic">${A.ic}</span>
+        <b>🔒 ${A.name}</b><small>${roomExists(rs[0]) ? `${rs.length} rooms` : 'coming soon'}</small></div>`;
+      return `<button class="band-floor ${cls}${done?' done':''}${here?' here':''}${fresh}" data-a="${a}"><span class="bf-ic">${A.ic}</span>
+        <span class="bf-text"><b>${A.name}</b><small>${rs.map(r=>room(r).name).join(' · ')}</small></span>
+        <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?'<span class="pr-mouse">🐭</span>':''}</button>`;
+    };
+    const order = [7,6,5,3,2,1];  // floors inside the keep, top to bottom
+    return `<div class="castle-view">
+      <span class="star" style="left:14%;top:4%">✦</span><span class="star" style="left:46%;top:7%;animation-delay:.8s">✦</span>
+      <div class="tower"><div class="roof"></div>${band(8,'tower-band')}</div>
+      <span class="flag">🚩</span>
+      <div class="keep"><div class="battlement"></div>${order.map(a=>band(a)).join('')}</div>
+      <div class="cellars">${band(4)}</div>
+      <div class="moat-band"><span class="drawbridge"></span></div>
+      <div class="outside-band">${band(0)}</div>
+    </div>`;
+  }
+
+  // One room's road (levels zigzag across in rows of five; the road loops out at each row's end).
+  function roomRoad(r) {
     const COLS = 5, ROW = 78, TOP = 86;
-    const colOf = k => { const r=Math.floor(k/COLS), c=k%COLS; return r%2 ? COLS-1-c : c; };
-    const xOf = k => 14 + colOf(k) * 18;                                                   // percent
+    const colOf = k => { const row=Math.floor(k/COLS), c=k%COLS; return row%2 ? COLS-1-c : c; };
+    const xOf = k => 14 + colOf(k) * 18;
     const yOf = k => TOP + Math.floor(k/COLS)*ROW + Math.round(Math.sin(colOf(k)*1.7 + Math.floor(k/COLS)) * 9);
-    // A smooth road through the points (Catmull-Rom turned into Bezier curves).
     const road = pts => { let d=`M ${pts[0][0]} ${pts[0][1]}`;
       for (let i=0;i<pts.length-1;i++){ const a=pts[i-1]||pts[i], b=pts[i], c=pts[i+1], e=pts[i+2]||c;
         d += ` C ${b[0]+(c[0]-a[0])/6} ${b[1]+(c[1]-a[1])/6}, ${c[0]-(e[0]-b[0])/6} ${c[1]-(e[1]-b[1])/6}, ${c[0]} ${c[1]}`; }
       return d; };
-    const band = rm => rm.out ? rm.top.map(e=>`<span>${e}</span>`).join('')
+    const rm = room(r), from = rm.start, to = Math.min(LEVELS.length, rm.end);
+    const band = rm.out ? rm.top.map(e=>`<span>${e}</span>`).join('')
       : `<span class="window"></span><span>${rm.top[0]}</span><span>${rm.top[1]}</span><span>${rm.top[2]}</span><span class="window"></span>`;
-    const fog = (rm, text) => `<div class="fog-cover"><span class="cloud" style="left:6%;top:8%">☁️</span>
-      <span class="cloud" style="right:8%;bottom:10%;animation-delay:-4s">☁️</span><span>🔒</span><span>${text}</span></div>`;
-    let html = '';
-    let r = 0;
-    for (; room(r).start < LEVELS.length; r++) {
-      const rm = room(r), from = rm.start, to = Math.min(LEVELS.length, rm.end);
-      const n = to-from, rows = Math.ceil(n/COLS), h = TOP + (rows-1)*ROW + 52;
-      let solvedHere = 0; for (let i=from;i<to;i++) if (isDone(i)) solvedHere++;
-      const pts = [];
-      for (let k=0;k<n;k++) {
-        pts.push([xOf(k), yOf(k)]);
-        if (k%COLS===COLS-1 && k<n-1) pts.push([Math.floor(k/COLS)%2 ? 4 : 96, (yOf(k)+yOf(k+1))/2]); // loop at the row's end
-      }
-      const d = road(pts);
-      let nodes = '';
-      for (let k=0;k<n;k++) {
-        const i = from+k, pos = `left:${xOf(k)}%;top:${yOf(k)}px`;
-        const boss = isBoss(i) ? ' boss' : '';
-        nodes += isOpen(i)
-          ? `<div class="node${boss} ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
-          : `<div class="node locked${boss}" data-i="${i}" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
-      }
-      if (li >= from && li < to) { const k=li-from; nodes += `<div class="walker" style="left:${xOf(k)}%;top:${yOf(k)}px"><span>🐭</span></div>`; }
-      // scenery between the rows: one thing on the open side, one in the middle
-      let deco = '';
-      for (let row=0; row<rows-1; row++) {
-        const y = TOP + row*ROW + ROW/2, e1 = rm.deco[(row*2) % rm.deco.length], e2 = rm.deco[(row*2+1) % rm.deco.length];
-        deco += `<span class="deco" style="left:${row%2?90:10}%;top:${y}px">${e1}</span>`;
-        deco += `<span class="deco" style="left:${row%2?34:66}%;top:${y}px">${e2}</span>`;
-      }
-      let torches = '';
-      if (!rm.out) for (let y=TOP+ROW/2; y<h-20; y+=ROW*2) torches += `<span class="torch" style="left:6px;top:${y}px">🔥</span><span class="torch" style="right:-7px;top:${y+ROW}px">🔥</span>`;
-      const lv = LEVELS[from], reached = isOpen(from);
-      // A room you've just reached stays foggy until the door into it has swung open on the map.
-      const lifting = reached && r > 0 && roomCleared(r-1) && !doorsSeen.includes(r-1);
-      html += `<section class="room ${reached && !lifting ?'':'fog'} ${rm.night?'night':''}" data-room="${r}" style="--rb:${rm.bg}">
-        <div class="room-head"><span class="ic">${rm.ic}</span><b>${rm.name}</b><small>${lv.w}×${lv.h} · ${solvedHere}/${rm.end-rm.start}</small>
-          ${DEV && rm.end <= LEVELS.length ? `<button class="devtest" data-r="${r}">Test</button>` : ''}</div>
-        <div class="room-body" style="height:${h}px">
-          <div class="band">${band(rm)}</div>
-          <svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
-            <path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-            <path d="${d}" fill="none" stroke="#b9ab92" stroke-width="24" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-            <path d="${d}" fill="none" stroke="#d8ccb2" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
-          <div class="wall-side l"></div><div class="wall-side r"></div>${torches}
-          ${deco}${nodes}
-          ${reached && !lifting ? '' : fog(rm, `Reach level ${from+1} to enter`)}
-        </div>`;
-      // The door out of this room: it opens once every level in the room is solved.
-      if (rm.end <= LEVELS.length) {
-        const next = room(r+1), cleared = roomCleared(r), seen = doorsSeen.includes(r);
-        const label = cleared ? `To the ${next.name}` : `Solve all ${rm.end-rm.start} levels to open the door`;
-        html += `<div class="doorway ${cleared && seen ? 'open' : ''} ${cleared && !seen ? 'to-open' : ''}" data-r="${r}">
-          <div class="arch"><div class="leaf"><span class="lock">${cleared ? '' : '🔒'}</span></div></div>
-          <div class="label">${label}</div></div>`;
-      }
-      html += `</section>`;
+    const n = to-from, rows = Math.ceil(n/COLS), h = TOP + (rows-1)*ROW + 52;
+    const pts = [];
+    for (let k=0;k<n;k++) {
+      pts.push([xOf(k), yOf(k)]);
+      if (k%COLS===COLS-1 && k<n-1) pts.push([Math.floor(k/COLS)%2 ? 4 : 96, (yOf(k)+yOf(k+1))/2]);
     }
-    const next = room(r);
-    html += `<section class="room soon fog" style="--rb:${next.bg}">
-      <div class="room-head"><span class="ic">${next.ic}</span><b>${next.name}</b><small>🔒</small></div>
-      <div class="room-body"><div class="band">${band(next)}</div>${fog(next, 'More levels coming soon')}</div></section>`;
-    $('dots').innerHTML = html;
+    let nodes = '';
+    for (let k=0;k<n;k++) {
+      const i = from+k, pos = `left:${xOf(k)}%;top:${yOf(k)}px`, boss = isBoss(i) ? ' boss' : '';
+      nodes += isOpen(i)
+        ? `<div class="node${boss} ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
+        : `<div class="node locked${boss}" data-i="${i}" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
+    }
+    if (li >= from && li < to) { const k=li-from; nodes += `<div class="walker" style="left:${xOf(k)}%;top:${yOf(k)}px"><span>🐭</span></div>`; }
+    let deco = '';
+    for (let row=0; row<rows-1; row++) {
+      const y = TOP + row*ROW + ROW/2, e1 = rm.deco[(row*2) % rm.deco.length], e2 = rm.deco[(row*2+1) % rm.deco.length];
+      deco += `<span class="deco" style="left:${row%2?90:10}%;top:${y}px">${e1}</span><span class="deco" style="left:${row%2?34:66}%;top:${y}px">${e2}</span>`;
+    }
+    let torches = '';
+    if (!rm.out) for (let y=TOP+ROW/2; y<h-20; y+=ROW*2) torches += `<span class="torch" style="left:6px;top:${y}px">🔥</span><span class="torch" style="right:-7px;top:${y+ROW}px">🔥</span>`;
+    const d = road(pts);
+    let html = `<section class="room ${rm.night?'night':''}" data-room="${r}" style="--rb:${rm.bg}">
+      <div class="room-head"><span class="ic">${rm.ic}</span><b>${rm.name}</b><small>${LEVELS[from].w}×${LEVELS[from].h} · ${solvedIn(r)}/${rm.end-rm.start}</small>
+        ${DEV && rm.end <= LEVELS.length ? `<button class="devtest" data-r="${r}">Test</button>` : ''}</div>
+      <div class="room-body" style="height:${h}px">
+        <div class="band">${band}</div>
+        <svg viewBox="0 0 100 ${h}" preserveAspectRatio="none">
+          <path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          <path d="${d}" fill="none" stroke="#b9ab92" stroke-width="24" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          <path d="${d}" fill="none" stroke="#d8ccb2" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+        <div class="wall-side l"></div><div class="wall-side r"></div>${torches}${deco}${nodes}
+      </div>`;
+    // The door out of this room: it opens once every level in the room is solved.
+    if (rm.end <= LEVELS.length) {
+      const next = room(r+1), cleared = roomCleared(r), seen = doorsSeen.includes(r);
+      const label = cleared ? `To the ${next.name}` : `Solve all ${rm.end-rm.start} levels to open the door`;
+      html += `<div class="doorway ${cleared && seen ? 'open' : ''} ${cleared && !seen ? 'to-open' : ''}" data-r="${r}">
+        <div class="arch"><div class="leaf"><span class="lock">${cleared ? '' : '🔒'}</span></div></div>
+        <div class="label">${label}</div></div>`;
+    } else {
+      html += `<div class="doorway soon"><div class="label">More levels coming soon</div></div>`;
+    }
+    return html + `</section>`;
+  }
+
+  function renderDots(){
+    if (mouseRoom === null) mouseRoom = roomIndexOf(li);
+    const m = $('dots');
+    let title, back = null;
+    if (view.kind === 'room') {
+      const rm = room(view.r);
+      title = rm.name; back = { kind:'area', a: rm.area, label: AREAS[rm.area].name };
+      m.className = 'map room-view'; m.innerHTML = roomRoad(view.r);
+    } else if (view.kind === 'area') {
+      title = AREAS[view.a].name; back = { kind:'castle', label: 'Castle' };
+      m.className = 'map area-view'; m.innerHTML = areaMap(view.a);
+    } else {
+      title = 'The castle';
+      m.className = 'map castle-view-wrap'; m.innerHTML = castleMap();
+    }
+    // Start at the top; the castle scrolls to where the mouse is (or to a floor that just opened)
+    m.scrollTop = 0;
+    if (view.kind === 'castle') centerOn('.band-floor.reveal') || centerOn('.band-floor.here');
+    $('pickTitle').textContent = title;
+    $('pickBack').hidden = !back;
+    if (back) { $('pickBack').textContent = `‹ ${back.label}`; $('pickBack').onclick = () => { view = back; renderDots(); }; }
+    // taps: areas open their map, rooms their road, levels load
+    m.querySelectorAll('.band-floor[data-a], .stairs[data-a]:not([disabled])').forEach(b => b.onclick = () => { view = { kind:'area', a: +b.dataset.a }; renderDots(); });
+    m.querySelectorAll('.plan-room[data-r]').forEach(b => b.onclick = () => { view = { kind:'room', r: +b.dataset.r }; renderDots(); centerOn('.node.cur') || (m.scrollTop = 0); });
+    m.querySelectorAll('.node:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
     // Developer mode: solve every level in a room but the last, and go to the last one, to try clearing it.
-    $('dots').querySelectorAll('.devtest').forEach(btn => btn.onclick = () => {
+    m.querySelectorAll('.devtest').forEach(btn => btn.onclick = () => {
       const r = +btn.dataset.r, rm = room(r);
       for (let i = rm.start; i < rm.end - 1; i++) solved[levelKey(LEVELS[i])] = LEVELS[i].solution.map(p=>({...p}));
       delete solved[levelKey(LEVELS[rm.end-1])]; store.set('cm_solved', solved);
@@ -516,10 +741,16 @@ Promise.all([
       $('picker').classList.remove('show'); load(rm.end - 1);
       toast(`Developer: the ${rm.name} is solved except level ${rm.end}. Solve it to clear the room.`);
     });
-    $('dots').querySelectorAll('.node:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
+    if (view.kind !== 'room') setTimeout(markSeen, 1200);  // play each room's and area's flourish once
     $('progress').textContent = `${doneCount()} of ${LEVELS.length} solved` + (DEV ? ' · developer mode' : '');
     $('resetProgress').classList.toggle('hidden', !DEV);
     $('lvlBtn').textContent = `Level ${li+1} ▾`;
+  }
+  // Scrolls the map so the first element matching sel is in the middle; false if there is none.
+  function centerOn(sel){
+    const m = $('dots'), el = m.querySelector(sel); if (!el) return false;
+    let y=0; for (let e=el; e && e!==m; e=e.offsetParent) y+=e.offsetTop;
+    m.style.scrollBehavior='auto'; m.scrollTop = y - m.clientHeight/2; m.style.scrollBehavior=''; return true;
   }
 
   function load(i){
@@ -531,7 +762,8 @@ Promise.all([
     $('lvlName').textContent = L.name;
     const boss = isBoss(li);
     $('lvlSub').textContent = (boss ? '👑 Boss · ' : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1} of ${LEVELS.length}`);
-    $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle in the ${room(roomIndexOf(li)).name}.`
+    const areaName = AREAS[areaOf(li)].name;
+    $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : 'on the ' + areaName.toLowerCase()}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
     $('tip').classList.toggle('boss', boss);
     renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
@@ -854,50 +1086,34 @@ Promise.all([
     toast(sol.length>1 ? `Hint ${hintCount} of ${sol.length}: put the ${NAME[s.t]} on the glowing square.` : `Put the ${NAME[s.t]} on the glowing square.`);
   }
 
-  // Opens the castle map. After you clear a room (cleared = that room's number) it plays the door
-  // opening, the fog lifting off the next room, and your mouse walking through the door to its first level.
+  // Opens the castle map at the current level's room. After you clear a room (cleared = that room's
+  // number) its door swings open, then the map of the next room's area (or the whole castle, when a
+  // new area opens) shows the new room appearing.
   function openPicker(cleared){
     $('picker').classList.add('show');
-    const m = $('dots'), cur = m.querySelector('.node.cur');
-    const yIn = el => { let y=0; for (let e=el; e && e!==m; e=e.offsetParent) y+=e.offsetTop; return y; };
-    const scrollTo = (el, smooth) => { m.style.scrollBehavior = smooth ? 'smooth' : 'auto';
-      m.scrollTop = yIn(el) - m.clientHeight/2; if (!smooth) m.style.scrollBehavior=''; };
+    mouseRoom = roomIndexOf(li);
+    const later = (ms, f) => setTimeout(f, ms);
     const openDoor = dw => { dw.classList.remove('to-open'); dw.classList.add('open'); Sound.door();
       for (let k=0;k<8;k++){ const sp=document.createElement('span'); sp.className='spark'; sp.textContent=k%2?'✨':'⭐';
         const a=k/8*Math.PI*2; sp.style.setProperty('--dx',`${Math.cos(a)*46}px`); sp.style.setProperty('--dy',`${Math.sin(a)*34}px`);
         dw.querySelector('.arch').appendChild(sp); setTimeout(()=>sp.remove(),1300); }
-      const next = m.querySelector(`.room[data-room="${+dw.dataset.r+1}"]`);
-      if (next && next.querySelector('.node:not(.locked)')) setTimeout(()=>{ next.classList.remove('fog'); next.classList.add('lifted'); }, 500);
       doorsSeen = [...new Set([...doorsSeen, +dw.dataset.r])]; store.set('cm_doors', doorsSeen); };
-    const later = (ms, f) => setTimeout(f, ms);
-
     if (cleared !== undefined) {
-      const dw = m.querySelector(`.doorway[data-r="${cleared}"]`), walker = m.querySelector('.walker');
-      if (dw) {
-        scrollTo(dw, false);
-        later(500, () => openDoor(dw));
-        // walk to the door...
-        later(1500, () => { if (!walker) return;
-          const body = walker.parentElement, arch = dw.querySelector('.arch');
-          const left = arch.getBoundingClientRect().left + arch.offsetWidth/2 - body.getBoundingClientRect().left;
-          walker.classList.add('walking','fade'); walker.style.left = `${left}px`; walker.style.top = `${body.offsetHeight + 8}px`; });
-        // ...and come out at the first level of the next room
-        later(2300, () => {
-          const first = m.querySelector(`.room[data-room="${cleared+1}"] .node:not(.locked)`);
-          if (!first) return;
-          scrollTo(first, true);
-          const w = document.createElement('div'); w.className='walker'; w.innerHTML='<span>🐭</span>';
-          w.style.left = first.style.left; w.style.top = `${parseFloat(first.style.top) - 30}px`; w.style.opacity='0';
-          first.parentElement.appendChild(w);
-          later(450, () => { w.style.transition='left .3s,top .3s,opacity .3s'; w.style.opacity='1'; w.style.top = first.style.top; first.classList.add('next'); });
-          store.set('cm_map_at', +first.dataset.i);
-        });
-        return;
-      }
+      view = { kind:'room', r: cleared }; renderDots();
+      const dw = $('dots').querySelector(`.doorway[data-r="${cleared}"]`);
+      if (dw) { centerOn('.doorway'); later(500, () => openDoor(dw)); }
+      later(1900, () => {
+        const next = cleared + 1; mouseRoom = next;
+        view = room(next).area !== room(cleared).area ? { kind:'castle' } : { kind:'area', a: room(next).area };
+        renderDots();
+        store.set('cm_map_at', room(next).start);
+      });
+      return;
     }
-
-    if (cur) scrollTo(cur, false);
-    // Doors of rooms you've cleared swing open (once each).
+    view = { kind:'room', r: mouseRoom }; renderDots();
+    const m = $('dots');
+    if (!centerOn('.node.cur')) m.scrollTop = 0;
+    // The door of a room you've cleared swings open (once).
     const opening = [...m.querySelectorAll('.doorway.to-open')];
     if (opening.length) later(450, () => opening.forEach(openDoor));
     // Your mouse walks the road from the level it last stood on to the current one.

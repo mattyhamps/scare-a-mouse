@@ -103,6 +103,13 @@ walls).
 
 Recipes are mixed through each batch of ten rather than grouped.
 
+**The castle map.** Levels are grouped into rooms, and rooms into areas: the Outside (Meadow,
+Orchard, Stables, Moat bridge, Gate: 1–100), then the castle's floors (First floor: Entrance hall,
+Great hall, Ballroom, Kitchens, 101–200; Second floor: Library, Study and more, 201–350; and so on up
+to the Tower top at level 1000). The level picker opens at your room; from there you can go back to
+the floor plan or to the whole castle. The last level of each area is its boss (`Recipe.BOSSES`).
+Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`.
+
 Level tools:
 
 ```sh
