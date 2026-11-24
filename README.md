@@ -98,8 +98,10 @@ right square before it reaches a spoiler; the rest close off squares that would 
 easier solution. Like every board piece, each wall has to matter to the puzzle.
 
 Each castle room also tints the board (floor, stone and wall look) so it fits the room; in the
-Kitchens the walls are drawn as counters, and in the Library as bookshelves (only about 1 level in 5 there has
-walls).
+Kitchens the walls are drawn as counters, in the Library and Study as bookshelves, in the Great hall as banquet
+tables, in the Ballroom as marble pillars and in the Gallery as statues (from the Library on, only about 1 level
+in 5 has walls). The First floor gets harder room by room: the Great hall is about as hard as the Study, the
+Ballroom and Gallery use more two-animal moves and more blockers, and level 350 is its boss.
 
 Recipes are mixed through each batch of ten rather than grouped.
 
