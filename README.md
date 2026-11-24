@@ -108,7 +108,9 @@ Orchard, Stables, Moat bridge, Gate: 1–100), then in through the Cellars (Stor
 Dungeon, Kitchens: 101–200), then up the castle's floors (First floor: Library, Study, Great hall,
 Ballroom, Gallery: 201–350; and so on up to the Tower top at level 1000). The level picker opens at your room; from there you can go back to
 the floor plan or to the whole castle. The last level of each area is its boss (`Recipe.BOSSES`).
-Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`.
+Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's map is a drawn scene
+(`SCENES`): you come in at the bottom and the road winds up past the room's furniture (`PROP`) to the
+door out at the top. A room without an entry in `SCENES` gets a plain stone room.
 
 **Hints and cheese.** Each animal you place has three hints, one per press: the board animal it has
 to scare (or block) glows, then a 3×3 patch it goes in is shaded, then the exact square. Hints cost
