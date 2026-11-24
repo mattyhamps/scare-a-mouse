@@ -86,6 +86,13 @@ public final class Recipe {
         return new Recipe(size, moves, min, max, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
     }
 
+    /** Everything that shapes the puzzle (not the tip), so two levels made the same way have the same key. */
+    public String key() {
+        return size + " " + trigger + " " + laneBlockers + " " + wrapAround + " " + java.util.Arrays.toString(tricks)
+                + " " + java.util.Arrays.toString(moves) + " " + java.util.Arrays.toString(blockers)
+                + " " + wallsMin + "-" + wallsMax;
+    }
+
     /** True if the board starts moving on its own when you press Go. */
     public boolean moving() {
         return moves.length > 0;
