@@ -145,6 +145,9 @@
   .scene.f-cellar  {--floor-bg:linear-gradient(90deg,rgba(0,0,0,.2) 0 2px,transparent 2px) 0 0/50px 40px,linear-gradient(0deg,rgba(0,0,0,.2) 0 2px,transparent 2px) 0 0/50px 40px,radial-gradient(circle at 50% 30%,#5a4038,#3d2c28 70%)}
   .scene.f-dungeon {--floor-bg:linear-gradient(90deg,rgba(0,0,0,.28) 0 2px,transparent 2px) 0 0/44px 44px,linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px) 0 0/44px 44px,linear-gradient(180deg,#3e3c46,#2c2b33)}
   .scene.f-kitchen {--floor-bg:repeating-conic-gradient(#b88a5a 0 25%,#9e7346 0 50%) 0 0/40px 40px}
+  .scene.f-hall    {--floor-bg:linear-gradient(90deg,rgba(0,0,0,.16) 0 2px,transparent 2px) 0 0/70px 54px,linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px) 0 0/70px 54px,linear-gradient(180deg,#8a7058,#74604c)}
+  .scene.f-marble  {--floor-bg:repeating-conic-gradient(#efe6ee 0 25%,#d6c8d6 0 50%) 0 0/48px 48px}
+  .scene.f-parquet {--floor-bg:repeating-linear-gradient(45deg,#9a6a3e 0 14px,#86592f 14px 16px,#a8743f 16px 30px,#86592f 30px 32px),#9a6a3e}
   .scene.f-wood    {--floor-bg:repeating-linear-gradient(90deg,#6b4a30 0 34px,#5d4029 34px 36px),#6b4a30}
   .scene.f-wood2   {--floor-bg:repeating-linear-gradient(90deg,#7a5434 0 30px,#6b482b 30px 32px),#7a5434}
   .scene.dark .room-body::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(0,0,0,.35))}
@@ -188,6 +191,15 @@
   .h-herbs{position:absolute;left:30%;right:30%;top:20px;height:40px;background:linear-gradient(#5a3a1e,#5a3a1e) 0 0/100% 4px no-repeat}
   .h-herbs::after{content:"🌿 🧄 🌶️ 🧅 🌿";position:absolute;left:0;right:0;top:4px;text-align:center;font-size:16px;letter-spacing:4px}
   .g-shelf.h-tall{position:absolute;top:10px;width:17%;height:150px}
+  .h-fireplace{position:absolute;left:6%;top:70px;width:23%;height:120px;border-radius:40px 40px 0 0;background:radial-gradient(circle at 50% 95%,#ff9a3a,#2a120a 62%);box-shadow:0 0 0 8px #8d8478,0 0 0 10px rgba(0,0,0,.25)}
+  .h-shield{position:absolute;top:30px;width:30px;height:36px;border-radius:4px 4px 50% 50%;background:linear-gradient(90deg,#a8323a 50%,#f2e6cc 50%);box-shadow:0 0 0 3px #c9a24a}
+  .h-tallwin{position:absolute;top:14px;width:46px;height:150px;border-radius:23px 23px 2px 2px;background:linear-gradient(180deg,#273257,#3b4a78);box-shadow:0 0 0 5px #e6dfea,inset 0 0 0 1px rgba(255,255,255,.2)}
+  .h-tallwin::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 47%,#e6dfea 47% 53%,transparent 53%),linear-gradient(0deg,transparent 47%,#e6dfea 47% 51%,transparent 51%)}
+  .h-curtain{position:absolute;top:0;width:24px;height:178px;border-radius:0 0 12px 12px;background:repeating-linear-gradient(90deg,#8a2a4a 0 6px,#6a1a36 6px 9px);box-shadow:0 4px 0 rgba(0,0,0,.2)}
+  .scene.f-marble .h-wall{background:repeating-linear-gradient(0deg,#d8cfdc 0 22px,#c8bfcc 22px 24px)}
+  .h-frame{position:absolute;top:26px;border-radius:2px;background:radial-gradient(circle at 50% 38%,var(--c1) 0 20%,transparent 22%),linear-gradient(180deg,var(--c2),#1c1a22);box-shadow:0 0 0 5px #c9a24a,0 0 0 7px #7a5a2a,0 7px 0 6px rgba(0,0,0,.2)}
+  .scene.f-parquet .h-wall{background:linear-gradient(180deg,#3f6a4a,#2f5a3e)}
+  @keyframes twirl{0%,100%{transform:rotate(-10deg) translateX(0)}50%{transform:rotate(10deg) translateX(6px)}}
   .h-portrait{position:absolute;top:22px;width:50px;height:62px;border-radius:4px;background:radial-gradient(ellipse at 50% 70%,#c9a080 0 30%,transparent 31%),linear-gradient(180deg,#3f4f7a,#2a3456);box-shadow:0 0 0 5px #c9a24a,0 6px 0 4px rgba(0,0,0,.25)}
   .h-banner{position:absolute;top:0;width:28px;height:70px;clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%);transform-origin:top;animation:wave 3.2s ease-in-out infinite}
   .scene .exit{position:absolute;left:50%;top:84px;transform:translateX(-50%);z-index:3}
@@ -677,6 +689,7 @@ Promise.all([
     'Orchard':        ['#ece4c4','#dfd6ae','#aca48a','#968e74','#746d58'],
     'Stables':        ['#ecdcae','#e1cd95','#b0a088','#998a72','#766953'],
     'Moat bridge':    ['#e2e4d6','#d2d8c8','#9fa7a6','#89918f','#6a716f'],
+    'Gate':           ['#e6e4d0','#d6d6be','#a39f90','#8d897a','#6c695c'],
     'Storeroom':      ['#e6d9c4','#d8c8ae','#998a78','#837464','#63574b'],
     'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56', 'table'],
     'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d', 'pillar'],
@@ -944,6 +957,38 @@ Promise.all([
     telescope: () => shade(30, 84, 60, 10) + S('left:40px;top:50px;width:4px;height:36px;background:#5a3a1e;transform:rotate(15deg)') + S('left:76px;top:50px;width:4px;height:36px;background:#5a3a1e;transform:rotate(-15deg)') + S('left:60px;top:50px;width:4px;height:36px;background:#5a3a1e') +
       S('left:26px;top:22px;width:76px;height:16px;border-radius:4px 8px 8px 4px;background:linear-gradient(180deg,#e0b860,#a8742a);transform:rotate(-28deg)') + E('⭐', 'left:96px;top:-6px;font-size:12px;animation:twinkle 2s infinite'),
     candles: () => shade(36, 84, 48, 10) + plank(58, 36, 5, 50, '#c9a24a') + plank(36, 36, 48, 5, '#c9a24a') + ['36', '56', '76'].map((l, k) => E('🕯️', `left:${+l - 6}px;top:${12 - (k === 1 ? 8 : 0)}px;font-size:18px;animation:sflick ${1.2 + k * .3}s ease-in-out infinite`)).join('') + S('left:20px;top:-14px;width:80px;height:70px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,100,.3),transparent 65%)'),
+    // Great hall
+    armor: () => shade(36, 86, 48, 10) + plank(40, 74, 40, 12, '#5a5266') + S('left:46px;top:30px;width:28px;height:46px;border-radius:8px 8px 4px 4px;background:linear-gradient(90deg,#8d96a3,#d9dee6 45%,#8d96a3)') +
+      S('left:48px;top:6px;width:24px;height:28px;border-radius:12px 12px 6px 6px;background:linear-gradient(90deg,#8d96a3,#e6eaf0 45%,#8d96a3)') + S('left:52px;top:16px;width:16px;height:4px;background:#2a2a32') +
+      S('left:54px;top:-6px;width:12px;height:14px;border-radius:50% 50% 0 0;background:#a8323a') + S('left:32px;top:34px;width:12px;height:36px;border-radius:6px;background:#a3abb7') + S('left:76px;top:34px;width:12px;height:36px;border-radius:6px;background:#a3abb7') + E('🛡️', 'left:76px;top:40px;font-size:24px') + S('left:30px;top:10px;width:3px;height:70px;background:#6b4423'),
+    hound: () => S('left:10px;top:44px;width:100px;height:46px;border-radius:50%;background:repeating-radial-gradient(ellipse,#8a2830 0 6px,#a8323a 6px 10px)') + E('🐕', 'left:36px;top:36px;font-size:34px;animation:breathe 3s ease-in-out infinite') + E('🦴', 'left:80px;top:62px;font-size:16px') + E('💤', 'left:74px;top:22px;font-size:14px;animation:ambfall 3s ease-in-out infinite reverse'),
+    minstrels: () => S('left:6px;top:50px;width:108px;height:40px;border-radius:6px;background:linear-gradient(180deg,#7b4f2c,#5a3a1e);box-shadow:0 5px 0 rgba(0,0,0,.28)') +
+      E('🪕', 'left:16px;top:20px;font-size:30px;animation:sway 1.6s ease-in-out infinite') + E('🎺', 'left:50px;top:16px;font-size:28px;animation:sway 1.4s ease-in-out infinite reverse') + E('🥁', 'left:82px;top:24px;font-size:26px') + E('🎵', 'left:40px;top:-6px;font-size:14px;animation:ambmote 2.4s ease-in-out infinite') + E('🎶', 'left:84px;top:-4px;font-size:14px;animation:ambmote 3s ease-in-out infinite'),
+    feast: () => PROP.table() + E('🍗', 'left:48px;top:44px;font-size:22px'),
+    // Ballroom
+    dancers: () => S('left:10px;top:24px;width:100px;height:66px;border-radius:50%;background:repeating-conic-gradient(#f2e6ee 0 25%,#d8c4d2 0 50%) 0 0/20px 20px;box-shadow:0 0 0 4px #c9a24a,0 4px 0 4px rgba(0,0,0,.2)') +
+      E('💃', 'left:28px;top:18px;font-size:32px;transform-origin:50% 90%;animation:twirl 2.4s ease-in-out infinite') + E('🕺', 'left:58px;top:22px;font-size:30px;transform-origin:50% 90%;animation:twirl 2.4s ease-in-out infinite reverse') + E('✨', 'left:90px;top:16px;font-size:14px;animation:twinkle 1.6s infinite'),
+    musicians: () => S('left:4px;top:42px;width:112px;height:48px;border-radius:50% 50% 8px 8px;background:linear-gradient(180deg,#8a5a9a,#5a3a6a);box-shadow:0 5px 0 rgba(0,0,0,.28)') +
+      E('🎻', 'left:16px;top:22px;font-size:28px;animation:sway 1.8s ease-in-out infinite') + E('🎷', 'left:48px;top:16px;font-size:28px;animation:sway 1.5s ease-in-out infinite reverse') + E('🪈', 'left:82px;top:26px;font-size:24px') + E('🎵', 'left:38px;top:-4px;font-size:14px;animation:ambmote 2.6s ease-in-out infinite'),
+    piano: () => shade(14, 82, 92, 12) + S('left:14px;top:16px;width:92px;height:62px;border-radius:44px 10px 10px 30px;background:linear-gradient(135deg,#3a3440,#16131a);box-shadow:0 5px 0 rgba(0,0,0,.35)') +
+      S('left:20px;top:64px;width:70px;height:12px;background:repeating-linear-gradient(90deg,#f4efe6 0 6px,#2a2630 6px 7px);border-radius:2px') + S('left:30px;top:22px;width:56px;height:34px;border-radius:30px 6px 6px 20px;background:linear-gradient(135deg,#c9a24a,#8a6a2a);opacity:.85') + E('🎶', 'left:84px;top:0;font-size:16px;animation:ambmote 2.6s ease-in-out infinite'),
+    columns: () => [16, 72].map(l => shade(l - 2, 84, 40, 10) + S(`left:${l}px;top:76px;width:34px;height:10px;border-radius:2px;background:#cfc8d2`) + S(`left:${l + 4}px;top:8px;width:26px;height:70px;background:repeating-linear-gradient(90deg,#f4f0f6 0 5px,#d8d0de 5px 7px)`) + S(`left:${l - 2}px;top:0;width:38px;height:10px;border-radius:2px;background:#e6dfea;box-shadow:0 2px 0 #b8b0bc`)).join('') + E('🌹', 'left:52px;top:62px;font-size:16px'),
+    punch: () => shade(8, 84, 104, 12) + S('left:10px;top:40px;width:100px;height:40px;border-radius:6px;background:#f6efe2;box-shadow:inset 0 -8px 0 #e3d4bc,0 5px 0 rgba(0,0,0,.25)') + S('left:10px;top:58px;width:100px;height:24px;border-radius:0 0 6px 6px;background:repeating-linear-gradient(90deg,#c9a24a 0 8px,#f2e6cc 8px 16px)') +
+      E('🍰', 'left:16px;top:24px;font-size:22px') + E('🥂', 'left:46px;top:14px;font-size:26px') + E('🍓', 'left:80px;top:28px;font-size:18px') + E('🧁', 'left:92px;top:20px;font-size:18px'),
+    chandelier: () => shade(30, 84, 60, 12) + S('left:20px;top:20px;width:80px;height:46px;border-radius:50%;box-sizing:border-box;border:4px solid #c9a24a;background:radial-gradient(circle,rgba(255,220,140,.35),transparent 70%)') +
+      ['24:12', '50:4', '76:12', '36:52', '64:52'].map(s => { const [l, t] = s.split(':'); return E('🕯️', `left:${l}px;top:${t}px;font-size:16px;animation:sflick 1.4s ease-in-out infinite`); }).join('') + E('💎', 'left:52px;top:34px;font-size:14px;animation:twinkle 2s infinite'),
+    vase: () => shade(38, 86, 44, 10) + S('left:42px;top:52px;width:36px;height:34px;border-radius:3px;background:linear-gradient(180deg,#e6dfea,#b8b0bc)') + E('💐', 'left:40px;top:8px;font-size:40px') + E('🦋', 'left:84px;top:6px;font-size:14px;animation:ambfly 6s ease-in-out infinite'),
+    // Gallery
+    easel: () => shade(26, 86, 68, 10) + S('left:58px;top:14px;width:4px;height:74px;background:#6b4423') + S('left:34px;top:40px;width:4px;height:50px;background:#6b4423;transform:rotate(14deg)') + S('left:82px;top:40px;width:4px;height:50px;background:#6b4423;transform:rotate(-14deg)') +
+      S('left:28px;top:6px;width:64px;height:50px;border-radius:2px;background:linear-gradient(180deg,#9cc3e6 0 55%,#7fb05a 55%);box-shadow:0 0 0 4px #f4efe6,0 0 0 6px #6b4423') + S('left:40px;top:14px;width:14px;height:14px;border-radius:50%;background:#ffd666') + S('left:56px;top:28px;width:30px;height:16px;clip-path:polygon(50% 0,100% 100%,0 100%);background:#5a8a48') + E('🎨', 'left:84px;top:66px;font-size:18px') + E('🖌️', 'left:14px;top:70px;font-size:16px'),
+    bust: () => shade(34, 86, 52, 10) + S('left:38px;top:46px;width:44px;height:42px;border-radius:2px;background:linear-gradient(180deg,#cfc9c0,#a9a297);box-shadow:inset 0 0 0 2px #857e74') +
+      S('left:42px;top:28px;width:36px;height:22px;border-radius:50% 50% 10% 10%;background:linear-gradient(180deg,#f4f1ec,#d8d2c8)') + S('left:50px;top:4px;width:20px;height:26px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fbf9f6,#d8d2c8 75%)') + S('left:46px;top:60px;width:28px;height:8px;border-radius:2px;background:#c9a24a;font:700 6px Fredoka,system-ui;color:#4a3a1a;display:grid;place-items:center', 'BUST'),
+    paintings: () => [['10:8', '#e8b86a', '#c95a3a'], ['64:20', '#6a8ac8', '#3a5a8a']].map(([pos, c1, c2]) => { const [l, t] = pos.split(':');
+        return S(`left:${l}px;top:${t}px;width:46px;height:56px;border-radius:2px;background:radial-gradient(circle at 50% 36%,${c1} 0 22%,transparent 23%),linear-gradient(180deg,${c2},#2a2433);box-shadow:0 0 0 5px #c9a24a,0 0 0 7px #7a5a2a,0 6px 0 6px rgba(0,0,0,.2)`); }).join('') + E('🖼️', 'left:44px;top:70px;font-size:20px'),
+    horse: () => shade(26, 86, 68, 10) + S('left:28px;top:56px;width:64px;height:30px;border-radius:2px;background:linear-gradient(180deg,#cfc9c0,#a9a297);box-shadow:inset 0 0 0 2px #857e74') + E('🐎', 'left:36px;top:12px;font-size:44px;filter:sepia(1) saturate(2) hue-rotate(-10deg) brightness(.75)'),
+    ropes: () => [10, 54, 98].map(l => S(`left:${l}px;top:40px;width:10px;height:46px;border-radius:5px 5px 2px 2px;background:linear-gradient(90deg,#8a6a2a,#e8c85a 50%,#8a6a2a)`) + S(`left:${l - 3}px;top:82px;width:16px;height:6px;border-radius:3px;background:#8a6a2a`)).join('') +
+      S('left:16px;top:44px;width:44px;height:18px;border-radius:0 0 22px 22px;box-sizing:border-box;border:4px solid #a8323a;border-top:0') + S('left:60px;top:44px;width:44px;height:18px;border-radius:0 0 22px 22px;box-sizing:border-box;border:4px solid #a8323a;border-top:0') + E('🏺', 'left:46px;top:0;font-size:30px'),
+    bench: () => shade(10, 82, 100, 12) + S('left:12px;top:44px;width:96px;height:28px;border-radius:10px;background:linear-gradient(180deg,#3f6a4a,#2a4a33);box-shadow:0 5px 0 rgba(0,0,0,.28)') + plank(20, 70, 8, 16, '#5a3a1e') + plank(92, 70, 8, 16, '#5a3a1e') + E('🎩', 'left:24px;top:28px;font-size:20px') + E('📖', 'left:72px;top:30px;font-size:18px'),
     maps: () => S('left:16px;top:8px;width:88px;height:64px;border-radius:3px;background:linear-gradient(135deg,#efdcae,#d8bf88);box-shadow:0 0 0 4px #6b4423,0 5px 0 4px rgba(0,0,0,.25)') + S('left:28px;top:20px;width:40px;height:26px;border-radius:40% 60% 50% 40%;background:#8fb36a;opacity:.8') + S('left:62px;top:36px;width:24px;height:20px;border-radius:50%;background:#8fb36a;opacity:.8') + E('❌', 'left:66px;top:34px;font-size:11px') + E('🧭', 'left:84px;top:62px;font-size:20px'),
   };
   // Floors (the scene background), road looks and heads (the top of the scene, around the door out).
@@ -956,6 +1001,8 @@ Promise.all([
     tile:   ['rgba(60,40,20,.35)', '#e2cfa8', '#c4a674', '4 4'],
     carpet: ['#d8a93a', '#9e2a30', '#d8a93a', '1 0'],
     rug:    ['#c9a24a', '#3a4a7a', '#c9a24a', '1 0'],
+    gold:   ['#7a5a9a', '#e8c85a', '#fff3c0', '1 0'],
+    green:  ['#c9a24a', '#2f5a42', '#c9a24a', '1 0'],
   };
   const SCENES = {
     'Meadow':      { floor:'meadow',  road:'dirt',   head:'hills',    props:['flowers','tree','pond','beehive','picnic','tree','flowers','rocks'], ambient:['🦋','🦋','🐝'], small:['🌼','🌷','🍄','🌾','🐞'] },
@@ -968,6 +1015,9 @@ Promise.all([
     'Dungeon':     { floor:'dungeon', road:'dark',   head:'bars',     props:['cell','chains','brazier','cell','chains','cell','brazier','chains'], ambient:['🦇','🦇'], small:['🦴','🕸️','🪨','🐀','💀'], torch:1, dark:1 },
     'Kitchens':    { floor:'kitchen', road:'tile',   head:'kitchen',  props:['hearth','table','counter','pots','sacks','table','hearth','counter'], ambient:['💨'], small:['🧅','🥕','🧄','🍞','🥄'], torch:1 },
     'Library':     { floor:'wood',    road:'rug',    head:'books',    props:['bookshelf','reading','globe','bookshelf','armchair','bookshelf','candles','reading'], ambient:['·','·'], small:['📚','📜','🕯️','🪶','📖'], torch:1 },
+    'Great hall':  { floor:'hall',    road:'carpet', head:'greathall', props:['feast','armor','minstrels','hound','feast','armor','hearth','barrels'], ambient:['·','·'], small:['🍗','🍷','🦴','🕯️','🍺'], torch:1 },
+    'Ballroom':    { floor:'marble',  road:'gold',   head:'ballroom', props:['dancers','musicians','columns','punch','chandelier','dancers','piano','vase'], ambient:['✨','✨','🎵'], small:['🌹','🥂','🎀','🪭','✨'], torch:1 },
+    'Gallery':     { floor:'parquet', road:'green',  head:'gallery',  props:['easel','bust','paintings','ropes','horse','bench','easel','paintings'], ambient:['·','·'], small:['🖌️','🎨','🏺','🕯️','📜'], torch:1 },
     'Study':       { floor:'wood2',   road:'carpet', head:'study',    props:['desk','globe','telescope','bookshelf','maps','armchair','candles','desk'], ambient:['·','·'], small:['📜','🪶','🔍','📐','🕯️'], torch:1 },
   };
   const DEFAULT_SCENE = { floor:'flags', road:'stone', head:'wall', props:['barrels','candles','crates','bookshelf'], ambient:[], small:['🕯️','🪨','🕸️'], torch:1 };
@@ -990,6 +1040,9 @@ Promise.all([
       case 'kitchen': return wall(win('8%', 26) + win('82%', 26) + `<div class="h-herbs"></div>`) + E('🍳', 'left:24%;top:70px;font-size:22px;transform-origin:top;animation:swing 3s ease-in-out infinite') + E('🫕', 'right:24%;top:70px;font-size:22px;transform-origin:top;animation:swing 3.4s ease-in-out infinite');
       case 'books': return wall(`<i class="g-shelf h-tall" style="left:3%"></i><i class="g-shelf h-tall" style="left:20%"></i><i class="g-shelf h-tall" style="right:20%"></i><i class="g-shelf h-tall" style="right:3%"></i>`) + E('🪜', 'left:15%;top:60px;font-size:34px');
       case 'study': return wall(win('10%', 22) + `<i class="h-portrait" style="right:10%"></i>` + banner('34%', '#2f5a8a') + banner('62%', '#a8323a')) + E('🦉', 'left:10%;top:94px;font-size:22px;animation:breathe 3s ease-in-out infinite');
+      case 'greathall': return wall(`<i class="h-fireplace"></i>` + banner('8%', '#a8323a') + banner('84%', '#2f5a8a') + `<i class="h-shield" style="left:22%"></i><i class="h-shield" style="right:22%"></i>`) + E('🔥', 'left:14%;top:104px;font-size:26px;animation:sflick 1s ease-in-out infinite') + E('🦌', 'right:6%;top:84px;font-size:26px');
+      case 'ballroom': return wall(`<i class="h-tallwin" style="left:6%"></i><i class="h-tallwin" style="right:6%"></i><i class="h-curtain" style="left:2%"></i><i class="h-curtain" style="left:24%"></i><i class="h-curtain" style="right:24%"></i><i class="h-curtain" style="right:2%"></i>`) + E('🪩', 'left:30%;top:4px;font-size:26px;animation:spin 6s linear infinite') + E('🪩', 'right:30%;top:4px;font-size:26px;animation:spin 7s linear infinite reverse');
+      case 'gallery': return wall(`<i class="h-frame" style="left:4%;width:54px;height:66px;--c1:#e8b86a;--c2:#8a3a3a"></i><i class="h-frame" style="left:24%;width:44px;height:44px;top:40px;--c1:#9cc3e6;--c2:#4a7a3a"></i><i class="h-frame" style="right:24%;width:44px;height:56px;--c1:#f2e6cc;--c2:#3a4a7a"></i><i class="h-frame" style="right:4%;width:54px;height:44px;top:44px;--c1:#ffd666;--c2:#2a5a6a"></i>`) + E('💡', 'left:9%;top:6px;font-size:14px') + E('💡', 'right:9%;top:6px;font-size:14px');
       default: return wall(win('12%', 24) + win('80%', 24) + banner('30%', '#a8323a') + banner('64%', '#2f5a8a'));
     }
   }

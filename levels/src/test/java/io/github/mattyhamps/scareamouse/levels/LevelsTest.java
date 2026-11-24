@@ -50,6 +50,37 @@ class LevelsTest {
         assertNotNull(v, "level " + n + " \"" + l.name + "\" fails its rules");
     }
 
+    /**
+     * Every room with levels is drawn: it has a scene in the game's SCENES (its floor, road, furniture and
+     * the scenery around its door) and a board look in BOARDS. New rooms get their drawing with their levels.
+     */
+    @Test
+    void everyRoomWithLevelsIsDrawn() throws IOException {
+        String page = new String(Files.readAllBytes(Paths.get("../web/src/main/webapp/index.html")), StandardCharsets.UTF_8);
+        String rooms = block(page, "const ROOMS = [", "];");
+        String scenes = block(page, "const SCENES = {", "};");
+        String boards = block(page, "const BOARDS = {", "};");
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\{end:\\s*(\\d+),\\s*area:\\d+,\\s*name:'([^']+)'").matcher(rooms);
+        int start = 0, checked = 0;
+        while (m.find()) {
+            int end = Integer.parseInt(m.group(1));
+            String name = m.group(2);
+            if (start < levels.size()) {
+                assertTrue(scenes.contains("'" + name + "':"), "the " + name + " has levels but no scene in SCENES (index.html)");
+                assertTrue(boards.contains("'" + name + "':"), "the " + name + " has levels but no board look in BOARDS (index.html)");
+                checked++;
+            }
+            start = end;
+        }
+        assertTrue(checked > 0, "found no rooms in index.html");
+    }
+
+    private static String block(String page, String from, String to) {
+        int i = page.indexOf(from);
+        assertTrue(i >= 0, "index.html has no " + from);
+        return page.substring(i, page.indexOf(to, i));
+    }
+
     /** Boards grow as you go: 7x7, then 8x8, 9x9 and 10x10 (see Recipe.sizeForLevel). */
     @ParameterizedTest(name = "level {0} board size")
     @MethodSource("all")
