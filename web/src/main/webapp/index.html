@@ -100,6 +100,12 @@
     background:linear-gradient(180deg,rgba(40,36,48,.35),rgba(30,27,36,.75))}
   .fog-cover .cloud{position:absolute;font-size:54px;opacity:.5;animation:drift 9s ease-in-out infinite alternate}
   .room.soon .room-body{height:120px}
+  .room-body > :not(.fog-cover){transition:filter 1.2s ease}
+  .fog-cover{transition:opacity 1.2s ease}
+  .room.lifted .fog-cover{opacity:0;pointer-events:none}
+  .walker.fade{opacity:0;transition:left .5s ease-in-out,top .5s ease-in-out,opacity .3s .4s}
+  .node.next{animation:nextGlow 1.1s ease-in-out infinite}
+  @keyframes nextGlow{0%,100%{box-shadow:0 0 0 3px rgba(242,184,75,.4),0 3px 0 rgba(0,0,0,.35)}50%{box-shadow:0 0 0 9px rgba(242,184,75,.15),0 0 18px rgba(242,184,75,.8)}}
   /* the door at the end of each room */
   .doorway{position:relative;height:74px;display:flex;align-items:center;justify-content:center;gap:12px;
     background:repeating-linear-gradient(90deg,var(--stone) 0 34px,var(--stone-d) 34px 36px),var(--stone);
@@ -364,7 +370,9 @@ Promise.all([
       let torches = '';
       if (!rm.out) for (let y=TOP+ROW/2; y<h-20; y+=ROW*2) torches += `<span class="torch" style="left:6px;top:${y}px">🔥</span><span class="torch" style="right:-7px;top:${y+ROW}px">🔥</span>`;
       const lv = LEVELS[from], reached = isOpen(from);
-      html += `<section class="room ${reached?'':'fog'} ${rm.night?'night':''}" style="--rb:${rm.bg}">
+      // A room you've just reached stays foggy until the door into it has swung open on the map.
+      const lifting = reached && r > 0 && roomCleared(r-1) && !doorsSeen.includes(r-1);
+      html += `<section class="room ${reached && !lifting ?'':'fog'} ${rm.night?'night':''}" data-room="${r}" style="--rb:${rm.bg}">
         <div class="room-head"><span class="ic">${rm.ic}</span><b>${rm.name}</b><small>${lv.w}×${lv.h} · ${solvedHere}/${rm.end-rm.start}</small></div>
         <div class="room-body" style="height:${h}px">
           <div class="band">${band(rm)}</div>
@@ -374,7 +382,7 @@ Promise.all([
             <path d="${d}" fill="none" stroke="#d8ccb2" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
           <div class="wall-side l"></div><div class="wall-side r"></div>${torches}
           ${deco}${nodes}
-          ${reached ? '' : fog(rm, `Reach level ${from+1} to enter`)}
+          ${reached && !lifting ? '' : fog(rm, `Reach level ${from+1} to enter`)}
         </div>`;
       // The door out of this room: it opens once every level in the room is solved.
       if (rm.end <= LEVELS.length) {
@@ -511,6 +519,7 @@ Promise.all([
     }, 170);
   }
 
+  let clearedRoom;   // set when the last win cleared a room: the map then plays the door opening
   function confetti(){
     const card = $('win').querySelector('.card');
     for (let k=0;k<26;k++){ const c=document.createElement('span'); c.className='confetti';
@@ -526,6 +535,10 @@ Promise.all([
       renderDots();
       const last = li===LEVELS.length-1, cleared = !wasCleared && roomCleared(rIdx);
       $('winBig').textContent = cleared ? '🚪✨' : '🐭🕳️';
+      clearedRoom = cleared ? rIdx : undefined;
+      $('nextBtn').style.display = cleared ? 'none' : '';
+      $('winLevelsBtn').textContent = cleared ? 'Open the door 🚪' : 'All levels';
+      $('winLevelsBtn').classList.toggle('go', cleared);
       if (cleared) {
         const next = room(rIdx+1);
         $('winTitle').textContent = `${room(rIdx).name} cleared!`;
@@ -659,23 +672,52 @@ Promise.all([
     toast(sol.length>1 ? `Hint ${hintCount} of ${sol.length}: put the ${NAME[s.t]} on the glowing square.` : `Put the ${NAME[s.t]} on the glowing square.`);
   }
 
-  function openPicker(){
+  // Opens the castle map. After you clear a room (cleared = that room's number) it plays the door
+  // opening, the fog lifting off the next room, and your mouse walking through the door to its first level.
+  function openPicker(cleared){
     $('picker').classList.add('show');
     const m = $('dots'), cur = m.querySelector('.node.cur');
-    const scrollTo = el => { let y=0; for (let e=el; e && e!==m; e=e.offsetParent) y+=e.offsetTop;
-      m.style.scrollBehavior='auto'; m.scrollTop = y - m.clientHeight/2; m.style.scrollBehavior=''; };
-    if (cur) scrollTo(cur);
-    // Doors of rooms you've just cleared swing open (once each).
-    const opening = [...m.querySelectorAll('.doorway.to-open')];
-    if (opening.length) {
-      setTimeout(() => {
-        opening.forEach(dw => { dw.classList.remove('to-open'); dw.classList.add('open');
-          for (let k=0;k<8;k++){ const sp=document.createElement('span'); sp.className='spark'; sp.textContent=k%2?'✨':'⭐';
-            const a=k/8*Math.PI*2; sp.style.setProperty('--dx',`${Math.cos(a)*46}px`); sp.style.setProperty('--dy',`${Math.sin(a)*34}px`);
-            dw.querySelector('.arch').appendChild(sp); setTimeout(()=>sp.remove(),1300); } });
-        doorsSeen = [...new Set([...doorsSeen, ...opening.map(dw => +dw.dataset.r)])]; store.set('cm_doors', doorsSeen);
-      }, 450);
+    const yIn = el => { let y=0; for (let e=el; e && e!==m; e=e.offsetParent) y+=e.offsetTop; return y; };
+    const scrollTo = (el, smooth) => { m.style.scrollBehavior = smooth ? 'smooth' : 'auto';
+      m.scrollTop = yIn(el) - m.clientHeight/2; if (!smooth) m.style.scrollBehavior=''; };
+    const openDoor = dw => { dw.classList.remove('to-open'); dw.classList.add('open');
+      for (let k=0;k<8;k++){ const sp=document.createElement('span'); sp.className='spark'; sp.textContent=k%2?'✨':'⭐';
+        const a=k/8*Math.PI*2; sp.style.setProperty('--dx',`${Math.cos(a)*46}px`); sp.style.setProperty('--dy',`${Math.sin(a)*34}px`);
+        dw.querySelector('.arch').appendChild(sp); setTimeout(()=>sp.remove(),1300); }
+      const next = m.querySelector(`.room[data-room="${+dw.dataset.r+1}"]`);
+      if (next && next.querySelector('.node:not(.locked)')) setTimeout(()=>{ next.classList.remove('fog'); next.classList.add('lifted'); }, 500);
+      doorsSeen = [...new Set([...doorsSeen, +dw.dataset.r])]; store.set('cm_doors', doorsSeen); };
+    const later = (ms, f) => setTimeout(f, ms);
+
+    if (cleared !== undefined) {
+      const dw = m.querySelector(`.doorway[data-r="${cleared}"]`), walker = m.querySelector('.walker');
+      if (dw) {
+        scrollTo(dw, false);
+        later(500, () => openDoor(dw));
+        // walk to the door...
+        later(1500, () => { if (!walker) return;
+          const body = walker.parentElement, arch = dw.querySelector('.arch');
+          const left = arch.getBoundingClientRect().left + arch.offsetWidth/2 - body.getBoundingClientRect().left;
+          walker.classList.add('walking','fade'); walker.style.left = `${left}px`; walker.style.top = `${body.offsetHeight + 8}px`; });
+        // ...and come out at the first level of the next room
+        later(2300, () => {
+          const first = m.querySelector(`.room[data-room="${cleared+1}"] .node:not(.locked)`);
+          if (!first) return;
+          scrollTo(first, true);
+          const w = document.createElement('div'); w.className='walker'; w.innerHTML='<span>🐭</span>';
+          w.style.left = first.style.left; w.style.top = `${parseFloat(first.style.top) - 30}px`; w.style.opacity='0';
+          first.parentElement.appendChild(w);
+          later(450, () => { w.style.transition='left .3s,top .3s,opacity .3s'; w.style.opacity='1'; w.style.top = first.style.top; first.classList.add('next'); });
+          store.set('cm_map_at', +first.dataset.i);
+        });
+        return;
+      }
     }
+
+    if (cur) scrollTo(cur, false);
+    // Doors of rooms you've cleared swing open (once each).
+    const opening = [...m.querySelectorAll('.doorway.to-open')];
+    if (opening.length) later(450, () => opening.forEach(openDoor));
     // Your mouse walks the road from the level it last stood on to the current one.
     const from = store.get('cm_map_at', li), walker = m.querySelector('.walker');
     store.set('cm_map_at', li);
@@ -684,10 +726,10 @@ Promise.all([
       const place = i => { const n=at(i); walker.style.left=n.style.left; walker.style.top=n.style.top; };
       walker.style.transition='none'; place(from); walker.offsetWidth; walker.style.transition='';
       let i = from;
-      setTimeout(function step(){
+      later(opening.length ? 1300 : 450, function step(){
         if (i >= li) { walker.classList.remove('walking'); return; }
-        walker.classList.add('walking'); place(++i); setTimeout(step, 280);
-      }, opening.length ? 1300 : 450);
+        walker.classList.add('walking'); place(++i); later(280, step);
+      });
     }
   }
   $('lvlBtn').onclick=()=>{ if(mode!=='running') openPicker(); };
@@ -703,7 +745,7 @@ Promise.all([
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
   // After a win: back to the level picker instead of the next level. Reloading the level first
   // puts it back in normal play, showing the winning setup, if the picker is closed without choosing.
-  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); load(li); openPicker(); };
+  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); const r=clearedRoom; clearedRoom=undefined; load(li); openPicker(r); };
   $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
   let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
   // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
