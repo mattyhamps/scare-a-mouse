@@ -371,6 +371,19 @@
     box-shadow:inset 0 0 0 2px #5b3a22,inset 0 0 0 3px rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.25)}
   .board.walls-counter .wall::after,.g-counter::after{content:"";position:absolute;left:50%;top:62%;width:12%;height:8%;border-radius:2px;
     transform:translateX(-50%);background:#e8c37c;box-shadow:0 1px 0 rgba(0,0,0,.35)}
+  /* Great hall walls are banquet tables: an oak top with a plate on it */
+  .board.walls-table .wall,.g-table{border-radius:4px;background:repeating-linear-gradient(90deg,#a46e43 0 31%,#8a5a32 31% 34%),#a46e43;
+    box-shadow:inset 0 0 0 2px #6b4423,inset 0 3px 0 rgba(255,255,255,.2),0 3px 0 rgba(0,0,0,.28)}
+  .board.walls-table .wall::after,.g-table::after{content:"";position:absolute;left:50%;top:50%;width:46%;height:46%;border-radius:50%;transform:translate(-50%,-50%);
+    background:radial-gradient(circle,#f4efe6 0 45%,#d9d2c4 46% 60%,#f4efe6 61%);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+  /* Ballroom walls are marble pillars, seen from above, on a square base */
+  .board.walls-pillar .wall,.g-pillar{border-radius:3px;background:radial-gradient(circle at 42% 38%,#ffffff 0,#ebe5ee 30%,#c9c0cf 56%,#9a90a2 62%,transparent 64%),
+    linear-gradient(135deg,#d9d2de,#b4abba);box-shadow:inset 0 0 0 2px #8f8698,0 3px 0 rgba(0,0,0,.25)}
+  .board.walls-pillar .wall::after,.g-pillar::after{content:"";position:absolute;inset:16%;border-radius:50%;border:2px solid rgba(201,162,74,.75)}
+  /* Gallery walls are statues: a bust on a stone plinth */
+  .board.walls-statue .wall,.g-statue{border-radius:3px;background:linear-gradient(180deg,#cfc9c0,#a9a297);box-shadow:inset 0 0 0 2px #857e74,inset 0 -6px 0 rgba(0,0,0,.12),0 3px 0 rgba(0,0,0,.25)}
+  .board.walls-statue .wall::before,.g-statue::before{content:"";position:absolute;left:22%;right:22%;bottom:16%;height:30%;border-radius:50% 50% 12% 12%;background:linear-gradient(180deg,#f4f1ec,#d8d2c8)}
+  .board.walls-statue .wall::after,.g-statue::after{content:"";position:absolute;left:50%;top:14%;width:32%;height:36%;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle at 40% 35%,#fbf9f6,#d8d2c8 75%)}
   .hole i{display:block;width:62%;height:62%;background:#120f14;border-radius:50% 50% 8% 8%;box-shadow:inset 0 4px 6px rgba(0,0,0,.8),0 0 0 3px rgba(242,184,75,.0)}
   .hole.in{background:var(--floor-a)} .hole.in.alt{background:var(--floor-b)}
   .hole.in i{width:66%;height:66%;border-radius:50%;box-shadow:inset 0 5px 7px rgba(0,0,0,.85),0 0 0 3px var(--stone-d)}
@@ -433,6 +446,7 @@
   .guide-art .g-row{display:flex;align-items:center;gap:8px;width:100%;justify-content:center}
   .guide-art .g-sq{width:40px;height:40px;border-radius:6px;background:#e7dcc6;box-shadow:inset 0 0 0 2px #b9a98d;animation:none}
   .guide-art .g-go{font:700 18px Fredoka,system-ui;color:#1d3a10;background:#8fd16a;border-radius:10px;padding:8px 12px;animation:none}
+  .guide-art .g-table,.guide-art .g-pillar,.guide-art .g-statue{position:relative;width:56px;height:56px;animation:none}
   .guide-art .g-counter,.guide-art .g-shelf{position:relative;width:56px;height:56px;animation:none}
   .card.guide h3{margin:0 0 6px}
   .card.guide p{margin:0 0 14px;font-size:16px;line-height:1.4;color:var(--ink)}
@@ -664,14 +678,14 @@ Promise.all([
     'Stables':        ['#ecdcae','#e1cd95','#b0a088','#998a72','#766953'],
     'Moat bridge':    ['#e2e4d6','#d2d8c8','#9fa7a6','#89918f','#6a716f'],
     'Storeroom':      ['#e6d9c4','#d8c8ae','#998a78','#837464','#63574b'],
-    'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56'],
-    'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d'],
+    'Great hall':     ['#ecdacb','#e0c9b5','#a8968b','#917f74','#6f5f56', 'table'],
+    'Ballroom':       ['#f0e3e6','#e5d2d7','#ab98a4','#94808d','#74626d', 'pillar'],
     'Kitchens':       ['#f2e2cc','#e0b48e','#ad9a88','#968371','#736252', 'counter'],
     'Library':        ['#e7decf','#dbcfba','#9d98a8','#868192','#66626f', 'shelf'],
     'Study':          ['#ebe0cc','#ddd0b8','#a29a8e','#8b8378','#6b655c', 'shelf'],
     'Secret passage': ['#d9d2c4','#cbc3b3','#86828c','#716d77','#55525a'],
     'Chapel':         ['#ebe6dc','#ded8cc','#aeaabb','#9893a6','#767184'],
-    'Gallery':        ['#ece2df','#e0d3cf','#a99a96','#928380','#716462'],
+    'Gallery':        ['#ece2df','#e0d3cf','#a99a96','#928380','#716462', 'statue'],
     'Armory':         ['#e2dfd8','#d4d0c7','#999da3','#83878d','#65686d'],
     'Guard room':     ['#e4ddd2','#d6cdbf','#a1988d','#8a8177','#6a635b'],
     'Map room':       ['#ece3c8','#dfd4b2','#a59d84','#8f876e','#6e6853'],
@@ -1119,6 +1133,12 @@ Promise.all([
            text: 'Animals can\'t run through counters. A running animal stops when it reaches one.' },
     204: { art: '<span class="g-shelf"></span><span class="g-shelf"></span>', title: 'New: bookshelves!',
            text: 'Like the counters, animals can\'t run through bookshelves.' },
+    262: { art: '<span class="g-table"></span><span class="g-table"></span>', title: 'New: banquet tables!',
+           text: 'Animals can\'t run through the tables. A running animal stops when it reaches one.' },
+    292: { art: '<span class="g-pillar"></span><span class="g-pillar"></span>', title: 'New: marble pillars!',
+           text: 'Animals can\'t run through the pillars either.' },
+    322: { art: '<span class="g-statue"></span><span class="g-statue"></span>', title: 'New: statues!',
+           text: 'Animals can\'t run through the statues. Mind the art!' },
   };
   let cardsSeen = store.get('cm_cards', []);
   function showGuide(cards, done) {
