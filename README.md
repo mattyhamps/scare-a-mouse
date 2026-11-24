@@ -44,7 +44,8 @@ A run ends when the mouse gets into the hole, when nothing moves for a step, or 
 Java 21 and Maven:
 
 ```sh
-mvn verify                                        # build, test everything, compile the engine to JS
+mvn verify                                        # build, test, compile the engine to JS
+mvn verify -Dbuilder.tests.excluded=none          # also check every kind of recipe can still be built (slow)
 node web/test/check-engine.js                     # check the compiled engine (Node 18+)
 cd web/target/site && python3 -m http.server      # play locally at http://localhost:8000
 ```
@@ -111,7 +112,8 @@ Level tools:
 ./scripts/levels.sh make 71 --name "Some Name" --write   # add a new level at the end
 ```
 
-If you change the rules in `Simulator`, run `mvn verify`: the physics tests show what changed and
+If you change the rules in `Simulator` or the builder, run `mvn verify -Dbuilder.tests.excluded=none`
+(the build does this automatically when those files change): the physics tests show what changed and
 `LevelsTest` lists any level that no longer passes. Regenerate those with `make N --write`.
 
 ## Contributing

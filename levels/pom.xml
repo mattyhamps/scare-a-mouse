@@ -25,6 +25,11 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <!-- set to "none" to run the builder test (see the surefire settings below) -->
+    <builder.tests.excluded>builder</builder.tests.excluded>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -33,6 +38,9 @@
           <systemPropertyVariables>
             <levels.file>${project.basedir}/../data/levels.json</levels.file>
           </systemPropertyVariables>
+          <!-- The builder test (tag "builder") is slow and only matters when the rules or the builder
+               change, so it's skipped unless you ask for it: mvn verify -Dbuilder.tests.excluded=none -->
+          <excludedGroups>${builder.tests.excluded}</excludedGroups>
         </configuration>
       </plugin>
     </plugins>
