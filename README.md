@@ -112,7 +112,9 @@ Ballroom, Gallery: 201–350; and so on up to the Tower top at level 1000). The 
 the floor plan or to the whole castle. The last level of each area is its boss (`Recipe.BOSSES`).
 Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's map is a drawn scene
 (`SCENES`): you come in at the bottom and the road winds up past the room's furniture (`PROP`) to the
-door out at the top. A room without an entry in `SCENES` gets a plain stone room.
+door out at the top. **Every room's drawing ships with its levels:** when you add levels to a new room,
+add its scene to `SCENES` and its board look to `BOARDS` in the same change. `LevelsTest` fails if a
+room has levels but no scene or board look.
 
 **Hints and cheese.** Each animal you place has three hints, one per press: the board animal it has
 to scare (or block) glows, then a 3×3 patch it goes in is shaded, then the exact square. Hints cost
