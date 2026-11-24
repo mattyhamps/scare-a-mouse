@@ -110,6 +110,12 @@ Ballroom, Gallery: 201–350; and so on up to the Tower top at level 1000). The 
 the floor plan or to the whole castle. The last level of each area is its boss (`Recipe.BOSSES`).
 Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`.
 
+**Hints and cheese.** Each animal you place has three hints, one per press: the board animal it has
+to scare (or block) glows, then a 3×3 patch it goes in is shaded, then the exact square. Hints cost
+cheese (1, 1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
+with hints, double on boss levels, plus 5 🧀 for clearing a room. New players start with 5 🧀.
+Hints you've bought stay bought for that level.
+
 Level tools:
 
 ```sh
