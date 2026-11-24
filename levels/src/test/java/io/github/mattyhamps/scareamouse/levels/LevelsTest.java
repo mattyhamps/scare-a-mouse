@@ -60,12 +60,15 @@ class LevelsTest {
                 "level " + n + " is " + l.w + "x" + l.h + ", should be " + want + "x" + want);
     }
 
-    /** After the first ten levels, tips never describe the solution; they can only announce a new animal. */
+    /**
+     * After the first ten levels, tips never describe the solution; they can only announce something new
+     * (a new animal, or a new kind of board piece such as the Kitchens' counters).
+     */
     @ParameterizedTest(name = "level {0} tip")
     @MethodSource("afterTenth")
     void tipDoesNotGiveAwayTheSolution(int n) {
         String tip = levels.get(n - 1).tip;
-        assertTrue(tip == null || tip.isEmpty() || tip.startsWith("New animal:"),
+        assertTrue(tip == null || tip.isEmpty() || tip.startsWith("New animal:") || tip.startsWith("New:"),
                 "level " + n + " tip describes the solution: \"" + tip + "\"");
     }
 

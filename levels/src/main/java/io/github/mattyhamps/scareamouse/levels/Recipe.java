@@ -44,7 +44,8 @@ public final class Recipe {
     public final boolean wrapAround;
     /**
      * Shown in the game as the level's tip. After level 10, tips never describe the solution or the
-     * trick: leave it empty, or announce a new animal ("New animal: ..."). LevelsTest enforces this.
+     * trick: leave it empty, or announce something new without saying how to use it ("New animal: ..."
+     * or "New: ..."). LevelsTest enforces this.
      */
     public final String tip;
     /** Width and height of the board, in squares. */
@@ -262,7 +263,7 @@ public final class Recipe {
             case 170: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.STOP);
             // 171-200: the Kitchens (8x8). Same difficulty as the Great hall, about half already moving, and
             // 2-4 walls in every level (drawn as kitchen counters). Walls do the stopping here, so no STOP moves.
-            case 171: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withBlockers(Animal.DOG).withWalls(2, 4);
+            case 171: return new Recipe(Animal.ELEPHANT, 1, false, "New: kitchen counters! Animals can't run through them, so watch out for the counters.", Trick.WAITING_RUNNER).withBlockers(Animal.DOG).withWalls(2, 4);
             case 172: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
             case 173: return new Recipe(Animal.LION, 2, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withWalls(2, 4);
             case 174: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withBlockers(Animal.DOG).withMoves(Move.CATCH).withWalls(2, 4);
