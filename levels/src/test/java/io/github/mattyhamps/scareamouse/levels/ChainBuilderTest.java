@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class ChainBuilderTest {
 
     static IntStream recipes() {
-        return IntStream.rangeClosed(61, 110);
+        return IntStream.rangeClosed(61, 170);
     }
 
     @ParameterizedTest(name = "recipe for level {0}")
@@ -27,7 +27,9 @@ class ChainBuilderTest {
         Recipe recipe = Recipe.forLevel(n);
         LevelGenerator.Rng rng = new LevelGenerator.Rng(n * 31L);
         Level found = null;
-        for (int attempt = 0; attempt < 20000 && found == null; attempt++) {
+        // Already-moving recipes with a STOP succeed less often per attempt, but each attempt is quick.
+        int attempts = recipe.moving() ? 100000 : 20000;
+        for (int attempt = 0; attempt < attempts && found == null; attempt++) {
             Level candidate = ChainBuilder.build(recipe, rng, "test");
             if (candidate != null && LevelChecker.check(candidate, recipe.rules()) != null) {
                 found = candidate;
