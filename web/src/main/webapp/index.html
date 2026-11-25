@@ -465,6 +465,8 @@
   .piece.used svg.art{opacity:.6}
   #winBig{display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:72px}
   .hint-ring b{background:var(--paper);border-radius:50%;padding:2px}
+  .hint-ring.confirmed{border-color:#3f6b3a;animation:none}
+  .animal.placed.sel::before{background:rgba(217,164,58,.45);border:3px solid var(--gold)}
 
   /* the castle: a cutaway drawing with a button over each floor */
   .castle-view-wrap{background:#1e2a44}
@@ -692,7 +694,7 @@ Promise.all([
   };
   const isOpen = i => i <= unlockedUpTo();
   let li = Math.min(store.get('cm_level', 0), unlockedUpTo());
-  let L, placed, selected, mode, cell, animalEls, timer, hintShown, backTimer, hintStep=0, hintPlan=null;
+  let L, placed, selected, selPlaced=null, hints, mode, cell, animalEls, timer, hintShown, backTimer, hintPlan=null;
   // edge: thickness of the castle wall around the board, in px. Boards bigger than 7x7 get a thinner
   // wall so their squares stay big enough to tap. P(v) is the pixel offset of column or row v.
   let edge = 0, boardTheme = '';
@@ -822,21 +824,22 @@ Promise.all([
   if (!seenRooms) { seenRooms = []; for (let r=0; roomExists(r); r++) if (roomReached(r)) seenRooms.push(r); store.set('cm_seen_rooms', seenRooms); }
   if (!doorsSeen) { doorsSeen = []; for (let r=0; roomExists(r); r++) if (roomCleared(r)) doorsSeen.push(r); store.set('cm_doors2', doorsSeen); }
   // Cheese is scarce: a level solved the first time with no hints earns 1 (a boss level 3; nothing
-  // if you used a hint), and clearing a room earns 2. It buys hints: 1 for the area an animal goes in,
-  // 3 for its exact square. Confirming an animal you've already put in the right square is free.
+  // if you used a hint), and clearing a room earns 2. It buys hints (see HINT_PRICE below).
   // New players start with 5; players with progress from before cheese existed get it worked out
   // the same way. Balances saved under the old, more generous rules are kept.
   let cheese = store.get('cm_cheese', null);
   if (cheese === null) { let c = 5; for (let r=0; roomExists(r); r++) if (roomCleared(r)) c += 2; cheese = c + doneCount(); store.set('cm_cheese', cheese); }
-  // level key -> hints bought there (they stay bought). cm_hints counted three hints per animal (what to
-  // aim at, area, square); cm_hints2 counts two (area, square), so hints already bought carry over.
-  let hintsUsed = store.get('cm_hints2', null);
-  if (!hintsUsed) { const old = store.get('cm_hints', {}); hintsUsed = {};
-    for (const k in old) hintsUsed[k] = 2 * Math.floor(old[k] / 3) + Math.max(0, old[k] % 3 - 1);
-    store.set('cm_hints2', hintsUsed); }
-  const HINT_COST = { area:1, square:3 }, CONFIRM_COST = 0;
-  // level key -> whether a paid hint was used there (free confirmations don't stop a level paying out)
-  const hintsPaid = store.get('cm_hints_paid', {});
+  // Hints are bought per animal: tap one of your animals, then Hint. Its first hint costs 1 and shades the
+  // patch of board it goes in; its second costs 2 and lights up its exact square. If the animal is already
+  // on its right square, the hint confirms that instead (same price), and that animal needs no more hints.
+  // Hints stay bought for that level. level key -> { h: hints per solution animal, c: confirmed or not }.
+  // (cm_hints2 counted hints in solution order, area then square for each animal; they carry over.)
+  const HINT_PRICE = [1, 2];
+  let hintBook = store.get('cm_hints3', null);
+  if (!hintBook) { hintBook = {}; const old = store.get('cm_hints2', {});
+    for (const k in old) { const lvl = LEVELS.find(l => levelKey(l) === k); if (!lvl) continue;
+      hintBook[k] = { h: lvl.solution.map((_, j) => Math.max(0, Math.min(2, old[k] - 2 * j))), c: lvl.solution.map(() => false) }; }
+    store.set('cm_hints3', hintBook); }
   function showCheese(bump){ const e=$('cheese'); e.innerHTML=`${icon('cheese', 16)} ${cheese}`; if(bump){ e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); } }
   function addCheese(n){ cheese = Math.max(0, cheese + n); store.set('cm_cheese', cheese); showCheese(n > 0); }
   if (!seenAreas) { seenAreas = AREAS.map((_,a)=>a).filter(a => roomsOf(a).length && areaReached(a)); store.set('cm_seen_areas', seenAreas); }
@@ -1433,7 +1436,7 @@ Promise.all([
     clearTimeout(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
-    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; hintStep=hintsUsed[levelKey(L)]||0; hintShown = levelKey(L) in hintsPaid ? hintsPaid[levelKey(L)] : hintStep>0;
+    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; selPlaced=null; hints = hintBook[levelKey(L)] || { h: L.solution.map(() => 0), c: L.solution.map(() => false) }; hintShown = hints.h.some(n => n > 0) || hints.c.some(Boolean);
     $('lvlName').textContent = L.name;
     const boss = isBoss(li);
     $('lvlSub').innerHTML = (boss ? `${icon('crown', 16)} Boss · ` : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1}`);
@@ -1441,7 +1444,7 @@ Promise.all([
     $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
     $('tip').classList.toggle('boss', boss); $('tip').classList.remove('hinting');
-    if (hintStep) { const t = hintText(plan()[Math.min(hintStep, plan().length) - 1]); $('tip').textContent = `Hint: ${t}`; $('tip').classList.add('hinting'); }
+    { const j = hints.h.map((n, k) => n > 0 && !hints.c[k] ? k : -1).filter(k => k >= 0).pop(); if (j !== undefined) { $('tip').textContent = `Hint: ${hintText(j, hints.h[j])}`; $('tip').classList.add('hinting'); } }
     showCheese();
     renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
     showNewCard(li);
@@ -1485,17 +1488,17 @@ Promise.all([
     if(mode!=='edit') return;
     if(occupied(x,y)) return;
     const rem=remaining();
-    if(!rem.length){ toast('All your animals are placed. Tap one to pick it up.'); return; }
+    if(!rem.length){ toast('All your animals are placed. Tap one twice to pick it up.'); return; }
     const want = revealedSquares().find(s=>s.x===x&&s.y===y);
-    const t = want && rem.includes(want.t) ? want.t : rem[Math.min(selected, rem.length-1)];
-    placed.push({t,x,y}); selected=0; Sound.place();
+    const t = want && rem.includes(want.t) ? want.t : rem[Math.max(0, Math.min(selected, rem.length-1))];
+    placed.push({t,x,y}); selected=0; selPlaced=null; Sound.place();
     renderTray(); renderAnimals(); updateButtons();
   }
 
   function renderTray(){
     const rem=remaining(); const tr=$('tray');
     if(!L.inv.length){ tr.innerHTML='<span class="empty">No animals to place.</span>'; return; }
-    tr.innerHTML = '<div class="lbl">Your animals</div>' + rem.map((t,i)=>`<div class="piece ${i===selected?'sel':''}" data-i="${i}">${art(t,40)}</div>`).join('')
+    tr.innerHTML = '<div class="lbl">Your animals</div>' + rem.map((t,i)=>`<div class="piece ${i===selected&&selPlaced===null?'sel':''}" data-i="${i}">${art(t,40)}</div>`).join('')
       + placed.map(p=>`<div class="piece used">${art(p.t,40)}</div>`).join('');
     tr.querySelectorAll('.piece:not(.used)').forEach(p=>p.onpointerdown=e=>startDrag(e,{t:rem[+p.dataset.i], tray:+p.dataset.i}));
     $('board').classList.toggle('armed', mode==='edit' && rem.length>0);
@@ -1506,7 +1509,8 @@ Promise.all([
     const list = frame || [...L.fixed.map(a=>({...a})), ...placed.map(a=>({...a, placed:true}))];
     list.forEach((a,i)=>{
       const el=document.createElement('div');
-      el.className='animal'+(a.placed&&mode==='edit'?' placed':'');
+      const pi0 = a.placed ? placed.findIndex(p=>p.x===a.x&&p.y===a.y) : -1;
+      el.className='animal'+(a.placed&&mode==='edit'?' placed':'')+(a.placed&&mode==='edit'&&pi0===selPlaced?' sel':'');
       el.style.width=el.style.height=cell+'px';
       el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
       el.innerHTML=`<span>${art(a.t,Math.round(cell*0.84))}</span>`;
@@ -1518,9 +1522,9 @@ Promise.all([
 
   function updateButtons(){
     $('goBtn').disabled = mode==='running' || mode==='replay';
-    const n = plan().length;
-    $('hintBtn').disabled = mode!=='edit' || hintStep>=n;
-    $('hintBtn').innerHTML = hintStep<n ? (hintCost() ? `Hint · ${hintCost()} ${icon('cheese', 18)}` : 'Hint · free') : 'Hint';
+    const j = hintTarget(), price = j === null ? 0 : hintPrice(j);
+    $('hintBtn').disabled = mode!=='edit' || !price;
+    $('hintBtn').innerHTML = price ? `Hint · ${price} ${icon('cheese', 18)}` : 'Hint';
     $('resetBtn').disabled = mode==='running' || mode==='replay' || (mode==='edit' && !placed.length);
     $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
   }
@@ -1662,7 +1666,7 @@ Promise.all([
     mode='edit'; $('board').className='board edit' + boardTheme;
     renderTray(); renderAnimals(); updateButtons();
   }
-  function reset(){ placed=[]; selected=0; clearHint(); backToStart(); }
+  function reset(){ placed=[]; selected=0; selPlaced=null; clearHint(); backToStart(); }
 
   // Drag and drop (tap still works: tap a tray animal to select it, tap a placed animal to send it back).
   let drag=null;
@@ -1723,93 +1727,96 @@ Promise.all([
     const d=drag; stopListening(); drag=null;
     if(!d) return;
     if(!d.moved){ // a tap
-      if(d.tray!=null){ selected=d.tray; renderTray(); }
-      else if(d.placedIdx!=null){ placed.splice(d.placedIdx,1); renderTray(); renderAnimals(); updateButtons(); }
+      if(d.tray!=null){ selected=d.tray; selPlaced=null; renderTray(); renderAnimals(); updateButtons(); }
+      else if(d.placedIdx!=null){ if (selPlaced===d.placedIdx) { placed.splice(d.placedIdx,1); selPlaced=null; selected=0; } else selPlaced=d.placedIdx;
+        renderTray(); renderAnimals(); updateButtons(); }
       return;
     }
     drag=d; const ok=canDrop(d.target); drag=null;
     if(ok){
-      if(d.placedIdx!=null){ placed[d.placedIdx]={t:d.t,x:d.target.x,y:d.target.y}; }
-      else placed.push({t:d.t,x:d.target.x,y:d.target.y});
+      if(d.placedIdx!=null){ placed[d.placedIdx]={t:d.t,x:d.target.x,y:d.target.y}; selPlaced=d.placedIdx; }
+      else { placed.push({t:d.t,x:d.target.x,y:d.target.y}); selPlaced=null; }
       Sound.place();
       selected=0;
-    } else if(d.placedIdx!=null && !d.target){ placed.splice(d.placedIdx,1); } // dragged off the board: back to the tray
+    } else if(d.placedIdx!=null && !d.target){ placed.splice(d.placedIdx,1); selPlaced=null; } // dragged off the board: back to the tray
     renderTray(); renderAnimals(); updateButtons();
   }
 
-  // Hints come two per animal you place, in solution order: first a 3x3 patch of board it goes
-  // somewhere in, then the exact square. Revealed hints stay through runs and Reset. The words go in
-  // the tip box.
+  // Hints are about the animal you've picked (see HINT_PRICE). Each animal in the solution has its patch of
+  // board (shaded by the first hint) and its square (lit by the second). Bought hints stay through runs and
+  // Reset. The words go in the tip box.
   function plan(){
     if (hintPlan) return hintPlan;
-    const sol = L.solution;
-    hintPlan = [];
-    sol.forEach((s, j) => {
+    hintPlan = L.solution.map(s => {
       const k = 3, w = Math.min(k, L.w), h = Math.min(k, L.h);
       // the patch doesn't always centre on the square
       const ax = Math.max(0, Math.min(L.w - w, s.x - (s.x*7 + s.y*3 + li) % w));
       const ay = Math.max(0, Math.min(L.h - h, s.y - (s.x*5 + s.y*11 + li) % h));
-      hintPlan.push({ j, kind:'area', ax, ay, w, h });
-      hintPlan.push({ j, kind:'square' });
+      return { ax, ay, w, h };
     });
     return hintPlan;
   }
-  const shownRungs = () => plan().slice(0, hintStep);
-  const revealedSquares = () => shownRungs().filter(r => r.kind === 'square').map(r => L.solution[r.j]);
+  const onItsSquare = (p, j) => p.t === L.solution[j].t && p.x === L.solution[j].x && p.y === L.solution[j].y;
+  const slotFilled = j => placed.some(p => onItsSquare(p, j));
+  const revealedSquares = () => L.solution.filter((_, j) => hints.h[j] >= 2 || hints.c[j]);
+  // Which animal of the solution a hint is about: the picked placed animal's own square if it's on one,
+  // otherwise a square of its kind that isn't filled yet (one that already has a hint, if there is one).
+  function hintTarget(){
+    const sol = L.solution, pick = selPlaced !== null ? placed[selPlaced] : null;
+    const t = pick ? pick.t : remaining()[Math.max(0, Math.min(selected, remaining().length - 1))];
+    if (!t) return null;
+    if (pick) { const j = sol.findIndex((_, k) => onItsSquare(pick, k)); if (j >= 0) return j; }
+    const open = sol.map((s, k) => s.t === t && !slotFilled(k) ? k : -1).filter(k => k >= 0);
+    if (!open.length) return null;
+    return open.slice().sort((x, y) => hints.h[y] - hints.h[x])[0];
+  }
+  const hintPrice = j => hints.c[j] || hints.h[j] >= 2 ? 0 : HINT_PRICE[hints.h[j]];
   function clearHint(){ $('board').querySelectorAll('.hint-ring,.hint-area').forEach(e=>e.remove()); }
   function drawHints(){
     clearHint();
     if(mode!=='edit') return;
-    const rungs = shownRungs(), squared = new Set(rungs.filter(r => r.kind === 'square').map(r => r.j));
     const add = (cls, css, html='') => { const e=document.createElement('div'); e.className=cls; e.style.cssText=css; e.innerHTML=html; $('board').appendChild(e); };
-    rungs.forEach(r => {
-      if (r.kind === 'square') { const s = L.solution[r.j];
-        add('hint-ring', `left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`, `<b>${art(s.t,20)}</b>`); }
-      else if (squared.has(r.j)) return;
-      else if (r.kind === 'area') add('hint-area', `left:${P(r.ax)}px;top:${P(r.ay)}px;width:${cell*r.w}px;height:${cell*r.h}px`);
+    L.solution.forEach((s, j) => {
+      if (hints.c[j] || hints.h[j] >= 2) add('hint-ring' + (hints.c[j] ? ' confirmed' : ''), `left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`, `<b>${art(s.t,20)}</b>`);
+      else if (hints.h[j] === 1) { const r = plan()[j]; add('hint-area', `left:${P(r.ax)}px;top:${P(r.ay)}px;width:${cell*r.w}px;height:${cell*r.h}px`); }
     });
   }
-  function hintText(r){
-    const s = L.solution[r.j], n = NAME[s.t], your = L.solution.length > 1 ? 'your ' : 'the ';
-    if (r.kind === 'area') return `${your}${n} goes somewhere in the shaded squares.`;
-    return `put ${your}${n} on the glowing square.`;
+  function hintText(j, step){
+    const n = NAME[L.solution[j].t], your = L.solution.length > 1 ? 'your ' : 'the ';
+    return step >= 2 ? `put ${your}${n} on the glowing square.` : `${your}${n} goes somewhere in the shaded squares.`;
   }
-  // The next hint's price: nothing just to confirm an animal that's already in its right square.
-  const inRightSquare = j => placed.some(p => p.t === L.solution[j].t && p.x === L.solution[j].x && p.y === L.solution[j].y);
-  const hintCost = () => { const r = plan()[hintStep]; return !r ? 0 : inRightSquare(r.j) ? CONFIRM_COST : HINT_COST[r.kind]; };
   function hint(){
     if(mode==='failed') backToStart();
     if(mode!=='edit') return;
-    const sol=L.solution, rungs=plan();
-    const onSolution = p => sol.some(q=>q.t===p.t&&q.x===p.x&&q.y===p.y);
-    if(hintStep>=rungs.length){ updateButtons(); return; }
-    const cost = hintCost(), confirm = inRightSquare(rungs[hintStep].j);
+    const sol=L.solution, j = hintTarget();
+    if (j === null || !hintPrice(j)) { updateButtons(); return; }
+    const cost = hintPrice(j);
     if (cheese < cost && !DEV) { updateButtons(); toast(`This hint costs ${cost} cheese. Solve levels without hints to earn more.`); return; }
     if (cheese >= cost) addCheese(-cost);
-    const rung=rungs[hintStep++]; if (!confirm) hintShown=true;
-    hintsPaid[levelKey(L)] = hintShown; store.set('cm_hints_paid', hintsPaid);
-    // Confirming an animal that's already right counts as both of its hints.
-    if (confirm && rung.kind === 'area') hintStep++;
-    hintsUsed[levelKey(L)] = hintStep; store.set('cm_hints2', hintsUsed);
-    if (confirm) {
-      $('tip').textContent = `Hint: ${L.solution.length > 1 ? 'your' : 'the'} ${NAME[sol[rung.j].t]} is already on the right square.`; $('tip').classList.add('hinting');
-      renderTray(); renderAnimals(); updateButtons();
-      return;
-    }
-    if (rung.kind === 'square') {
-      const s=sol[rung.j];
-      // A different animal sitting on the hinted square goes back to the tray.
-      const here=placed.findIndex(p=>p.x===s.x&&p.y===s.y);
-      if(here>=0 && placed[here].t!==s.t) placed.splice(here,1);
-      // If every animal of the hinted kind is placed somewhere wrong, send one back so it can be placed.
-      if(!placed.some(p=>p.t===s.t&&p.x===s.x&&p.y===s.y) && !remaining().includes(s.t)){
-        let k=placed.findIndex(p=>p.t===s.t&&!onSolution(p));
-        if(k<0) k=placed.findIndex(p=>p.t===s.t);
-        if(k>=0) placed.splice(k,1);
+    hintShown = true;
+    if (slotFilled(j)) {
+      // already right: the hint confirms it, and this animal needs no more hints
+      hints.c[j] = true;
+      $('tip').textContent = `Hint: ${sol.length > 1 ? 'your' : 'the'} ${NAME[sol[j].t]} is on the right square.`;
+    } else {
+      hints.h[j]++;
+      if (hints.h[j] >= 2) {
+        const s=sol[j];
+        // A different animal sitting on the hinted square goes back to the tray.
+        const here=placed.findIndex(p=>p.x===s.x&&p.y===s.y);
+        if(here>=0 && placed[here].t!==s.t) { placed.splice(here,1); selPlaced=null; }
+        // If every animal of the hinted kind is placed somewhere wrong, send one back so it can be placed.
+        const onSolution = p => sol.some(q=>q.t===p.t&&q.x===p.x&&q.y===p.y);
+        if(!placed.some(p=>p.t===s.t&&p.x===s.x&&p.y===s.y) && !remaining().includes(s.t)){
+          let k = selPlaced !== null && placed[selPlaced].t === s.t ? selPlaced : placed.findIndex(p=>p.t===s.t&&!onSolution(p));
+          if(k<0) k=placed.findIndex(p=>p.t===s.t);
+          if(k>=0) { placed.splice(k,1); selPlaced=null; }
+        }
       }
+      $('tip').textContent = `Hint: ${hintText(j, hints.h[j])}`;
     }
-    const t = hintText(rung);
-    $('tip').textContent = `Hint: ${t}`; $('tip').classList.add('hinting');
+    $('tip').classList.add('hinting');
+    hintBook[levelKey(L)] = hints; store.set('cm_hints3', hintBook);
     renderTray(); renderAnimals(); updateButtons();
   }
 
@@ -1877,7 +1884,7 @@ Promise.all([
     const b=$('resetProgress');
     if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent='Tap again to erase all progress'; clearTimeout(b._t); b._t=setTimeout(()=>{ b.classList.remove('armed'); b.textContent='Reset progress (testing)'; },3000); return; }
     clearTimeout(b._t); b.classList.remove('armed'); b.textContent='Reset progress (testing)';
-    solved={}; store.set('cm_solved',solved); hintsUsed={}; store.set('cm_hints2',hintsUsed); for (const k in hintsPaid) delete hintsPaid[k]; store.set('cm_hints_paid',hintsPaid); cheese=5; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
+    solved={}; store.set('cm_solved',solved); hintBook={}; store.set('cm_hints3',hintBook); cheese=5; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
   };
   $('picker').onclick=e=>{ if(e.target.id==='picker') $('picker').classList.remove('show'); };
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
