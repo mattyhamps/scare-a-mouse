@@ -584,6 +584,49 @@
   .piece.used svg.art{opacity:.6}
   #winBig{display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:72px}
   .hint-ring b{background:var(--paper);border-radius:50%;padding:2px}
+
+  /* the castle: a cutaway drawing with a button over each floor */
+  .castle-view-wrap{background:#1e2a44}
+  .castle-view.castle-cut{padding:0;display:block;background:none;min-height:0}
+  .castle-cut .band-floor{position:absolute;display:block;min-height:0;padding:0;border:0;border-radius:4px;background:transparent;box-shadow:none;color:var(--paper-ink)}
+  .castle-cut .band-floor.here{box-shadow:0 0 0 4px var(--gold)}
+  .castle-cut .band-floor.locked{background:transparent;box-shadow:none}
+  .castle-cut .cb-label{position:absolute;left:8px;top:8px;padding:3px 10px;border-radius:8px;background:var(--paper);font:700 14px var(--font-body);white-space:nowrap;box-shadow:0 2px 0 var(--paper-d)}
+  .castle-cut .cb-label small{font-weight:600;color:#8a5432}
+  .castle-cut .band-floor.done .cb-label small{color:#3f6b3a}
+  .castle-cut .outside .cb-label{left:26%;top:38%}
+  .castle-cut .cb-tag{position:absolute;right:8px;top:6px;font:600 11px var(--font-body);color:var(--paper)}
+  .castle-cut .pr-mouse{position:absolute;right:16px;bottom:10px;top:auto;animation:bob 1.2s ease-in-out infinite}
+  .castle-cut .outside .pr-mouse{right:auto;left:58%;bottom:40%}
+  .castle-cut .band-floor .fog{border-radius:4px}
+  /* a floor's map: flat coloured room blocks on paper, joined by corridors */
+  .area-view{background:var(--paper)}
+  .plan.floor{background:var(--paper-d);box-shadow:none;border-radius:14px}
+  .plan.floor.cellars{background:#cfae78;box-shadow:none}
+  .corridors polyline{stroke:#b39260;stroke-width:16}
+  .plan.outside{background:#a4bf6e;border-radius:14px}
+  .plan.outside .corridors polyline{stroke:var(--paper)}
+  .plan .castle-wall{background:#a39c8f}
+  .plan .moat{background:var(--navy);animation:none}
+  .plan-room{border:0;border-radius:10px;color:var(--paper);background:var(--rc,#8a5432);box-shadow:0 6px 0 var(--rcd,#6e4126)}
+  .plan-room b{font:700 16px var(--font-title);text-shadow:none}
+  .plan-room small{color:var(--paper);opacity:.9}
+  .plan-room.done small{color:var(--paper)}
+  .plan-room.here{box-shadow:0 6px 0 var(--rcd,#6e4126),0 0 0 4px var(--gold)}
+  .plan-room.place{background:var(--rc,#3f6b3a);justify-content:center;padding:2px}
+  .plan-room.place .art{display:none}
+  .plan-room.place .pr-ic{display:block}
+  .plan-room.place b,.plan-room.place small{background:none;padding:0}
+  .plan-room.next{border:0;background:#b9b2a6;box-shadow:0 6px 0 #9d968a;color:var(--paper)}
+  .plan-room.next{z-index:1;opacity:1;animation:none}
+  .plan-room.next .fog-q{font:700 40px var(--font-title);color:var(--paper)}
+  .plan-room.next small{color:var(--paper);font:600 12px var(--font-body)}
+  .plan-room.far{z-index:1}
+  .plan-room.far{border:0;background:#cfc8bc;box-shadow:0 6px 0 #b9b2a6}
+  .plan.outside .plan-room.far{background:#8fae5c;box-shadow:0 6px 0 #7a9a4a}
+  .plan .fog{display:none}
+  .stairs{font:600 15px var(--font-body);border:0;border-radius:12px;padding:10px 14px;background:var(--paper-d);color:var(--paper-ink);box-shadow:0 4px 0 #cfae78}
+  .stairs.locked{background:#b9b2a6;color:#f1e3c2;box-shadow:0 4px 0 #9d968a;opacity:1}
 </style>
 </head>
 <body>
@@ -905,6 +948,8 @@ Promise.all([
     'Gate': `<span class="pa sky"></span><span class="pa gatehouse"></span><span class="pe wave" style="left:14%;top:2%">🚩</span><span class="pe wave" style="left:78%;top:2%">🚩</span>`,
   };
 
+  // Room blocks on a floor's map take these colours in turn (face, lower lip).
+  const PLAN_COLORS = [['#b5622a','#954d1f'],['#2f4f8f','#233b6c'],['#a8353a','#842629'],['#3f6b3a','#2f5530'],['#5e3460','#4a2850'],['#8a5432','#6e4126']];
   // A map box: one block per room of the area, joined by corridors in order.
   function areaMap(a) {
     const rs = roomsOf(a), outside = AREAS[a].kind === 'outside';
@@ -922,7 +967,8 @@ Promise.all([
         const fresh = !seenRooms.includes(r) ? ' reveal' : '';
         const lift = fresh ? '<span class="fog lift"></span>' : '';  // the fog clears off a room you just reached
         const boss = rm.end === areaEnd(a) ? '<span class="crown">👑</span>' : '';
-        blocks += `<button class="plan-room${outside?' place':''}${done?' done':''}${here?' here':''}${fresh}" data-r="${r}" style="${pos}">
+        const [rc, rcd] = PLAN_COLORS[(k + a * 2) % PLAN_COLORS.length];
+        blocks += `<button class="plan-room${outside?' place':''}${done?' done':''}${here?' here':''}${fresh}" data-r="${r}" style="${pos};--rc:${outside ? '#3f6b3a' : rc};--rcd:${outside ? '#2f5530' : rcd}">
           ${outside ? `<span class="art">${PLACE_ART[rm.name]||''}</span>` : ''}
           <span class="pr-ic">${rm.ic}</span><b>${rm.name}</b><small>${done ? '✓ ' : ''}${s}/${n}</small>${boss}
           ${here ? `<span class="pr-mouse">${art('mouse',20)}</span>` : ''}${lift}</button>`;
@@ -941,31 +987,76 @@ Promise.all([
       ${blocks}</div><div class="stairs-row">${stairs}</div>`;
   }
 
-  // The whole castle, side on: the Outside in front, floors stacked inside, cellars below.
+  // The whole castle, side on, as a cutaway drawing: the Outside in front, the floors stacked inside
+  // the keep, the cellars below. Floors you have reached show a little scene; the rest are boarded up.
+  // Each floor is a button laid over the drawing (class band-floor, data-a) so taps open its map.
+  const CASTLE_FLOOR_LOOK = {   // wall, wall top, floor boards, and a few pieces of furniture
+    1: ['#4a3a36','#3a2c28','#5a4038','cellars'], 2: ['#7a3a3a','#652e2e','#8a5a32','library'],
+    3: ['#3a4a7a','#2f3d66','#8a5a32','armory'],  4: ['#3f6b3a','#2f5530','#8a5a32','hall'],
+    5: ['#5e3460','#4a2850','#8a5a32','hall'],    6: ['#5a4a25','#4a3c1e','#8a5a32','hall'], 7: ['#842629','#6a1e20','#8a5a32','hall'],
+  };
   function castleMap() {
-    const band = (a, cls='') => {
-      const A = AREAS[a], rs = roomsOf(a);
-      if (!rs.length) return '';
-      const reached = areaReached(a), done = areaCleared(a), here = mouseRoom !== null && room(mouseRoom).area === a;
-      const prevReached = a === 0 || areaReached(a-1);
-      const fresh = reached && !seenAreas.includes(a) ? ' reveal' : '';
-      // Floors you haven't reached are under fog: you can see there's a floor, not what's on it.
-      if (!reached) return `<div class="band-floor locked fogged ${cls}${prevReached && roomExists(rs[0]) ? ' next' : ''}"><span class="fog"></span>
-        <b>🔒</b><small>${roomExists(rs[0]) ? `${rs.length} room${rs.length > 1 ? 's' : ''}` : 'coming soon'}</small></div>`;
-      return `<button class="band-floor ${cls}${done?' done':''}${here?' here':''}${fresh}" data-a="${a}"><span class="bf-ic">${A.ic}</span>
-        <span class="bf-text"><b>${A.name}</b><small>${rs.map(r => roomReached(r) ? room(r).name : '?').join(' · ')}</small></span>
-        <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?`<span class="pr-mouse">${art('mouse',20)}</span>`:''}${fresh ? '<span class="fog lift"></span>' : ''}</button>`;
-    };
-    const order = [7,6,5,4,3,2];  // floors inside the keep, top to bottom
-    return `<div class="castle-view">
-      <span class="star" style="left:14%;top:4%">✦</span><span class="star" style="left:46%;top:7%;animation-delay:.8s">✦</span>
-      <div class="tower"><div class="roof"></div>${band(8,'tower-band')}</div>
-      <span class="flag">🚩</span>
-      <div class="keep"><div class="battlement"></div>${order.map(a=>band(a)).join('')}</div>
-      <div class="cellars">${band(1)}</div>
-      <div class="moat-band"><span class="drawbridge"></span></div>
-      <div class="outside-band">${band(0)}</div>
-    </div>`;
+    const W = 390, X0 = 58, X1 = 332, FH = 86, LH = 62, GAP = 6;
+    const two = (x,y,w,h,c,c2,r=4) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${c}"/><rect x="${x+w*0.62}" y="${y}" width="${w*0.38}" height="${h}" rx="${r}" fill="${c2}"/>`;
+    const win = (x,y) => `<rect x="${x}" y="${y}" width="20" height="30" rx="10" fill="#2a3a5a"/><rect x="${x+9}" y="${y}" width="2" height="30" fill="#857e72"/>`;
+    const barrel = (x,y) => two(x,y,20,26,'#b5622a','#954d1f',8)+`<rect x="${x}" y="${y+8}" width="20" height="3" fill="#954d1f"/><rect x="${x}" y="${y+16}" width="20" height="3" fill="#954d1f"/>`;
+    const table = (x,y,w) => two(x,y,w,10,'#8a5432','#6e4126',4)+`<rect x="${x+4}" y="${y+10}" width="5" height="14" fill="#6e4126"/><rect x="${x+w-9}" y="${y+10}" width="5" height="14" fill="#6e4126"/>`;
+    const shelf = (x,y) => two(x,y,36,46,'#8a5432','#6e4126',4)+['#a8353a','#2f4f8f','#7a9a4a','#d9a43a','#a8353a'].map((c,i)=>`<rect x="${x+4+i*6}" y="${y+6}" width="5" height="14" fill="${c}"/>`).join('')+['#7a9a4a','#d9a43a','#2f4f8f','#a8353a','#f1e3c2'].map((c,i)=>`<rect x="${x+4+i*6}" y="${y+26}" width="5" height="14" fill="${c}"/>`).join('');
+    const torch = (x,y) => `<rect x="${x}" y="${y+10}" width="4" height="10" fill="#6e4126"/><path d="M${x+2} ${y} C${x-3} ${y+6} ${x-1} ${y+11} ${x+2} ${y+11} C${x+5} ${y+11} ${x+7} ${y+6} ${x+2} ${y} Z" fill="#d9a43a"/>`;
+    const furniture = (kind, y) => kind === 'cellars' ? barrel(80,y+46)+barrel(102,y+46)+barrel(91,y+22)+two(250,y+40,44,32,'#a39c8f','#857e72',8)+`<path d="M262 ${y+72} L262 ${y+52} C262 ${y+44} 282 ${y+44} 282 ${y+52} L282 ${y+72} Z" fill="#2a1a14"/>`+torch(190,y+30)+torch(316,y+30)
+      : kind === 'library' ? shelf(74,y+26)+shelf(114,y+26)+table(170,y+50,70)+`<circle cx="190" cy="${y+46}" r="5" fill="#d9a43a"/><circle cx="214" cy="${y+46}" r="5" fill="#a8353a"/>`+win(262,y+30)+win(296,y+30)
+      : kind === 'armory' ? `<circle cx="110" cy="${y+48}" r="18" fill="#a8353a"/><circle cx="110" cy="${y+48}" r="10" fill="#d9a43a"/><path d="M110 ${y+30} L110 ${y+66} M92 ${y+48} L128 ${y+48}" stroke="#233b6c" stroke-width="3"/>`+table(160,y+54,40)+table(214,y+54,40)+win(280,y+28)
+      : table(120,y+52,60)+table(210,y+52,60)+win(80,y+26)+win(290,y+26);
+    const keep = [7,6,5,4,3,2].filter(a => roomsOf(a).length);
+    let y = 150; const bands = [];
+    keep.forEach(a => { const h = areaReached(a) ? FH : LH; bands.push({ a, y, h }); y += h + GAP; });
+    bands.push({ a: 1, y, h: FH }); y += FH;
+    const moatY = y, H = moatY + 30 + 150;
+    const pct = (v, of) => (v / of * 100).toFixed(3) + '%';
+    const stonewall = (x, y0, w, h) => {
+      let o = `<rect x="${x}" y="${y0}" width="${w}" height="${h}" fill="#a39c8f"/>`;
+      for (let r = 0; r < Math.floor(h / 16); r++) { const off = r % 2 ? 0 : 14;
+        for (let cx = x - off; cx < x + w; cx += 28) { const xx = Math.max(cx, x), ww = Math.min(cx + 26, x + w) - xx; if (ww > 2) o += `<rect x="${xx}" y="${y0 + r*16 + 2}" width="${ww}" height="12" rx="3" fill="${(r + Math.floor(cx/28)) % 3 ? '#978f83' : '#857e72'}" opacity=".55"/>`; } }
+      return o; };
+    let svg = '', btns = '';
+    // night sky, moon and side towers
+    svg += `<rect x="0" y="0" width="${W}" height="${moatY}" fill="#1e2a44"/><circle cx="300" cy="62" r="22" fill="#f1e3c2"/><circle cx="310" cy="55" r="20" fill="#1e2a44"/>`;
+    svg += [[140,40],[200,96],[30,150],[360,170],[110,110]].map(([sx,sy]) => `<path d="M${sx} ${sy-6} L${sx+1.6} ${sy-1.6} L${sx+6} ${sy} L${sx+1.6} ${sy+1.6} L${sx} ${sy+6} L${sx-1.6} ${sy+1.6} L${sx-6} ${sy} L${sx-1.6} ${sy-1.6} Z" fill="#d9a43a"/>`).join('');
+    for (const tx of [18, 332]) svg += stonewall(tx, 180, 40, moatY - 180) + `<path d="M${tx-8} 182 L${tx+20} 120 L${tx+48} 182 Z" fill="#a8353a"/><path d="M${tx+20} 120 L${tx+48} 182 L${tx+32} 182 Z" fill="#842629"/><path d="M${tx+20} 120 L${tx+20} 98 L${tx+38} 104 L${tx+20} 110" fill="#d9a43a"/>`
+      + [230, 330, 430, 530].filter(wy => wy < moatY - 40).map(wy => win(tx + 10, wy)).join('');
+    svg += stonewall(50, 136, 290, moatY - 136) + Array.from({length: 9}, (_, k) => `<rect x="${50 + k*36}" y="120" width="22" height="20" rx="3" fill="#a39c8f"/>`).join('');
+    // the tower top, still locked
+    svg += stonewall(160, 40, 70, 96) + `<path d="M150 44 L195 -6 L240 44 Z" fill="#a8353a"/><path d="M195 -6 L240 44 L216 44 Z" fill="#842629"/><rect x="183" y="62" width="24" height="36" rx="12" fill="#3a3340"/><g transform="translate(184 70)"><path d="M6 10 L6 6 C6 0 16 0 16 6 L16 10" fill="none" stroke="#857e72" stroke-width="3"/><rect x="2" y="9" width="18" height="13" rx="4" fill="#d9a43a"/></g>`;
+    // the floors
+    const prevReachedOf = a => a === 1 || areaReached(a === 2 ? 1 : a - 1);
+    for (const { a, y: fy, h } of bands) {
+      const A = AREAS[a], rs = roomsOf(a), reached = areaReached(a), done = areaCleared(a), here = mouseRoom !== null && room(mouseRoom).area === a;
+      const box = `left:${pct(X0, W)};top:${pct(fy, H)};width:${pct(X1 - X0, W)};height:${pct(h, H)}`;
+      if (!reached) {
+        svg += `<clipPath id="lk${a}"><rect x="${X0}" y="${fy}" width="${X1-X0}" height="${h}"/></clipPath><g clip-path="url(#lk${a})"><rect x="${X0}" y="${fy}" width="${X1-X0}" height="${h}" fill="#2e2830"/>`
+          + [[-5, 0.3], [4, 0.72]].map(([ang, py]) => `<g transform="rotate(${ang} ${(X0+X1)/2} ${fy + h*py})"><rect x="${X0-6}" y="${fy + h*py - 9}" width="${X1-X0+12}" height="18" rx="4" fill="#8a5432"/><rect x="${X0-6}" y="${fy + h*py + 2}" width="${X1-X0+12}" height="7" rx="3" fill="#6e4126"/></g>`).join('')
+          + `</g><g transform="translate(${(X0+X1)/2 - 13} ${fy + h/2 - 15})"><path d="M7 13 L7 8 C7 1 19 1 19 8 L19 13" fill="none" stroke="#a39c8f" stroke-width="4"/><rect x="1" y="12" width="24" height="18" rx="5" fill="#d9a43a"/><rect x="11" y="17" width="4" height="7" rx="2" fill="#2b1d14"/></g>`;
+        const soon = !roomExists(rs[0]);
+        btns += `<div class="band-floor locked" style="${box}"><span class="cb-tag">${soon ? 'Coming soon' : (prevReachedOf(a) ? 'Next floor' : '')}</span></div>`;
+        continue;
+      }
+      const [wall, wall2, boards, kind] = CASTLE_FLOOR_LOOK[a] || CASTLE_FLOOR_LOOK[7];
+      svg += `<rect x="${X0}" y="${fy}" width="${X1-X0}" height="${h}" fill="${wall}"/><rect x="${X0}" y="${fy+h-14}" width="${X1-X0}" height="14" fill="${boards}"/><rect x="${X0}" y="${fy}" width="${X1-X0}" height="8" fill="${wall2}"/>` + furniture(kind, fy);
+      const fresh = !seenAreas.includes(a) ? ' reveal' : '';
+      btns += `<button class="band-floor${done ? ' done' : ''}${here ? ' here' : ''}${fresh}" data-a="${a}" style="${box}">
+        <span class="cb-label">${A.name} <small>${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small></span>
+        ${here ? `<span class="pr-mouse">${art('mouse', 34)}</span>` : ''}${fresh ? '<span class="fog lift"></span>' : ''}</button>`;
+    }
+    // moat, drawbridge and the Outside
+    svg += `<rect x="0" y="${moatY}" width="${W}" height="30" fill="#2f4f8f"/><path d="M0 ${moatY+8} ${Array.from({length: 10}, () => 'q20 -6 40 0').join(' ')}" stroke="#4a6aa8" stroke-width="3" fill="none"/>`
+      + `<path d="M166 ${moatY} L166 ${moatY-44} C166 ${moatY-62} 224 ${moatY-62} 224 ${moatY-44} L224 ${moatY} Z" fill="#2a1a14"/><rect x="164" y="${moatY-4}" width="62" height="40" fill="#8a5432"/>`
+      + Array.from({length: 7}, (_, k) => `<rect x="${164 + k*10}" y="${moatY-4}" width="2" height="40" fill="#6e4126"/>`).join('')
+      + `<rect x="0" y="${moatY+30}" width="${W}" height="150" fill="#7a9a4a"/><path d="M195 ${moatY+36} C180 ${moatY+74} 220 ${moatY+104} 190 ${H} L230 ${H} C250 ${moatY+114} 214 ${moatY+74} 225 ${moatY+36} Z" fill="#f1e3c2"/>`
+      + [[40,74,22],[90,124,16],[330,84,24],[290,144,14],[360,154,12]].map(([tx,dy,r]) => `<circle cx="${tx}" cy="${moatY+dy}" r="${r}" fill="#3f6b3a"/><circle cx="${tx+r*.35}" cy="${moatY+dy+r*.25}" r="${r*.6}" fill="#2f5530"/><rect x="${tx-3}" y="${moatY+dy+r-4}" width="6" height="12" fill="#6e4126"/>`).join('');
+    { const a = 0, done = areaCleared(0), here = mouseRoom !== null && room(mouseRoom).area === 0, fresh = !seenAreas.includes(0) ? ' reveal' : '';
+      btns += `<button class="band-floor outside${done ? ' done' : ''}${here ? ' here' : ''}${fresh}" data-a="0" style="left:0;top:${pct(moatY + 30, H)};width:100%;height:${pct(150, H)}">
+        <span class="cb-label">Outside <small>${done ? '✓' : `${areaSolved(0)}/${areaSize(0)}`}</small></span>${here ? `<span class="pr-mouse">${art('mouse', 34)}</span>` : ''}</button>`; }
+    return `<div class="castle-view castle-cut"><svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${svg}</svg>${btns}</div>`;
   }
 
   // ---------- Room scenes ----------
