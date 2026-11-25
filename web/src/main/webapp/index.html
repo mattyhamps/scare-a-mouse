@@ -7,10 +7,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Scare-a-Mouse">
-<meta name="theme-color" content="#1d1a24">
+<meta name="theme-color" content="#4a3328">
 <title>Scare-a-Mouse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Almendra:wght@700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#1d1a24; --bg2:#2a2533; --stone:#8d8478; --stone-d:#5d564d; --stone-l:#b3aa9c;
@@ -492,6 +492,89 @@
   .card h3{margin:6px 0 4px;font-size:26px}
   .card p{margin:0 0 18px;color:#e0d6c5;font-size:16px;line-height:1.4}
   .card .btn{width:100%}
+
+  /* ======================================================================
+     Flat medieval style. Flat two-tone colour, no outlines and no gradients.
+     A thing's darker tone sits below or to its right, as if lit from the top-left.
+     Titles use --font-title and everything else --font-body: change a font in one place.
+     ====================================================================== */
+  :root{
+    --font-title:'Almendra',Georgia,serif; --font-body:Fredoka,ui-rounded,"SF Pro Rounded",system-ui,sans-serif;
+    --bg:#4a3328; --bg2:#3e2a20; --ink:#f1e3c2; --muted:#e0cb9c;
+    --paper:#f1e3c2; --paper-d:#e0cb9c; --paper-ink:#2b1d14;
+    --gold:#d9a43a; --gold-d:#b8862a; --red:#a8353a; --red-d:#842629; --rose:#d4917f; --rose-d:#b87666;
+    --green:#7a9a4a; --green-d:#5f7d38; --navy:#2f4f8f; --navy-d:#233b6c;
+    --stone:#a39c8f; --stone-d:#857e72; --stone-l:#b9b2a6;
+    --floor-a:#f1e3c2; --floor-b:#e0cb9c;
+  }
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--font-body)}
+  .brand{font-family:var(--font-title);font-size:23px;letter-spacing:0;color:var(--paper)}
+  .brand .crest{filter:none}
+  .title h2,.card h3,.pick-head h3{font-family:var(--font-title);font-weight:700;color:inherit}
+  .title h2{font-size:22px;color:var(--paper)}
+  .title .sub{color:var(--muted)}
+  /* pills and buttons: a flat face over a darker lip */
+  .lvlbtn{font:600 15px var(--font-body);color:var(--paper-ink);background:var(--gold);border:0;border-radius:12px;box-shadow:0 4px 0 var(--gold-d)}
+  .soundbtn{background:var(--paper);border:0;border-radius:12px;box-shadow:0 4px 0 var(--paper-d)}
+  .cheese{font:600 14px var(--font-body);color:var(--paper-ink);background:var(--paper);box-shadow:0 2px 0 var(--paper-d)}
+  .preview-banner{background:var(--gold);color:var(--paper-ink)}
+  button.btn{font:600 18px var(--font-body);border-radius:16px;color:var(--paper-ink);background:var(--paper);box-shadow:0 4px 0 var(--paper-d)}
+  button.btn:active{box-shadow:0 1px 0 var(--paper-d)}
+  #resetBtn{background:var(--rose);box-shadow:0 4px 0 var(--rose-d)}
+  #resetBtn:active{box-shadow:0 1px 0 var(--rose-d)}
+  button.go{background:var(--red);color:var(--paper);box-shadow:0 4px 0 var(--red-d)}
+  button.go:active{box-shadow:0 1px 0 var(--red-d)}
+  /* the tip, the chain and the tray are paper cards on the brown page */
+  .tip{background:var(--paper);border:0;color:var(--paper-ink);font-weight:500;box-shadow:0 4px 0 var(--paper-d)}
+  .tip.boss{background:#f3d3c9;box-shadow:0 4px 0 var(--rose)}
+  .tip.hinting{background:#f6dfa6;color:var(--paper-ink);box-shadow:0 4px 0 var(--gold)}
+  .tip .link-btn,.tip a{color:var(--red)}
+  .chain{background:var(--stone-d);border-radius:12px}
+  .chain .arrow,.chain .cap{color:var(--paper)}
+  .tray{background:var(--paper);border:0;box-shadow:0 4px 0 var(--paper-d)}
+  .tray .lbl,.tray .empty{color:var(--paper-ink)}
+  .piece{background:var(--paper-d);border:0;border-radius:14px;box-shadow:0 3px 0 var(--tan-d,#b39260)}
+  .piece.sel{background:var(--gold);box-shadow:0 3px 0 var(--gold-d),0 0 0 3px rgba(217,164,58,.35)}
+  /* the board: cream checks in a navy frame */
+  .board{border-radius:14px;box-shadow:0 6px 0 var(--navy-d)}
+  .border,.hole{background:var(--navy);box-shadow:none}
+  .hole.in{background:var(--floor-a)} .hole.in.alt{background:var(--floor-b)}
+  .hole i{background:#1a1210;box-shadow:none}
+  .hole.in i{box-shadow:none}
+  @keyframes glow{50%{box-shadow:0 0 0 3px rgba(217,164,58,.7)}}
+  .wall{background:var(--stone);box-shadow:inset -6px -6px 0 var(--stone-d);border-radius:6px}
+  .board.armed .floor.placeable::after{background:rgba(184,134,42,.25)}
+  .floor.target{box-shadow:inset 0 0 0 3px var(--gold)}
+  .floor.target.bad{box-shadow:inset 0 0 0 3px var(--red)}
+  .hint-area{background:rgba(217,164,58,.28);box-shadow:inset 0 0 0 3px var(--gold)}
+  .animal.placed::before{background:rgba(217,164,58,.3);border:2px dashed var(--gold-d)}
+  .toast,.replay-label{background:var(--paper-ink);color:var(--paper)}
+  .replay-controls .speed{background:var(--paper);border:0;box-shadow:0 4px 0 var(--paper-d)}
+  .replay-controls .speed button{font-family:var(--font-body);color:var(--paper-ink)}
+  .replay-controls .speed button.on{background:var(--gold);color:var(--paper-ink)}
+  /* cards (win, how to play, the castle) are paper */
+  .overlay{background:rgba(43,29,20,.72)}
+  .card{background:var(--paper);color:var(--paper-ink);border:0;border-radius:22px;box-shadow:0 8px 0 var(--paper-d)}
+  .card p{color:var(--paper-ink)}
+  .card.pick p{color:#6e4126}
+  .card .link-btn,.link-btn{color:var(--red)}
+  .card button.btn:not(.go):not(.replay):not(.guide-skip):not(.danger){background:var(--paper-d);box-shadow:0 4px 0 #cfae78}
+  .card button.btn:not(.go):not(.replay):not(.guide-skip):not(.danger):active{box-shadow:0 1px 0 #cfae78}
+  .btn.replay{background:var(--navy);color:var(--paper);border:0;box-shadow:0 4px 0 var(--navy-d)}
+  #win #nextBtn{background:var(--green);color:var(--paper);box-shadow:0 4px 0 var(--green-d)}
+  #win h3{display:inline-block;margin:0 -30px 14px;padding:8px 26px;color:var(--paper);background:var(--red);border-radius:6px;box-shadow:0 5px 0 var(--red-d);font-size:24px}
+  .card.guide p{color:var(--paper-ink)}
+  .guide-art{background:var(--navy);box-shadow:0 5px 0 var(--navy-d)}
+  .guide-art i{color:var(--gold)}
+  .guide-dots b{background:var(--paper-d)} .guide-dots b.on{background:var(--gold)}
+  .guide-skip{color:#6e4126;box-shadow:none!important;background:transparent!important}
+  #guideNext{background:var(--gold);color:var(--paper-ink);box-shadow:0 4px 0 var(--gold-d)}
+  .card.pick .danger{border:2px solid var(--red);color:var(--red)}
+  .card.pick .danger.armed{background:var(--red);color:var(--paper)}
+  .nav-castle{font-family:var(--font-body);color:var(--paper-ink);background:var(--gold);box-shadow:0 4px 0 var(--gold-d)}
+  .nav-castle:active{box-shadow:0 1px 0 var(--gold-d)}
+  .pick-back{color:var(--paper-ink);background:var(--paper-d);border:0;box-shadow:0 4px 0 #cfae78}
+  .dot{font-family:var(--font-body)}
 </style>
 </head>
 <body>

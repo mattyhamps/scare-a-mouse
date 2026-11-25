@@ -134,6 +134,14 @@ If you change the rules in `Simulator` or the builder, run `mvn verify -Dbuilder
 (the build does this automatically when those files change): the physics tests show what changed and
 `LevelsTest` lists any level that no longer passes. Regenerate those with `make N --write`.
 
+## Look and feel
+
+The game is drawn in a flat medieval style: flat two-tone colours, no outlines and no gradients,
+with each thing's darker tone below or to its right as if lit from the top-left. The palette and the
+two fonts are CSS variables at the top of the "Flat medieval style" block in `index.html`:
+`--font-title` (Almendra, for titles) and `--font-body` (Fredoka, for everything else). Change a
+font or a colour there and the whole game follows.
+
 ## Contributing
 
 Work on a branch and open a pull request into `main`. On every pull request CI builds, runs every
