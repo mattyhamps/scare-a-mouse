@@ -44,7 +44,7 @@ jobs:
           fi
           changed=$(git diff --name-only "$base"...HEAD 2>/dev/null || git diff --name-only HEAD~1)
           echo "$changed"
-          if echo "$changed" | grep -E '^(engine/src/main/|levels/src/main/)' | grep -vE '/(Recipe|LevelsCli|Difficulty|TurnLab)\.java$' | grep -q .; then
+          if echo "$changed" | grep -E '^(engine/src/main/|levels/src/main/)' | grep -vE '/(Recipe|LevelsCli|Difficulty|TurnLab|Duplicates)\.java$' | grep -q .; then
             echo "builder=none" >> "$GITHUB_OUTPUT"
             echo "Physics or builder code changed: running the builder test."
           else
