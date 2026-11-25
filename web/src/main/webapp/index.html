@@ -1376,16 +1376,20 @@ Promise.all([
   fetch('room-art.json').then(r => r.ok ? r.json() : null).then(a => { ROOM_ART = a; if ($('picker').classList.contains('show')) renderDots(); }).catch(() => {});
   const RW = 390, WALL = 214;
   const ROOM_SCENES = {
-    'Meadow':      { ground:'grass', shape:'waves',    path:'dirt',    props:['blanket','tree_apple','pond','skep','hay','tree','fence','mushrooms','bush_cream','signpost'], deco:['flowers_pink','flowers_cream','rock','tuft','tuft','tuft','flowers_pink'], fly:['butterfly_pink','butterfly_cream'] },
+    'Meadow':      { ground:'grass', shape:'waves', wave:200, path:'dirt',    props:['blanket','tree_apple','pond','skep','hay','tree','fence','mushrooms','bush_cream','signpost'], deco:['flowers_pink','flowers_cream','rock','tuft','tuft','tuft','flowers_pink'], fly:['butterfly_pink','butterfly_cream'] },
     'Orchard':     { ground:'grass', shape:'zigzag',   path:'ruts',    props:['tree_apple','apple_crate','cart_apples','pear_tree','well','ladder','pear_crate','tree_apple','tree'], deco:['rock','flowers_cream','tuft','tuft','apple_crate'], fly:['butterfly_cream'] },
     'Stables':     { ground:'yard',  shape:'hairpins', path:'planks',  props:['stall','bale','trough','cart_hay','sack','pitchfork','stall','sack_gold','bale'], deco:['chicken','hen','bucket','chicken'] },
     'Moat bridge': { ground:'water', shape:'islands',  path:'bridge',  props:['rowboat','island_reeds','island_bush'], deco:['lily','lily_plain','frog','fish','lily','fish'] },
     'Gate':        { ground:'field', shape:'bigC',     path:'cobbles', props:['tent_red','campfire','tent_blue','shields','barrel','pear_crate','pine','cart_hay','signpost','pine'], deco:['rock','tuft','tuft','barrel'] },
+    'Storeroom':   { ground:'stone',  side:'#857e72', shape:'switchback', path:'rug',    props:['crate','cheese_stack','chest','sack','crate_big','barrel_s','sack_gold','crate'], deco:['rope','barrel_s','sack','crate'] },
+    'Wine cellar': { ground:'slate',  side:'#6a3a2c', shape:'sweep',      path:'sand',   props:['wine_rug','tun','rack','grape_crate','tun','rack','barrel_s'], deco:['grapes','barrel_s','barrel_s','grapes'] },
+    'Dungeon':     { ground:'dark',   side:'#4a4652', shape:'corridor',   path:'cobble', props:['cell_lion','cell_bear','chest','bench','cell_lion','cell_bear'], deco:['rubble','ball_chain','bucket','barrel_s','crate_s','rubble'], moss:1, sconces:1 },
+    'Kitchens':    { ground:'terracotta', side:'#857e72', shape:'waves', wave:130, path:'cream', props:['kitchen_table','barrel_k','cat_bed','tub','crate_cabbage','logs','keg','crate_carrot','sack','kitchen_table'], deco:['stool','sack_gold','flour_spill','bucket','barrel_k'], sconces:1 },
   };
   // The road's shape for a vertical span V (top of the road at yt, bottom at yt+V).
   // Returns control points and how to join them: 'curve' (smooth) or 'poly' (straight legs, corners rounded by r).
   const ROAD_SHAPES = {
-    waves(V, yt, H) { const m = Math.max(1, Math.round(V / 150)), pts = [[120, H + 30], [96, yt + V]];
+    waves(V, yt, H, sc) { const m = Math.max(1, Math.round(V / (sc.wave || 150))), pts = [[120, H + 30], [96, yt + V]];
       for (let k = 1; k <= m; k++) pts.push([k % 2 ? 300 : 84, yt + V - V * k / m]);
       return { kind:'curve', pts: [...pts, [196, WALL + 22], [195, WALL - 18]] }; },
     zigzag(V, yt, H) { const R = 116, S = 40, legs = Math.max(1, Math.round((V - S) / (R + S))), r = (V - S) / legs - S;
@@ -1405,6 +1409,19 @@ Promise.all([
       for (let k = 0; k <= rows; k++) { const y = yt + V - V * k / rows; pts.push(...(k % 2 ? [[60, y], [330, y]] : [[330, y], [60, y]])); }
       pts[pts.length - 1] = [196, yt];
       return { kind:'poly', r: 56, pts: [...pts, [196, WALL - 18]] }; },
+    // across the room and back, in rows, with round turns at the walls
+    switchback(V, yt, H) { const rows = Math.max(2, Math.round(V / 130)), gap = V / rows, pts = [[320, H + 30], [306, yt + V]];
+      for (let k = 0; k < rows; k++) { const y = yt + V - gap * k, left = k % 2 === 0;
+        pts.push(...(left ? [[196, y - gap * 0.12], [96, y - gap * 0.22], [56, y - gap * 0.5], [96, y - gap * 0.78]] : [[196, y - gap * 0.12], [296, y - gap * 0.22], [334, y - gap * 0.5], [296, y - gap * 0.78]])); }
+      return { kind:'curve', pts: [...pts, [196, yt - 8], [196, WALL + 22], [195, WALL - 18]] }; },
+    // one long sweep up the left side and across the top, leaving the middle of the room open
+    sweep(V, yt, H) { const pts = [[120, H + 30], [86, yt + V]], m = Math.max(2, Math.round(V / 220));
+      for (let k = 1; k < m; k++) pts.push([k % 2 ? 50 : 116, yt + V - (V - 120) * k / m]);
+      return { kind:'curve', pts: [...pts, [72, yt + 110], [130, yt + 50], [222, yt + 24], [300, yt - 10], [250, WALL + 30], [198, WALL + 12], [195, WALL - 18]] }; },
+    // a corridor with square turns; the space between its legs holds the cells
+    corridor(V, yt, H) { const rows = Math.max(1, Math.round(V / 180)), gap = V / rows, yb = yt + V, pts = [[300, H + 30], [300, yb], [74, yb]]; let side = 74;
+      for (let k = 1; k <= rows; k++) { const y = yb - gap * k; pts.push([side, y]); if (k < rows) { side = side === 74 ? 316 : 74; pts.push([side, y]); } }
+      return { kind:'poly', r: 0, pts: [...pts, [196, yt], [196, WALL - 18]] }; },
   };
   // A path (SVG d) and a fine list of points along it, for curve or poly roads.
   function roadGeometry(g) {
@@ -1439,6 +1456,10 @@ Promise.all([
     ruts: d => `<path d="${d}" fill="none" stroke="#5f7d38" stroke-width="46" stroke-linejoin="round" stroke-linecap="round" transform="translate(0 3)"/><path d="${d}" fill="none" stroke="#a4bf6e" stroke-width="42" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#cfae78" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#a4bf6e" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>`,
     planks: d => `<path d="${d}" fill="none" stroke="#2a140a" stroke-opacity=".2" stroke-width="46" stroke-linejoin="round" transform="translate(0 6)"/><path d="${d}" fill="none" stroke="#7d5030" stroke-width="46" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#c58a55" stroke-width="40" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#a06a3e" stroke-width="40" stroke-dasharray="2.5 11" stroke-linejoin="round"/>`,
     bridge: d => ROAD_LOOKS.planks(d),
+    rug: d => `<path d="${d}" fill="none" stroke="#2a140a" stroke-opacity=".18" stroke-width="46" stroke-linejoin="round" transform="translate(0 4)"/><path d="${d}" fill="none" stroke="#6e1f22" stroke-width="44" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#d9a43a" stroke-width="36" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#a8353a" stroke-width="30" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#c4554a" stroke-width="6" stroke-dasharray="8 10" stroke-linejoin="round"/>`,
+    sand: d => `<path d="${d}" fill="none" stroke="#7d6a48" stroke-width="44" stroke-linejoin="round" stroke-linecap="round" transform="translate(0 3)"/><path d="${d}" fill="none" stroke="#dcc28c" stroke-width="40" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#b89e68" stroke-width="40" stroke-dasharray="2.5 30" stroke-linejoin="round"/>`,
+    cobble: d => `<path d="${d}" fill="none" stroke="#1a1620" stroke-opacity=".5" stroke-width="46" stroke-linejoin="round" transform="translate(0 4)"/><path d="${d}" fill="none" stroke="#55515e" stroke-width="44" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#b9b6c2" stroke-width="38" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#9a97a4" stroke-width="38" stroke-dasharray="2 13" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#9a97a4" stroke-width="2" stroke-linejoin="round"/>`,
+    cream: d => `<path d="${d}" fill="none" stroke="#c9a77a" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 3)"/><path d="${d}" fill="none" stroke="#f1e3c2" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#f6ecd4" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>`,
     cobbles: d => `<path d="${d}" fill="none" stroke="#5a5664" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 3)"/><path d="${d}" fill="none" stroke="#a39c8f" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#bdb6a9" stroke-width="34" stroke-dasharray="11 4" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#a39c8f" stroke-width="2" stroke-linejoin="round"/>`,
   };
   // The floor: a base colour with soft patches, plus anything the room's ground needs.
@@ -1453,6 +1474,12 @@ Promise.all([
       + Array.from({ length: n }, () => { const x = rnd() * RW, y = top + 20 + rnd() * (h - 30); return `<path d="M${x.toFixed(0)} ${y.toFixed(0)} l9 -3 M${(x+4).toFixed(0)} ${(y+4).toFixed(0)} l10 1" stroke="#e6c47a" stroke-width="2" stroke-linecap="round"/>`; }).join('');
     if (kind === 'water') return `<rect x="0" y="${top}" width="${RW}" height="${h}" fill="#6f9bb3"/>` + patches('#5a879f', .6, n, 50, 70)
       + Array.from({ length: n + 3 }, () => { const x = rnd() * (RW - 20), y = top + 20 + rnd() * (h - 30); return `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q8 -4 16 0" stroke="#a9cbe0" stroke-width="2.4" fill="none" stroke-linecap="round"/>`; }).join('');
+    const FLAGS = { stone: ['#77736a', '#8e897d', '#918c80', '#8b8679'], slate: ['#3e434e', '#4f5562', '#525866', '#4c5260'],
+      dark: ['#2e2a36', '#3e3a48', '#403c4a', '#3c3846'], terracotta: ['#a85e36', '#b2673d', '#ad633a', '#b2673d'] }[kind];
+    if (FLAGS) { let g = `<rect x="0" y="${top}" width="${RW}" height="${h}" fill="${FLAGS[0]}"/>`;
+      for (let row = 0, y = top; y < top + h; row++, y += 46) { let x = -(row % 2) * 30;
+        while (x < RW) { const w = [52, 60, 68][Math.floor(rnd() * 3)]; g += `<rect x="${x + 2}" y="${y + 2}" width="${w - 4}" height="42" rx="5" fill="${FLAGS[1 + Math.floor(rnd() * 3)]}"/>`; x += w; } }
+      return g; }
     return `<rect x="0" y="${top}" width="${RW}" height="${h}" fill="#857e72"/>`;
   }
   // Puts pieces of furniture wherever they fit: clear of the road, the levels and each other.
@@ -1460,7 +1487,7 @@ Promise.all([
     const P = ROOM_ART.props, out = [], clearRoad = opts.clearRoad ?? 24, clearNode = opts.clearNode ?? 28;
     const far = (box) => {
       const [x0, y0, x1, y1] = box;
-      if (x0 < 6 || x1 > RW - 6 || y0 < WALL + 8 || y1 > H - 6) return false;
+      if (x0 < 12 || x1 > RW - 12 || y0 < WALL + 8 || y1 > H - 6) return false;
       const dist = (px, py) => Math.hypot(Math.max(x0 - px, 0, px - x1), Math.max(y0 - py, 0, py - y1));
       for (let i = 0; i < geo.dense.length; i += 2) if (dist(geo.dense[i][0], geo.dense[i][1]) < clearRoad) return false;
       for (const [nx, ny] of nodes) if (dist(nx, ny) < clearNode) return false;
@@ -1489,7 +1516,7 @@ Promise.all([
   // Lays out one room for n levels: grows the road until the levels sit about GAP apart.
   function roomLayout(sc, n) {
     const GAP = 64, END = 64, YT = WALL + 96, FOOT = 90;
-    const build = V => { const H = YT + V + FOOT, shape = ROAD_SHAPES[sc.shape](V, YT, H), geo = roadGeometry(shape);
+    const build = V => { const H = YT + V + FOOT, shape = ROAD_SHAPES[sc.shape](V, YT, H, sc), geo = roadGeometry(shape);
       let s0 = 0; while (s0 < geo.dense.length - 1 && geo.dense[s0][1] > H - 40) s0++;   // the first level sits just inside the room
       return { H, shape, geo, start: geo.L[s0] + 14 }; };
     let V = Math.max(320, GAP * (n + 1) * 0.55), b;
@@ -1516,6 +1543,10 @@ Promise.all([
         } }
       under += geo.dense.filter((_, i) => i % 40 === 20).map(([px, py]) => py > WALL + 20 ? `<rect x="${px - 24}" y="${py + 12}" width="6" height="14" fill="#7d5030"/><rect x="${px + 18}" y="${py + 12}" width="6" height="14" fill="#7d5030"/>` : '').join('');
     }
+    if (sc.moss) under += Array.from({ length: Math.round((H - WALL) / 110) }, () => `<path d="M${(14 + rnd() * 350).toFixed(0)} ${(WALL + 30 + rnd() * (H - WALL - 60)).toFixed(0)} q6 -6 12 0 q6 -4 10 2" fill="#2f5530" opacity=".8"/>`).join('');
+    let sides = '';
+    if (sc.side) { sides = `<rect x="0" y="${WALL}" width="10" height="${H - WALL}" fill="${sc.side}"/><rect x="${RW - 10}" y="${WALL}" width="10" height="${H - WALL}" fill="${sc.side}"/>`;
+      if (sc.sconces) for (let y = WALL + 120, k = 0; y < H - 80; y += 210, k++) sides += `<g transform="translate(${k % 2 ? RW - 12 : 0} ${y})">${ROOM_ART.props.sconce[1]}</g>`; }
     const props = placeProps(sc.props, Math.round((H - WALL) / 150), geo, nodes, taken, H, rnd);
     const deco = placeProps(sc.deco, Math.round((H - WALL) / 70), geo, nodes, taken, H, rnd, { clearRoad: 16, clearNode: 22 });
     const fly = sc.fly ? placeProps(sc.fly, 2, geo, nodes, taken, H, rnd, { clearRoad: 6, clearNode: 20 }) : [];
@@ -1539,7 +1570,7 @@ Promise.all([
       <div class="room-head"><span class="ic">${icon(rm.name, 22)}</span><b>${rm.name}</b><small>${LEVELS[from].w}×${LEVELS[from].h} · ${solvedIn(r)}/${rm.end-rm.start}</small>
         ${DEV && rm.end <= LEVELS.length ? `<button class="devtest" data-r="${r}">Test</button>` : ''}</div>
       <div class="room-body drawn" style="aspect-ratio:${RW}/${H.toFixed(0)}">
-        <svg viewBox="0 0 ${RW} ${H.toFixed(0)}" preserveAspectRatio="xMidYMin meet">${roomGround(sc.ground, H, rnd)}${under}${ROAD_LOOKS[sc.path](geo.d)}${ROOM_ART.heads[rm.name]}<rect x="0" y="${WALL}" width="${RW}" height="10" fill="#2a140a" opacity=".1"/>${items}</svg>
+        <svg viewBox="0 0 ${RW} ${H.toFixed(0)}" preserveAspectRatio="xMidYMin meet">${roomGround(sc.ground, H, rnd)}${under}${ROAD_LOOKS[sc.path](geo.d)}${ROOM_ART.heads[rm.name]}<rect x="0" y="${WALL}" width="${RW}" height="10" fill="#2a140a" opacity=".1"/>${items}${sides}</svg>
         ${exit}<div class="entry-label">${came}</div>${nodeHtml}
       </div></section>`;
   }
