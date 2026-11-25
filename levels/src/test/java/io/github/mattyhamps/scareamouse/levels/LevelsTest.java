@@ -51,14 +51,16 @@ class LevelsTest {
     }
 
     /**
-     * Every room with levels is drawn: it has a scene in the game's SCENES (its floor, road, furniture and
-     * the scenery around its door) and a board look in BOARDS. New rooms get their drawing with their levels.
+     * Every room with levels is drawn: it has a layout in the game's ROOM_SCENES (its floor, road and
+     * furniture), its back wall in room-art.json, and a board look in BOARDS. New rooms get their drawing
+     * with their levels.
      */
     @Test
     void everyRoomWithLevelsIsDrawn() throws IOException {
-        String page = new String(Files.readAllBytes(Paths.get("../web/src/main/webapp/index.html")), StandardCharsets.UTF_8);
+        String page = read("../web/src/main/webapp/index.html");
+        String art = read("../web/src/main/webapp/room-art.json");
         String rooms = block(page, "const ROOMS = [", "];");
-        String scenes = block(page, "const SCENES = {", "};");
+        String scenes = block(page, "const ROOM_SCENES = {", "};");
         String boards = block(page, "const BOARDS = {", "};");
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\{end:\\s*(\\d+),\\s*area:\\d+,\\s*name:'([^']+)'").matcher(rooms);
         int start = 0, checked = 0;
@@ -66,13 +68,31 @@ class LevelsTest {
             int end = Integer.parseInt(m.group(1));
             String name = m.group(2);
             if (start < levels.size()) {
-                assertTrue(scenes.contains("'" + name + "':"), "the " + name + " has levels but no scene in SCENES (index.html)");
+                assertTrue(scenes.contains("'" + name + "':"), "the " + name + " has levels but no layout in ROOM_SCENES (index.html)");
+                assertTrue(art.contains("\"" + name + "\":\"<"), "the " + name + " has levels but no back wall drawn in room-art.json");
                 assertTrue(boards.contains("'" + name + "':"), "the " + name + " has levels but no board look in BOARDS (index.html)");
                 checked++;
             }
             start = end;
         }
         assertTrue(checked > 0, "found no rooms in index.html");
+    }
+
+    /** The game is drawn: no emoji anywhere in the page, the room drawings or the levels. */
+    @Test
+    void theGameHasNoEmoji() throws IOException {
+        java.util.regex.Pattern emoji = java.util.regex.Pattern.compile("[\\p{IsExtended_Pictographic}\\x{FE0F}]");
+        for (String file : new String[] {"../web/src/main/webapp/index.html", "../web/src/main/webapp/room-art.json", "../data/levels.json"}) {
+            String[] lines = read(file).split("\n", -1);
+            for (int i = 0; i < lines.length; i++) {
+                java.util.regex.Matcher m = emoji.matcher(lines[i]);
+                if (m.find()) assertTrue(false, file + " line " + (i + 1) + " has an emoji (" + lines[i].substring(m.start(), Math.min(lines[i].length(), m.start() + 2)) + "); draw it instead");
+            }
+        }
+    }
+
+    private static String read(String path) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
     }
 
     private static String block(String page, String from, String to) {

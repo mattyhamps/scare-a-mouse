@@ -110,11 +110,16 @@ Orchard, Stables, Moat bridge, Gate: 1–100), then in through the Cellars (Stor
 Dungeon, Kitchens: 101–200), then up the castle's floors (First floor: Library, Study, Great hall,
 Ballroom, Gallery: 201–350; and so on up to the Tower top at level 1000). The level picker opens at your room; from there you can go back to
 the floor plan or to the whole castle. The last level of each area is its boss (`Recipe.BOSSES`).
-Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's map is a drawn scene
-(`SCENES`): you come in at the bottom and the road winds up past the room's furniture (`PROP`) to the
-door out at the top. **Every room's drawing ships with its levels:** when you add levels to a new room,
-add its scene to `SCENES` and its board look to `BOARDS` in the same change. `LevelsTest` fails if a
-room has levels but no scene or board look.
+Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's map is one flat
+drawing: the back wall with the door out at the top, then the floor, with the road winding up from the
+bottom. The drawings (each room's back wall and every piece of furniture) are in `room-art.json`; each
+room's floor, road shape, road material and furniture list are in `ROOM_SCENES`, and furniture is
+placed wherever it fits clear of the road. **Every room's drawing ships with its levels:** when you add
+levels to a new room, add its back wall to `room-art.json`, its layout to `ROOM_SCENES` and its board
+look to `BOARDS` in the same change. `LevelsTest` fails if a room has levels but is missing any of them.
+
+**No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms
+(`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.
 
 **Hints and cheese.** Each animal you place has two hints, one per press: a 3×3 patch it goes in is
 shaded, then the exact square glows. Hints cost cheese (1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
