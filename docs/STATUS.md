@@ -6,42 +6,74 @@ _Last updated: 25 November 2026._
 
 ## Done
 
-- Levels 1–650 are live: the Outside (1–100), Cellars (101–200), First floor (201–350), Second floor
-  (351–500) and Third floor (501–650: Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room), all with drawn rooms, a castle map, bosses, flames on the hardest levels (2 cheese), hints
-  bought per animal with cheese, and the mouse travelling between rooms when you clear one.
+- Levels 1–800: the Outside (1–100), Cellars (101–200), First floor (201–350), Second floor (351–500),
+  Third floor (501–650: Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room) and Fourth floor
+  (651–800: Treasury, Music room, Sewing room, Guest bedrooms, Clock tower), all with drawn rooms, a
+  castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
+  the mouse travelling between rooms when you clear one.
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
 - No repeated puzzles: the level maker refuses a repeat (mirror images and turned boards count) and a test
   checks the whole game. 13 older repeats were rebuilt.
-
-- Claude Code is set up on Matt's Windows PC (JDK 21, Maven, Node 22, Playwright). The screenshot tools
-  in `tools/screens` work on Windows too. The art scripts need Python 3.12 or newer (3.13 is installed).
-- The Fourth floor's five rooms are drawn and approved (`tools/art/gen24.py`, `export_fourth.py`), each
-  with its own floor, path and path shape: Treasury (green vault, cream runner, key pattern), Music room
-  (plum, piano keys, a bobbing tune), Sewing room (gingham, tape measure, zigzag stitching), Guest
-  bedrooms (blue carpet, striped runner, bays to each side), Clock tower (planks, iron catwalk, pendulum
-  swings). A room can now set `propsEvery` to hold more furniture.
+- The Fourth floor: five rooms drawn (`tools/art/gen24.py`, `export_fourth.py`), each with its own floor,
+  path and path shape: Treasury (green vault, cream runner, key pattern), Music room (plum, piano keys, a
+  bobbing tune), Sewing room (gingham, tape measure, zigzag stitching), Guest bedrooms (blue carpet,
+  striped runner, bays to each side), Clock tower (planks, iron catwalk, pendulum swings). Board walls
+  are chests, drums, thread spools, trunks and gears. The levels reuse the Second floor's recipes, with
+  turn tiles in about 1 in 6 or 7 and walls in 6 levels per room (`Recipe.FOURTH_FLOOR_WALLS`).
+- Level spots on the room maps never overlap: `roomLayout` re-spaces a room's spots when two would sit
+  closer than 48 room units (a spot is about 42 wide), and leaves other rooms' layouts as they were.
+  `node tools/screens/spots.js` measures every room.
+- Building levels: `LevelsCli probe` is a quick dry run of a batch's recipes, and `tools/levels/build.sh`
+  runs it first, then builds in order and stops after two failed tries on a level.
+- Claude Code is set up on Matt's Windows PC (JDK 21, Maven, Node 22, Playwright, Python 3.13 for the
+  art scripts, and the GitHub CLI signed in as mattyhamps).
 
 ## Next
 
-1. **Fourth floor levels (651–800).** Turn tiles now and then. Also needs a board look in `BOARDS` for the
-   Sewing room and Guest bedrooms (the other three have one).
-2. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**. The
+1. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**. The
    mouse is caught if it runs onto one (the run fails, cartoon "Snap!"); any other animal that runs over
    it springs it safely, and then it's harmless. Only running onto it counts, not standing next to it.
-3. **Royal floor (921–1070):** Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room. New
+   Give it fresh recipes: the Third and Fourth floors both reused the Second floor's 150 in the same
+   order, and mousetraps need their own anyway. Work two rooms at a time.
+2. **Royal floor (921–1070):** Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room. New
    piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other, still
    going the same way.
-4. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+3. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+
+## Before release
+
+Notes from Matt's legal and App Store checklist (a separate document):
+- Keep "CastleMouse" and "Castle Mouse" out of the game's name, store listing, keywords and icon.
+- Nothing important may be drawn with emoji (already true, and a test enforces it).
+- The repo is public with no license. Plan to make it private before launch.
 
 ## Decisions to remember
 
 - Boards stay 10×10 from the Second floor on.
 - Each floor is about as hard as the one before, with a mix of easier and harder levels; the toughest
   get a flame. Rooms of about 30 levels.
+- Walls: about 1 level in 5 has walls in each room (about 6 of 30), spread through the room.
 - A new piece starts at the beginning of a room with a pop-up card and easy levels, and is used
   sparingly afterwards.
+- New pieces ramp up slowly. The first turn-tile test levels jumped from very easy to very hard ("0 to
+  100"). The real ramp goes: one animal and a short chain through the new piece, then longer chains, then
+  a second animal to place, then the piece combined with tricks, and only then sparingly mixed in.
+  Mousetraps (801) and trapdoors (921) follow the same pattern.
+- Pieces you step on stay flat on the floor. The turn tile is a flat blue painted space with a plain
+  outline and three chevrons. Raised or blocky versions (tokens, slabs, a bevelled edge) looked like walls
+  that would block the animal instead of something it runs onto. Keep this in mind for how mousetraps
+  and trapdoors look, and show Matt a few options before choosing.
+- Never show the total number of levels (no "Level 47 of 500" or "out of 500"). Show just the level
+  number.
+- Ideas considered but not chosen: sticky squares (an animal stops on it), hiding spots (an animal on it
+  can't scare or be scared), and corner bumpers (a turn tile that bounces like a mirror, depending on
+  which side the animal comes from). Turn tiles use fixed arrows instead. Don't propose these as new;
+  they're on record if Matt wants more twists later.
+- Room details that worked: playful touches tied to the game, like toy blocks spelling animal names,
+  went over well. Display rooms, like the Trophy room, should look organized, not scattered with small
+  items.
 - Room drawings: varied furniture (no repeating the same small item over and over), nothing that looks
   like it floats, nothing so small you can't tell what it is. Nothing lying on the floor that wouldn't
   be there (loose gems, sheet music); use the space for bigger, striking pieces. Keep a room's path calm

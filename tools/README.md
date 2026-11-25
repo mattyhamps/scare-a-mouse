@@ -25,6 +25,7 @@ They serve the built game from `web/target/site` (build it with `mvn -q package 
 - `node tools/screens/play.js 501 650`: plays each level with its intended solution and says whether the
   mouse escapes; saves a screenshot.
 - `node tools/screens/room.js 501`: a tall screenshot of the room map that level 501 is in.
+- `node tools/screens/spots.js`: measures the level spots on every room map and lists any two closer than 48 room units.
 - `node tools/screens/card.js 501`: the level with its how-to card, then the board.
 
 Screenshots go to `tools/screens/out/` (not committed). Set `SITE` to serve another folder, and `CHROME`

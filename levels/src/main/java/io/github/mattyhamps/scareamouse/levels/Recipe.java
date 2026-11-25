@@ -711,6 +711,14 @@ public final class Recipe {
     static final java.util.Set<Integer> FOURTH_FLOOR_TURNS = new java.util.HashSet<>(java.util.Arrays.asList(
             653, 659, 666, 672, 679, 685, 692, 698, 705, 711, 718, 724, 731, 737, 744, 752, 757, 763, 770, 776, 783, 789, 797));
 
+    /** Levels with walls on the Fourth floor: 6 in each room of 30. The first ones in the Music room and Clock tower carry the drum and gear tips. */
+    static final java.util.Set<Integer> FOURTH_FLOOR_WALLS = new java.util.HashSet<>(java.util.Arrays.asList(
+            653, 658, 664, 674, 678, 680,      // Treasury
+            683, 686, 692, 697, 702, 707,      // Music room
+            711, 716, 720, 726, 733, 738,      // Sewing room
+            744, 749, 754, 759, 763, 769,      // Guest bedrooms
+            771, 779, 785, 790, 797, 800));    // Clock tower
+
     /**
      * 651-800: the Fourth floor (Treasury, Music room, Sewing room, Guest bedrooms, Clock tower), 10x10.
      * Nothing new to learn: like the Third floor, each level uses the Second floor's recipe (the level 300
@@ -722,6 +730,12 @@ public final class Recipe {
         String tip = n == 683 ? "New: drums! Animals can't run through them."
                 : n == 771 ? "New: gears! Animals can't run through them." : "";
         Recipe r = designed(n - 300).withTip(tip);
+        // Walls in about 1 level in 5, spread through each room (the Second floor's Secret passage had them in most).
+        if (FOURTH_FLOOR_WALLS.contains(n) && r.wallsMax == 0) {
+            r = r.withWalls(1, 3);
+        } else if (!FOURTH_FLOOR_WALLS.contains(n) && r.wallsMax > 0) {
+            r = r.withWalls(0, 0);
+        }
         return FOURTH_FLOOR_TURNS.contains(n) ? r.withTurnTiles(1) : r;
     }
 }

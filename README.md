@@ -116,7 +116,9 @@ Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's m
 drawing: the back wall with the door out at the top, then the floor, with the road winding up from the
 bottom. The drawings (each room's back wall and every piece of furniture) are in `room-art.json`; each
 room's floor, road shape, road material and furniture list are in `ROOM_SCENES`, and furniture is
-placed wherever it fits clear of the road. **Every room's drawing ships with its levels:** when you add
+placed wherever it fits clear of the road. Levels sit an even step apart along the road; when a tight bend
+would bring two closer than a spot's width, `roomLayout` re-spaces that room's levels (or lengthens the
+room), and `node tools/screens/spots.js` checks every room. **Every room's drawing ships with its levels:** when you add
 levels to a new room, add its back wall to `room-art.json`, its layout to `ROOM_SCENES` and its board
 look to `BOARDS` in the same change. `LevelsTest` fails if a room has levels but is missing any of them.
 When you clear a room, its door opens and the mouse travels to the next room: along the corridor on

@@ -17,6 +17,10 @@ into its hole. The levels climb a castle, floor by floor. Owner: Matt (GitHub `m
   has, start a new branch from `main`.
 - Commit as Matt: `git -c user.name=mattyhamps -c user.email=32683412+mattyhamps@users.noreply.github.com commit ...`.
   No `Co-Authored-By` or session lines in commits, and no "Generated with Claude" lines in PR descriptions.
+- Who does what: Claude Code writes all the code. The Claude app reviews pull requests and leaves its
+  feedback as PR comments; it doesn't open PRs or push without asking Matt first.
+- Reviews before merging: when a PR is ready, Matt asks for a review. Act on the review comments in the
+  same PR (push to the same branch, after checking it isn't merged), then update the PR description.
 - Ask before building when there are real choices to make. Show anything visual (room drawings, new
   board pieces, cards, map changes) as screenshots and get Matt's OK before building big changes on it.
 - Plain, friendly game text for all ages. After level 10, a level's tip only announces something new

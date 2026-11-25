@@ -1415,8 +1415,20 @@ Promise.all([
     for (let it = 0; it < 8; it++) { b = build(V); const usable = b.geo.L[b.geo.L.length - 1] - b.start - END;
       V *= Math.max(0.5, Math.min(2, (GAP * Math.max(1, n - 1)) / Math.max(1, usable))); }
     b = build(V);
-    let nodes = nodesAlong(b.geo, n, b.start, END);
-    if (sc.avoidCrossings) nodes = nodesClearOfCrossings(b.geo, nodes);
+    // Levels sit an even step apart along the road. On a tight bend two can land on top of each other,
+    // so if any pair is closer than a spot's width, use the largest even step that keeps every pair
+    // apart, and make the room a little longer if none does. Rooms with no close pairs keep their layout.
+    const APART = 48;
+    const place = (bb, f) => { const T = bb.geo.L[bb.geo.L.length - 1], step = (T - bb.start - END) / Math.max(1, n - 1);
+      const ns = nodesAlong(bb.geo, n, bb.start, f === 1 ? END : T - bb.start - step * f * (n - 1));
+      return sc.avoidCrossings ? nodesClearOfCrossings(bb.geo, ns) : ns; };
+    const apart = ns => ns.every((p, i) => ns.every((q, j) => j <= i || Math.hypot(p[0] - q[0], p[1] - q[1]) >= APART));
+    let nodes = place(b, 1);
+    for (let grow = 0; !apart(nodes) && grow < 16; grow++) {
+      if (grow) b = build(V *= 1.06);
+      for (let f = 1; f >= 0.7; f -= 0.01) { const ns = place(b, f); if (apart(ns)) { nodes = ns; break; } }
+      if (!apart(nodes)) nodes = place(b, 1);
+    }
     return { H: b.H, geo: b.geo, shape: b.shape, nodes };
   }
   function roomScene(r) {
