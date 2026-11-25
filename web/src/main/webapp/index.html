@@ -106,6 +106,10 @@
   .fog-cover{transition:opacity 1.2s ease}
   .room.lifted .fog-cover{opacity:0;pointer-events:none}
   .walker.fade{opacity:0;transition:left .5s ease-in-out,top .5s ease-in-out,opacity .3s .4s}
+  .trip-mouse{position:absolute;z-index:6;pointer-events:none;line-height:0;transform:translate(-50%,-60%);transition-property:left,top;transition-timing-function:linear}
+  .trip-mouse span{display:block;animation:bob 1.2s ease-in-out infinite}
+  .trip-mouse.walking span{animation:hop .26s ease-in-out infinite}
+  .trip-mouse svg.art{display:inline-block}
   .node.next{animation:nextGlow 1.1s ease-in-out infinite}
   @keyframes nextGlow{0%,100%{box-shadow:0 0 0 3px rgba(242,184,75,.4),0 3px 0 rgba(0,0,0,.35)}50%{box-shadow:0 0 0 9px rgba(242,184,75,.15),0 0 18px rgba(242,184,75,.8)}}
   /* the door at the end of each room */
@@ -1804,8 +1808,7 @@ Promise.all([
   }
 
   // Opens the castle map at the current level's room. After you clear a room (cleared = that room's
-  // number) its door swings open, then the map of the next room's area (or the whole castle, when a
-  // new area opens) shows the new room appearing.
+  // number) its door swings open and the mouse travels to the next room (see travel).
   function openPicker(cleared){
     $('picker').classList.add('show');
     mouseRoom = roomIndexOf(li);
@@ -1815,18 +1818,7 @@ Promise.all([
         const a=k/8*Math.PI*2; sp.style.setProperty('--dx',`${Math.cos(a)*46}px`); sp.style.setProperty('--dy',`${Math.sin(a)*34}px`);
         dw.querySelector('.arch').appendChild(sp); setTimeout(()=>sp.remove(),1300); }
       doorsSeen = [...new Set([...doorsSeen, +dw.dataset.r])]; store.set('cm_doors2', doorsSeen); };
-    if (cleared !== undefined) {
-      view = { kind:'room', r: cleared }; renderDots();
-      const dw = $('dots').querySelector(`.doorway[data-r="${cleared}"]`);
-      if (dw) { centerOn('.doorway'); later(500, () => openDoor(dw)); }
-      later(1900, () => {
-        const next = cleared + 1; mouseRoom = next;
-        view = room(next).area !== room(cleared).area ? { kind:'castle' } : { kind:'area', a: room(next).area };
-        renderDots();
-        store.set('cm_map_at', room(next).start);
-      });
-      return;
-    }
+    if (cleared !== undefined) { travel(cleared, openDoor); return; }
     view = { kind:'room', r: mouseRoom }; renderDots();
     const m = $('dots');
     if (!centerOn('.node.cur')) m.scrollTop = 0;
@@ -1848,6 +1840,90 @@ Promise.all([
       });
     }
   }
+  // After a room is cleared: its door opens, then the mouse travels to the next room. On the same
+  // floor it walks the corridor on the floor's map; to a new floor it first climbs the castle map,
+  // then comes up the stairs on the new floor's map. Then the new room opens with the mouse walking
+  // in to its first level. A tap on the map skips to the new room.
+  let tripTimers = [], tripSkip = null;
+  function endTrip() {
+    tripTimers.forEach(clearTimeout); tripTimers = [];
+    if (tripSkip) $('dots').removeEventListener('click', tripSkip, true); tripSkip = null;
+  }
+  // where el's middle is, in px from the top left of box
+  const spotIn = (el, box) => { const r = el.getBoundingClientRect(), b = box.getBoundingClientRect(); return { x: r.left - b.left + r.width/2, y: r.top - b.top + r.height/2 }; };
+  // a hopping mouse in box that walks through the points (px), then calls done
+  function walkMouse(box, pts, px, done) {
+    const w = document.createElement('div'); w.className = 'trip-mouse walking'; w.innerHTML = `<span>${art('mouse', px)}</span>`;
+    w.style.left = pts[0].x + 'px'; w.style.top = pts[0].y + 'px'; box.appendChild(w);
+    let k = 0;
+    const step = () => {
+      if (++k >= pts.length) { w.classList.remove('walking'); tripTimers.push(setTimeout(() => done(w), 650)); return; }
+      const d = Math.hypot(pts[k].x - pts[k-1].x, pts[k].y - pts[k-1].y), ms = d < 1 ? 0 : Math.max(220, d / 0.2);
+      w.style.transitionDuration = ms + 'ms'; w.style.left = pts[k].x + 'px'; w.style.top = pts[k].y + 'px';
+      tripTimers.push(setTimeout(step, ms));
+    };
+    w.offsetWidth; tripTimers.push(setTimeout(step, 450));
+    return w;
+  }
+  function travel(cleared, openDoor) {
+    endTrip();
+    const at = (ms, f) => tripTimers.push(setTimeout(f, ms));
+    const m = $('dots'), next = cleared + 1, from = room(cleared);
+    view = { kind:'room', r: cleared }; renderDots();
+    const dw = m.querySelector(`.doorway[data-r="${cleared}"]`);
+    if (dw) { centerOn('.doorway'); at(500, () => openDoor(dw)); }
+    if (!roomExists(next)) {   // no next room yet: just the floor's map, as before
+      at(1900, () => { view = { kind:'area', a: from.area }; renderDots(); store.set('cm_map_at', LEVELS.length - 1); });
+      return;
+    }
+    const to = room(next), newFloor = to.area !== from.area;
+    store.set('cm_map_at', to.start);
+    // the new room, with the mouse walking in from the bottom to its first level
+    const enterRoom = () => {
+      endTrip(); mouseRoom = next; view = { kind:'room', r: next }; renderDots();
+      const n = m.querySelector(`.node[data-i="${to.start}"]`); if (!n) return;
+      centerOn(`.node[data-i="${to.start}"]`); n.classList.add('next');
+      const w = document.createElement('div'); w.className = 'walker walking'; w.innerHTML = `<span>${art('mouse', 30)}</span>`;
+      w.style.transition = 'none'; w.style.left = n.style.left; w.style.top = '100%'; n.parentNode.appendChild(w);
+      w.offsetWidth; w.style.transition = 'top 1s linear'; w.style.top = n.style.top;
+      setTimeout(() => w.classList.remove('walking'), 1000);
+    };
+    // the floor's map: along the corridor from the room you cleared, or up the stairs on a new floor
+    const floorWalk = () => {
+      mouseRoom = cleared; view = { kind:'area', a: to.area }; renderDots();
+      const plan = m.querySelector('.plan'), b1 = plan && plan.querySelector(`.plan-room[data-r="${next}"]`);
+      if (!b1) return at(800, enterRoom);
+      // it ends where the map's mouse stands: the room's top right corner
+      const c1 = spotIn(b1, plan), r1 = b1.getBoundingClientRect(), pb = plan.getBoundingClientRect(), end = { x: r1.right - pb.left - 14, y: r1.top - pb.top + 12 }; let pts;
+      if (newFloor) {
+        const st = m.querySelector('.stairs.down'), p0 = st ? spotIn(st, plan) : { x: c1.x, y: plan.offsetHeight + 20 };
+        pts = [p0, { x: c1.x, y: p0.y }, c1, end];
+      } else {
+        const b0 = plan.querySelector(`.plan-room[data-r="${cleared}"]`), pm = b0 && b0.querySelector('.pr-mouse');
+        if (!b0) return at(800, enterRoom);
+        const c0 = spotIn(b0, plan), p0 = pm ? spotIn(pm, plan) : c0; if (pm) pm.remove();
+        pts = [p0, c0, { x: c1.x, y: c0.y }, c1, end];
+      }
+      walkMouse(plan, pts, 22, () => enterRoom());
+      at(pts.length * 400, () => { plan.querySelectorAll('.plan-room.here').forEach(b => b.classList.remove('here')); b1.classList.add('here'); });
+    };
+    // the castle map: the mouse climbs from the floor it finished to the new one
+    const castleClimb = () => {
+      mouseRoom = cleared; view = { kind:'castle' }; renderDots();
+      const cut = m.querySelector('.castle-cut'), f0 = cut && cut.querySelector(`.band-floor[data-a="${from.area}"]`), f1 = cut && cut.querySelector(`.band-floor[data-a="${to.area}"]`);
+      if (!f0 || !f1) return at(800, floorWalk);
+      const pm = f0.querySelector('.pr-mouse'), b = cut.getBoundingClientRect(), r1 = f1.getBoundingClientRect();
+      const p0 = pm ? spotIn(pm, cut) : spotIn(f0, cut), p1 = { x: r1.right - b.left - 33, y: r1.bottom - b.top - 27 }, mid = cut.offsetWidth / 2;
+      if (pm) pm.remove();
+      m.style.scrollBehavior = 'auto'; m.scrollTop = cut.offsetTop + (p0.y + p1.y) / 2 - m.clientHeight / 2; m.style.scrollBehavior = '';
+      walkMouse(cut, [p0, { x: mid, y: p0.y }, { x: mid, y: p1.y }, p1], 34, () => floorWalk());
+      at(1500, () => { f0.classList.remove('here'); f1.classList.add('here'); });
+    };
+    at(1900, newFloor ? castleClimb : floorWalk);
+    // a tap anywhere on the map skips ahead to the new room
+    tripSkip = e => { e.stopPropagation(); e.preventDefault(); enterRoom(); };
+    m.addEventListener('click', tripSkip, true);
+  }
   const showSound = () => { $('soundBtn').innerHTML = icon(Sound.on ? 'speaker' : 'mute', 20); $('soundBtn').classList.toggle('off', !Sound.on);
     $('soundBtn').setAttribute('aria-label', Sound.on ? 'Sound on' : 'Sound off'); };
   $('soundBtn').onclick = () => { Sound.toggle(); showSound(); };
@@ -1860,7 +1936,7 @@ Promise.all([
   $('playBtn').onclick=rpPlay;
   $('speed1').onclick=()=>{ rp.slow=false; rpShow(); };
   $('speedHalf').onclick=()=>{ rp.slow=true; rpShow(); };
-  $('closePick').onclick=()=>$('picker').classList.remove('show');
+  $('closePick').onclick=()=>{ endTrip(); $('picker').classList.remove('show'); };
   $('howTo').onclick=()=>showGuide(INTRO);
   // Developer mode only (hidden for players). Two taps to confirm.
   $('resetProgress').onclick=()=>{
@@ -1869,7 +1945,7 @@ Promise.all([
     clearTimeout(b._t); b.classList.remove('armed'); b.textContent='Reset progress (testing)';
     solved={}; store.set('cm_solved',solved); hintBook={}; store.set('cm_hints3',hintBook); cheese=5; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
   };
-  $('picker').onclick=e=>{ if(e.target.id==='picker') $('picker').classList.remove('show'); };
+  $('picker').onclick=e=>{ if(e.target.id==='picker') { endTrip(); $('picker').classList.remove('show'); } };
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
   // After a win: back to the level picker instead of the next level. Reloading the level first
   // puts it back in normal play, showing the winning setup, if the picker is closed without choosing.

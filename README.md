@@ -117,6 +117,9 @@ room's floor, road shape, road material and furniture list are in `ROOM_SCENES`,
 placed wherever it fits clear of the road. **Every room's drawing ships with its levels:** when you add
 levels to a new room, add its back wall to `room-art.json`, its layout to `ROOM_SCENES` and its board
 look to `BOARDS` in the same change. `LevelsTest` fails if a room has levels but is missing any of them.
+When you clear a room, its door opens and the mouse travels to the next room: along the corridor on
+the floor plan, or, when the next room is on a new floor, first up the castle map and then in from the
+stairs. Then the new room opens with the mouse walking in to its first level. A tap skips ahead.
 
 **No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms
 (`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.
