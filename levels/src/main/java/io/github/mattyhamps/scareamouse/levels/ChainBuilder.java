@@ -58,6 +58,7 @@ public final class ChainBuilder {
         int holeX = -1;                                  // (-1,-1) is a corner, so no hole yet
         int holeY = -1;
         final List<int[]> walls = new ArrayList<>();
+        final List<int[]> turns = new ArrayList<>();      // turn tiles {x, y, dir}
         boolean moving;                                  // the starter is on the board: no "still" check
         int tx;                                          // where the starter is
         int ty;
@@ -68,7 +69,7 @@ public final class ChainBuilder {
 
         Level level() {
             return new Level("", "", n, n, holeX, holeY, walls, fixed,
-                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
+                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), turns);
         }
 
         boolean free(int x, int y) {
@@ -77,6 +78,11 @@ public final class ChainBuilder {
             }
             for (int[] w : walls) {
                 if (w[0] == x && w[1] == y) {
+                    return false;
+                }
+            }
+            for (int[] t : turns) {
+                if (t[0] == x && t[1] == y) {
                     return false;
                 }
             }
@@ -136,6 +142,21 @@ public final class ChainBuilder {
                 swerveAt[rng.pick(free)] = true;
             }
         }
+        // Which links get a turn tile: the runner before that link turns on the tile, onto the stretch
+        // where the link's animal goes.
+        boolean[] turnAt = new boolean[plan.size()];
+        for (int t = 0; t < recipe.turnTiles; t++) {
+            List<Integer> free = new ArrayList<>();
+            for (int k = 1; k < plan.size(); k++) {
+                if (!swerveAt[k] && !turnAt[k]) {
+                    free.add(k);
+                }
+            }
+            if (free.isEmpty()) {
+                return null;
+            }
+            turnAt[rng.pick(free)] = true;
+        }
 
         // First link: your first animal right behind the first chain animal.
         boolean placedFirst = false;
@@ -166,7 +187,9 @@ public final class ChainBuilder {
         }
 
         for (int s = 1; s < plan.size(); s++) {
-            if (!applyStep(d, plan.get(s), rng, wrap && s == plan.size() - 1, swerveAt[s])) {
+            boolean ok = turnAt[s] ? turnThenStep(d, plan.get(s), rng, wrap && s == plan.size() - 1)
+                    : applyStep(d, plan.get(s), rng, wrap && s == plan.size() - 1, swerveAt[s]);
+            if (!ok) {
                 return null;
             }
         }
@@ -328,6 +351,50 @@ public final class ChainBuilder {
                 return true;
             }
             d.placed.remove(d.placed.size() - 1);
+        }
+        return false;
+    }
+
+    /**
+     * TURN TILE: a tile on the runner's path (or on the square where it stops) turns it 90 degrees. The
+     * next link then goes beside the new stretch of path, which the runner only takes because of the tile.
+     */
+    private static boolean turnThenStep(Draft d, Step step, LevelGenerator.Rng rng, boolean wrapFinal) {
+        int runner = d.chain.get(d.chain.size() - 1);
+        List<int[]> path = path(d, runner);
+        if (path == null || path.size() < 2) {
+            return false;
+        }
+        List<int[]> options = new ArrayList<>(); // {k, dir}: tile on path[k], arrow pointing dir
+        for (int k = 1; k < path.size(); k++) {
+            int mx = path.get(k)[0] - path.get(k - 1)[0];
+            int my = path.get(k)[1] - path.get(k - 1)[1];
+            int[] p = path.get(k);
+            if (!d.free(p[0], p[1])) {
+                continue;
+            }
+            for (int dir = 0; dir < 4; dir++) {
+                if (DIRS[dir][0] * mx + DIRS[dir][1] * my == 0 && d.free(p[0] + DIRS[dir][0], p[1] + DIRS[dir][1])) {
+                    options.add(new int[] {k, dir});
+                }
+            }
+        }
+        Collections.shuffle(options, new java.util.Random((long) (rng.next() * Long.MAX_VALUE)));
+        int tries = 0;
+        for (int[] o : options) {
+            if (tries++ >= TRIES_PER_STEP / 2) {
+                break;
+            }
+            int[] p = path.get(o[0]);
+            d.turns.add(new int[] {p[0], p[1], o[1]});
+            if (valid(d)) {
+                List<int[]> turned = path(d, runner);
+                int from = turned == null ? -1 : indexOf(turned, p[0], p[1]);
+                if (from > 0 && from + 1 < turned.size() && placeStep(d, step, rng, wrapFinal, from + 1)) {
+                    return true;
+                }
+            }
+            d.turns.remove(d.turns.size() - 1);
         }
         return false;
     }
@@ -833,7 +900,7 @@ public final class ChainBuilder {
             List<Piece> fixed = new ArrayList<>(d.fixed);
             fixed.remove(idx);
             Level without = new Level("", "", d.n, d.n, d.holeX, d.holeY, d.walls, fixed,
-                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
+                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), d.turns);
             List<Piece> placed = new ArrayList<>(d.placed);
             if (Simulator.run(without, placed).win) {
                 continue; // the chain doesn't need it
@@ -874,7 +941,7 @@ public final class ChainBuilder {
         }
         hand.sort((a, b) -> a.id().compareTo(b.id()));
         return new Level(name, recipe.tip, d.n, d.n, d.holeX, d.holeY, d.walls, d.fixed, hand,
-                new ArrayList<>(d.placed));
+                new ArrayList<>(d.placed), d.turns);
     }
 
     /** A finished, checked level and how interesting it scored. */
@@ -1003,7 +1070,7 @@ public final class ChainBuilder {
                 List<int[]> walls = new ArrayList<>(level.walls);
                 walls.add(new int[] {Integer.parseInt(xy[0]), Integer.parseInt(xy[1])});
                 Level tryLevel = new Level(level.name, level.tip, level.w, level.h, level.holeX, level.holeY, walls,
-                        level.fixed, level.inventory, level.solution);
+                        level.fixed, level.inventory, level.solution, level.turns);
                 if (Simulator.run(tryLevel, tryLevel.solution).win) {
                     next = tryLevel;
                     break;

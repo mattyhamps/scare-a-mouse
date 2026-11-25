@@ -116,6 +116,14 @@
   .pick-foot .btn{flex:1;margin:0}
   .pick-foot #playLevel{flex:1.5;display:flex;align-items:center;justify-content:center;gap:8px}
   .pick-foot #playLevel[hidden]{display:none}
+  /* turn tiles: a painted space with chevrons, flat on the floor; an animal running onto one heads the way they point */
+  .tile.turn::before{content:"";position:absolute;inset:5%;border-radius:14%;background:rgba(47,79,143,.17);box-shadow:inset 0 0 0 2px rgba(47,79,143,.7)}
+  .tile.turn .mark{position:absolute;inset:12%;display:block}
+  .tile.turn .mark svg{width:100%;height:100%;display:block;fill:#2f4f8f}
+  .tile.turn.flash::before{animation:turnFlash .5s ease-out}
+  .tile.turn.flash .mark svg{animation:turnPop .5s ease-out}
+  @keyframes turnFlash{0%{background:rgba(47,79,143,.55)}100%{background:rgba(47,79,143,.17)}}
+  @keyframes turnPop{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
   .node.next{animation:nextGlow 1.1s ease-in-out infinite}
   @keyframes nextGlow{0%,100%{box-shadow:0 0 0 3px rgba(242,184,75,.4),0 3px 0 rgba(0,0,0,.35)}50%{box-shadow:0 0 0 9px rgba(242,184,75,.15),0 0 18px rgba(242,184,75,.8)}}
   /* the door at the end of each room */
@@ -591,8 +599,11 @@
 <script>
 Promise.all([
   fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
-  fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => [])
-]).then(([LEVELS, LEGACY]) => { (function(){
+  fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => []),
+  // Testing only: ?lab swaps in the levels from turn-lab.json (each named "Test <level number>").
+  new URLSearchParams(location.search).has('lab') ? fetch('turn-lab.json').then(r => r.ok ? r.json() : []).catch(() => []) : []
+]).then(([LEVELS, LEGACY, LAB]) => { (function(){
+  for (const t of LAB) { const n = +String(t.name).split(' ')[1]; if (n > 0 && n <= LEVELS.length) LEVELS[n - 1] = t; }
   const ORDER = ['mouse','cat','dog','bear','lion','elephant'];
   // All game physics happen in the Java engine; the page only draws and animates the frames it returns.
   const simulate = (level, placed) => JSON.parse(scareSimulate(JSON.stringify(level), JSON.stringify(placed)));
@@ -647,6 +658,7 @@ Promise.all([
       go(){ note(330, 0.18, 'triangle', 0.08, 0, 660); },
       scared(t){ const v = VOICE[t] || VOICE.cat; note(v[0], 0.12, v[2], t==='bear'||t==='lion'||t==='elephant' ? 0.06 : 0.08, 0, v[1]); },
       bump(){ note(140, 0.12, 'square', 0.07, 0, 90); },
+      turn(){ note(620, 0.09, 'triangle', 0.07, 0, 1040); },
       win(){ [523,659,784,1047].forEach((f,k)=>note(f, 0.22, 'triangle', 0.10, k*0.11)); },
       fail(){ note(392, 0.16, 'triangle', 0.08); note(294, 0.28, 'triangle', 0.08, 0.15); },
       door(){ [784,988,1319].forEach((f,k)=>note(f, 0.5, 'sine', 0.07, k*0.09)); },
@@ -656,7 +668,7 @@ Promise.all([
 
   // Progress is keyed by each level's exact layout, so a rebuilt level automatically shows as unplayed.
   // solved = { layoutKey: [placed animals of the winning setup] }
-  function levelKey(l){ const s=JSON.stringify([l.hole,l.walls,l.fixed,l.inv]); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+  function levelKey(l){ const s=JSON.stringify(l.turns && l.turns.length ? [l.hole,l.walls,l.fixed,l.inv,l.turns] : [l.hole,l.walls,l.fixed,l.inv]); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
   let solved = store.get('cm_solved', {});
   // The hole used to sit in the castle wall. Levels whose hole simply moved onto the board keep the
   // same solution, so carry over progress saved under the old layout.
@@ -1469,6 +1481,7 @@ Promise.all([
     boardTheme = theme && theme[5] ? ` walls-${theme[5]}` : '';
     b.className='board edit armed' + boardTheme;
     const walls=new Set(L.walls.map(w=>w.join(',')));
+    const turns=new Map((L.turns||[]).map(t=>[t[0]+','+t[1], t[2]]));   // turn tiles: square -> arrow (0 up, 1 right, 2 down, 3 left)
     let html='';
     for(let y=-1;y<=L.h;y++) for(let x=-1;x<=L.w;x++){
       const side = (v,n) => v<0||v>=n;
@@ -1479,6 +1492,7 @@ Promise.all([
         html+=`<div class="tile hole ${side}" style="${pos}"><i></i></div>`;
       } else if(border) html+=`<div class="tile border" style="${pos}"></div>`;
       else if(walls.has(x+','+y)) html+=`<div class="tile floor ${(x+y)%2?'alt':''}" style="${pos}"><div class="tile wall" style="left:4%;top:4%;width:92%;height:92%;position:absolute"></div></div>`;
+      else if(turns.has(x+','+y)) html+=`<div class="tile floor turn ${(x+y)%2?'alt':''}" data-x="${x}" data-y="${y}" style="${pos}"><span class="mark" style="transform:rotate(${turns.get(x+','+y)*90}deg)"><svg viewBox="0 0 24 24">${[2.4,7.6,12.8].map((y,k)=>`<path d="M4.5 ${y+6.4} L12 ${y} L19.5 ${y+6.4} L19.5 ${y+10.2} L12 ${y+3.8} L4.5 ${y+10.2} Z" opacity="${[1,.72,.45][k]}"/>`).join('')}</svg></span></div>`;
       else html+=`<div class="tile floor placeable ${(x+y)%2?'alt':''}" data-x="${x}" data-y="${y}" style="${pos}"></div>`;
     }
     b.innerHTML=html;
@@ -1540,7 +1554,7 @@ Promise.all([
     $('board').style.setProperty('--glide', `${Math.round(glide)}ms`);
     const prev=res.frames[f-1], cur=res.frames[f];
     const stuckNow=new Set((res.bumps||[])[f]||[]), stuckBefore=new Set((res.bumps||[])[f-1]||[]);
-    let voice=null, bumped=false;
+    let voice=null, bumped=false, turned=false;
     cur.forEach(a=>{
       const el=animalEls[a.id]; const p=prev[a.id];
       el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
@@ -1549,7 +1563,11 @@ Promise.all([
       el.classList.toggle('stuck', stuckNow.has(a.id));
       if(stuckNow.has(a.id) && !stuckBefore.has(a.id)){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); bumped=true; }
       if(a.gone) setTimeout(()=>el.classList.add('gone'),140);
+      // ran onto a turn tile: the tile flashes as it turns the animal
+      if((p.x!==a.x||p.y!==a.y) && !a.gone){ const t=$('board').querySelector(`.tile.turn[data-x="${a.x}"][data-y="${a.y}"]`);
+        if(t){ t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); turned=true; } }
     });
+    if(turned) Sound.turn();
     if(voice) Sound.scared(voice);
     if(bumped) Sound.bump();
   }

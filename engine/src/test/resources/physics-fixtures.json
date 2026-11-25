@@ -306,5 +306,60 @@
   "expect": {
    "win": false
   }
+ },
+ {
+  "name": "7 · turn tile: a running animal turns the way the arrow points",
+  "board": [
+   ".....",
+   "CM.^.",
+   "....."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "...M.",
+    "C..^.",
+    "....."
+   ]
+  }
+ },
+ {
+  "name": "7 · turn tile facing a wall: the animal stops on the tile",
+  "board": [
+   "CM.>#"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "C..M#"
+   ]
+  }
+ },
+ {
+  "name": "7 · turn tile sends the mouse into the hole",
+  "board": [
+   "CM.^."
+  ],
+  "hole": [
+   3,
+   -1
+  ],
+  "placed": [],
+  "expect": {
+   "win": true
+  }
+ },
+ {
+  "name": "7 · turn tile pointing back: the mouse runs back and forth for ever",
+  "board": [
+   "CM..<"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "loop": true
+  }
  }
 ]

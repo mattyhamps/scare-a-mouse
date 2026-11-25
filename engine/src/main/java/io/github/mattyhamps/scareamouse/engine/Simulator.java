@@ -28,6 +28,8 @@ import java.util.Set;
  *       from it (rules 2 and 3 are checked at the start of every step).</li>
  *   <li><b>The hole:</b> a square on the board. Only the mouse can go into it, and the mouse getting
  *       in wins the level. Every other animal treats it like a wall.</li>
+ *   <li><b>Turn tiles:</b> an animal that runs onto a turn tile heads the way its arrow points from
+ *       then on (unless something scares it, as usual). Animals can't be placed on them.</li>
  * </ol>
  * The run ends when the mouse gets into the hole, when a step passes with nothing moving, or when the
  * board repeats an earlier state (an endless loop).
@@ -54,6 +56,11 @@ public final class Simulator {
         final boolean[] wall = new boolean[w * h];
         for (int[] p : level.walls) {
             wall[p[1] * w + p[0]] = true;
+        }
+        final int[] turn = new int[w * h];   // arrow direction, or -1
+        java.util.Arrays.fill(turn, -1);
+        for (int[] t : level.turns) {
+            turn[t[1] * w + t[0]] = t[2];
         }
 
         List<Piece> all = new ArrayList<>(level.fixed);
@@ -191,6 +198,10 @@ public final class Simulator {
                         x[i] = nx;
                         y[i] = ny;
                         grid[ny * w + nx] = i;
+                        if (turn[ny * w + nx] >= 0) {   // rule 7: the arrow sets the new heading
+                            dx[i] = DIRS[turn[ny * w + nx]][0];
+                            dy[i] = DIRS[turn[ny * w + nx]][1];
+                        }
                         done[i] = true;
                         anyDone = true;
                         progress = true;

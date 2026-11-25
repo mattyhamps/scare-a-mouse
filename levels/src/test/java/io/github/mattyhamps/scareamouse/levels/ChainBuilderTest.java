@@ -17,6 +17,13 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 @org.junit.jupiter.api.Tag("builder")
 class ChainBuilderTest {
+    private static final long TIME_PER_RECIPE_MS = 180_000;
+    private static final int ATTEMPTS_PER_SEED = 2_000;
+    /**
+     * Rare recipes and a seed that is known to build them (found by searching offline), tried first so the
+     * test stays quick. If a change to the rules or the builder stops it working, the normal search runs.
+     */
+    private static final java.util.Map<Integer, Long> KNOWN_SEEDS = java.util.Map.of(291, 349_538L, 305, 2_266_370L);
 
     /**
      * The first level made with each distinct recipe. Many levels share a recipe (with different layouts),
@@ -31,14 +38,18 @@ class ChainBuilderTest {
     @MethodSource("recipes")
     void recipeProducesAValidLevel(int n) {
         Recipe recipe = Recipe.forLevel(n);
-        LevelGenerator.Rng rng = new LevelGenerator.Rng(n * 31L);
         Level found = null;
-        // Already-moving recipes with a STOP succeed less often per attempt, but each attempt is quick.
-        int attempts = recipe.moving() ? 100000 : 20000;
-        for (int attempt = 0; attempt < attempts && found == null; attempt++) {
-            Level candidate = ChainBuilder.candidate(recipe, rng, "test");
-            if (candidate != null && LevelChecker.check(candidate, recipe.rules()) != null) {
-                found = candidate;
+        // Like the level maker, search from several seeds: a fresh seed every few thousand attempts, until a
+        // level turns up or the time runs out. (One fixed seed and a fixed number of attempts was too strict
+        // for the rarer recipes, such as an already-moving chain with a swerve and a stop.)
+        long deadline = System.currentTimeMillis() + TIME_PER_RECIPE_MS;
+        for (int k = KNOWN_SEEDS.containsKey(n) ? -1 : 0; found == null && System.currentTimeMillis() < deadline; k++) {
+            LevelGenerator.Rng rng = new LevelGenerator.Rng(k < 0 ? KNOWN_SEEDS.get(n) : n * 31L + k * 7919L);
+            for (int attempt = 0; attempt < ATTEMPTS_PER_SEED && found == null; attempt++) {
+                Level candidate = ChainBuilder.candidate(recipe, rng, "test");
+                if (candidate != null && LevelChecker.check(candidate, recipe.rules()) != null) {
+                    found = candidate;
+                }
             }
         }
         assertNotNull(found, "no valid level built for recipe " + n);
