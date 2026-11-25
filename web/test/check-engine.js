@@ -15,17 +15,19 @@ const run = (level, placed) => JSON.parse(scareSimulate(JSON.stringify(level), J
 
 const LETTERS = { M: 'mouse', C: 'cat', D: 'dog', B: 'bear', L: 'lion', E: 'elephant' };
 function levelFromBoard(rows, hole) {
-  const walls = [], mice = [], others = [];
+  const walls = [], mice = [], others = [], turns = [];
   rows.forEach((row, y) => [...row].forEach((ch, x) => {
     if (ch === '#') walls.push([x, y]);
+    else if ('^>v<'.includes(ch)) turns.push([x, y, '^>v<'.indexOf(ch)]);
     else if (LETTERS[ch]) (ch === 'M' ? mice : others).push({ t: LETTERS[ch], x, y });
   }));
   return { name: 'test', tip: '', w: rows[0].length, h: rows.length, hole: hole || [-1, -1],
-    walls, fixed: [...mice, ...others], inv: [], solution: [] };
+    walls, fixed: [...mice, ...others], inv: [], solution: [], turns };
 }
 function render(level, frame) {
   const g = Array.from({ length: level.h }, () => Array(level.w).fill('.'));
   level.walls.forEach(([x, y]) => { g[y][x] = '#'; });
+  (level.turns || []).forEach(([x, y, d]) => { g[y][x] = '^>v<'[d]; });
   frame.forEach(a => { if (!a.gone) g[a.y][a.x] = Object.keys(LETTERS).find(k => LETTERS[k] === a.t); });
   return g.map(r => r.join('')).join('/');
 }

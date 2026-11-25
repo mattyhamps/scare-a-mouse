@@ -60,15 +60,18 @@ public final class Recipe {
     /** How many walls the level must have (0 and 0 for none). Each wall has to matter to the puzzle. */
     public final int wallsMin;
     public final int wallsMax;
+    /** Turn tiles the chain must use: each bends a runner onto the stretch where the next link waits. */
+    public final int turnTiles;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
         this(7, new Move[0], false, 0, 0, trigger, laneBlockers, wrapAround, tip,
-                new Animal[] {Animal.CAT, Animal.DOG, Animal.BEAR}, tricks);
+                new Animal[] {Animal.CAT, Animal.DOG, Animal.BEAR}, 0, tricks);
     }
 
     private Recipe(int size, Move[] moves, boolean starterOnBoard, int wallsMin, int wallsMax, Animal trigger,
-                   int laneBlockers, boolean wrapAround, String tip, Animal[] blockers, Trick... tricks) {
+                   int laneBlockers, boolean wrapAround, String tip, Animal[] blockers, int turnTiles, Trick... tricks) {
         this.size = size;
+        this.turnTiles = turnTiles;
         this.moves = moves;
         this.starterOnBoard = starterOnBoard;
         this.wallsMin = wallsMin;
@@ -90,7 +93,7 @@ public final class Recipe {
      * squares that would give a second, easier solution.
      */
     public Recipe withWalls(int min, int max) {
-        return new Recipe(size, moves, starterOnBoard, min, max, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+        return new Recipe(size, moves, starterOnBoard, min, max, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, tricks);
     }
 
     /** Everything that shapes the puzzle (not the tip), so two levels made the same way have the same key. */
@@ -98,7 +101,7 @@ public final class Recipe {
         return size + " " + trigger + " " + laneBlockers + " " + wrapAround + " " + java.util.Arrays.toString(tricks)
                 + " " + java.util.Arrays.toString(moves) + (starterOnBoard ? " moving" : "") + " "
                 + java.util.Arrays.toString(blockers)
-                + " " + wallsMin + "-" + wallsMax;
+                + " " + wallsMin + "-" + wallsMax + (turnTiles > 0 ? " turns " + turnTiles : "");
     }
 
     /** True if the board starts moving on its own when you press Go. */
@@ -114,12 +117,17 @@ public final class Recipe {
         Move[] more = java.util.Arrays.copyOf(moves, moves.length + count);
         java.util.Arrays.fill(more, moves.length, more.length, Move.CATCH);
         return new Recipe(size, more, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip,
-                blockers, tricks);
+                blockers, turnTiles, tricks);
     }
 
     /** The same recipe as an already-moving level: the starter is on the board, and you make these moves. */
     public Recipe withMoves(Move... newMoves) {
-        return new Recipe(size, newMoves, true, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+        return new Recipe(size, newMoves, true, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, tricks);
+    }
+
+    /** The same recipe with turn tiles that the chain has to use. */
+    public Recipe withTurnTiles(int count) {
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, count, tricks);
     }
 
     /** Checker rules that go with this recipe. */
@@ -134,7 +142,7 @@ public final class Recipe {
 
     /** The same recipe, with only these blocker animals (for example only dogs, so you place lions not elephants). */
     public Recipe withBlockers(Animal... types) {
-        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, types, tricks);
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, types, turnTiles, tricks);
     }
 
     /**
@@ -156,7 +164,7 @@ public final class Recipe {
 
     /** The same recipe on a bigger (or smaller) square board. */
     public Recipe withSize(int newSize) {
-        return new Recipe(newSize, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, tricks);
+        return new Recipe(newSize, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, tricks);
     }
 
     public boolean has(Trick t) {

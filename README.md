@@ -25,6 +25,8 @@ and every part of the project uses that code.
 5. **Passing by:** a running animal that ends up beside an animal it fears turns and runs away from it.
 6. **The hole:** a square on the board. Only the mouse can go into it, and the mouse getting in
    wins. Every other animal treats it like a wall.
+7. **Turn tiles:** an animal that runs onto a turn tile heads the way its chevrons point from then on
+   (unless something scares it, as usual). Animals can't be placed on turn tiles.
 
 A run ends when the mouse gets into the hole, when nothing moves for a step, or when the board repeats
 (an endless loop).
@@ -122,6 +124,15 @@ the floor plan, or, when the next room is on a new floor, first up the castle ma
 stairs. Then the new room opens with the mouse walking in to its first level. A tap skips ahead.
 On a room's map, tapping a level picks it (a gold ring) and shows a "Level N" button next to Close;
 that button opens the level.
+
+**Turn tiles** (planned for the Third floor, then used sparingly): a recipe can ask for turn tiles with
+`withTurnTiles(n)`. The builder puts the tile on a runner's path and builds the next link beside the new
+stretch, so the tile is always needed (`LevelChecker` also treats an unneeded tile as clutter). On the
+board they are drawn as a blue painted space with chevrons, which flashes when it turns an animal.
+Levels only carry a `turns` list (`[x, y, dir]`, dir 0 up, 1 right, 2 down, 3 left) when they have
+tiles, so older levels are unchanged. For trying them out before they're in real levels, `TurnLab` builds
+test levels into `web/src/main/webapp/turn-lab.json`; adding `?lab` to the game's address swaps those in
+over the levels with the same numbers (each is named "Test <number>").
 
 **No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms
 (`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.

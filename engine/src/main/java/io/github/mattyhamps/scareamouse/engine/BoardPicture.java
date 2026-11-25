@@ -6,12 +6,16 @@ import java.util.List;
 
 /**
  * Text pictures of a board, used by the physics tests.
- * Legend: M mouse, C cat, D dog, B bear, L lion, E elephant, # wall, . floor.
+ * Legend: M mouse, C cat, D dog, B bear, L lion, E elephant, # wall, . floor,
+ * ^ &gt; v &lt; turn tiles (pointing up, right, down, left).
  * <pre>
  *   ".MC...."   a mouse with a cat to its right
  * </pre>
  */
 public final class BoardPicture {
+    /** Turn tiles by direction: up, right, down, left. */
+    private static final String ARROWS = "^>v<";
+
     private BoardPicture() {
     }
 
@@ -20,12 +24,17 @@ public final class BoardPicture {
         List<int[]> walls = new ArrayList<>();
         List<Piece> mice = new ArrayList<>();
         List<Piece> others = new ArrayList<>();
+        List<int[]> turns = new ArrayList<>();
         for (int y = 0; y < rows.size(); y++) {
             String row = rows.get(y);
             for (int x = 0; x < row.length(); x++) {
                 char c = row.charAt(x);
                 if (c == '#') {
                     walls.add(new int[] {x, y});
+                    continue;
+                }
+                if (ARROWS.indexOf(c) >= 0) {
+                    turns.add(new int[] {x, y, ARROWS.indexOf(c)});
                     continue;
                 }
                 Animal a = Animal.fromLetter(c);
@@ -39,7 +48,7 @@ public final class BoardPicture {
         int hx = hole == null ? -1 : hole[0];
         int hy = hole == null ? -1 : hole[1];
         return new Level("test", "", rows.get(0).length(), rows.size(), hx, hy,
-                walls, fixed, Collections.<Animal>emptyList(), Collections.<Piece>emptyList());
+                walls, fixed, Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), turns);
     }
 
     /** Draws where everything ended up (escaped animals are left off). */
@@ -50,6 +59,9 @@ public final class BoardPicture {
         }
         for (int[] p : level.walls) {
             g[p[1]][p[0]] = '#';
+        }
+        for (int[] t : level.turns) {
+            g[t[1]][t[0]] = ARROWS.charAt(t[2]);
         }
         for (SimResult.Snapshot s : frame) {
             if (!s.gone) {
