@@ -21,6 +21,8 @@ import java.util.List;
  *   make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--balance K] [--write]
  *                                  generate a replacement for level N (or a new level at the end);
  *                                  --write saves it into levels.json
+ *   probe FROM TO [--timeout SEC]  dry run: try each recipe in FROM..TO once (default 30s each), save
+ *                                  nothing, and list the ones that are slow; run it before a big build
  *   --file PATH                    levels file (default data/levels.json)
  * </pre>
  */
@@ -44,6 +46,10 @@ public final class LevelsCli {
                 break;
             case "make":
                 make(levels, file, args);
+                break;
+            case "probe":
+                probe(Integer.parseInt(args[1]), Integer.parseInt(args[2]),
+                        Long.parseLong(option(args, "--timeout", "30")));
                 break;
             case "hard": {   // the extra-hard levels (marked with a flame in the game); --write saves them
                 List<Integer> hard = Difficulty.hardLevels(levels);
@@ -136,6 +142,32 @@ public final class LevelsCli {
         }
     }
 
+    /**
+     * A quick dry run before building a batch: tries to build one level from each recipe in FROM..TO with a
+     * short time limit, saves nothing, and lists the recipes that are slow or can't be built, so they can be
+     * changed before a long build gets stuck on them. Exit code 1 if any are slow.
+     */
+    private static void probe(int from, int to, long timeout) throws InterruptedException {
+        int threads = Runtime.getRuntime().availableProcessors();
+        List<String> slow = new ArrayList<>();
+        for (int n = from; n <= to; n++) {
+            Recipe recipe = Recipe.forLevel(n);
+            if (recipe == null) {
+                continue;
+            }
+            long start = System.currentTimeMillis();
+            ChainBuilder.Built built = ChainBuilder.find(recipe, "probe", n * 1000L, threads, 1, timeout);
+            double secs = (System.currentTimeMillis() - start) / 1000.0;
+            System.out.printf("%d %s in %.1fs  (%s)%n", n, built == null ? "SLOW, nothing" : "ok", secs, recipe.key());
+            if (built == null) {
+                slow.add(n + " (" + recipe.key() + ")");
+            }
+        }
+        System.out.println(slow.isEmpty() ? "Every recipe in " + from + "-" + to + " builds within " + timeout + "s."
+                : slow.size() + " slow recipe(s), change them before building: " + slow);
+        System.exit(slow.isEmpty() ? 0 : 1);
+    }
+
     /** Designed levels: the chain builder makes several candidates and keeps the most interesting. */
     private static void buildDesigned(List<Level> levels, Path file, String[] args, int n, Recipe recipe, String name,
                                       String tipOverride, long seed, int threads, long timeout, long start)
@@ -194,6 +226,6 @@ public final class LevelsCli {
     }
 
     private static void usage() {
-        System.out.println("Usage: audit | check N | hard [--write] | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
+        System.out.println("Usage: audit | check N | hard [--write] | probe FROM TO [--timeout SEC] | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
     }
 }

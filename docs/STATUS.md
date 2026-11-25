@@ -16,12 +16,17 @@ _Last updated: 25 November 2026._
   checks the whole game. 13 older repeats were rebuilt.
 
 - Claude Code is set up on Matt's Windows PC (JDK 21, Maven, Node 22, Playwright). The screenshot tools
-  in `tools/screens` work on Windows too.
+  in `tools/screens` work on Windows too. The art scripts need Python 3.12 or newer (3.13 is installed).
+- The Fourth floor's five rooms are drawn and approved (`tools/art/gen24.py`, `export_fourth.py`), each
+  with its own floor, path and path shape: Treasury (green vault, cream runner, key pattern), Music room
+  (plum, piano keys, a bobbing tune), Sewing room (gingham, tape measure, zigzag stitching), Guest
+  bedrooms (blue carpet, striped runner, bays to each side), Clock tower (planks, iron catwalk, pendulum
+  swings). A room can now set `propsEvery` to hold more furniture.
 
 ## Next
 
-1. **Fourth floor (651–800):** Treasury, Music room, Sewing room, Guest bedrooms, Clock tower. Turn tiles
-   now and then. Draw the five rooms first and get Matt's OK (show all five at once), then the levels.
+1. **Fourth floor levels (651–800).** Turn tiles now and then. Also needs a board look in `BOARDS` for the
+   Sewing room and Guest bedrooms (the other three have one).
 2. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**. The
    mouse is caught if it runs onto one (the run fails, cartoon "Snap!"); any other animal that runs over
    it springs it safely, and then it's harmless. Only running onto it counts, not standing next to it.
@@ -38,8 +43,14 @@ _Last updated: 25 November 2026._
 - A new piece starts at the beginning of a room with a pop-up card and easy levels, and is used
   sparingly afterwards.
 - Room drawings: varied furniture (no repeating the same small item over and over), nothing that looks
-  like it floats, nothing so small you can't tell what it is.
+  like it floats, nothing so small you can't tell what it is. Nothing lying on the floor that wouldn't
+  be there (loose gems, sheet music); use the space for bigger, striking pieces. Keep a room's path calm
+  and make it stand out from the floor (Matt turned down a busy coin path and gold-on-brown).
 - Picking a level on the map shows a "Level N" button; the next room's first level is picked after the
   mouse travels there.
+- New wall drawings normally get no tip, but round ones that could be mistaken for animals get a
+  "New: ..." tip the first time they appear (drums at 683, gears at 771). No card for them.
+- From the Towers and roof on, work a couple of rooms at a time (drawings, then levels, one pull
+  request), not a whole floor at once.
 - Big jobs like building hundreds of levels are much faster in Claude Code on Matt's own computer than in
   a cloud session.

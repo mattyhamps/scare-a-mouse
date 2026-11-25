@@ -195,6 +195,9 @@ public final class Recipe {
         if (n > 500 && n <= 650) {
             return thirdFloor(n);
         }
+        if (n > 650 && n <= 800) {
+            return fourthFloor(n);
+        }
         switch (n) {
             // Boss levels: the last level of each castle area is the hardest there (see BOSSES).
             case 25: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1); // tougher (no elephants yet: they arrive at level 33)
@@ -702,5 +705,23 @@ public final class Recipe {
         // Walls work the same whatever they look like, so new wall drawings get no tip or card.
         Recipe r = designed(n - 150).withTip("");
         return THIRD_FLOOR_TURNS.contains(n) ? r.withTurnTiles(1) : r;
+    }
+
+    /** Levels with a turn tile on the Fourth floor: about 1 in 6 or 7, in other places than the Third floor's. */
+    static final java.util.Set<Integer> FOURTH_FLOOR_TURNS = new java.util.HashSet<>(java.util.Arrays.asList(
+            653, 659, 666, 672, 679, 685, 692, 698, 705, 711, 718, 724, 731, 737, 744, 752, 757, 763, 770, 776, 783, 789, 797));
+
+    /**
+     * 651-800: the Fourth floor (Treasury, Music room, Sewing room, Guest bedrooms, Clock tower), 10x10.
+     * Nothing new to learn: like the Third floor, each level uses the Second floor's recipe (the level 300
+     * before it), so the floor is about as hard as the one before, with a turn tile in about 1 level in 6
+     * or 7. 800 is the boss.
+     */
+    private static Recipe fourthFloor(int n) {
+        // Round walls could be mistaken for animals, so the first drums and gears are announced (Matt's call).
+        String tip = n == 683 ? "New: drums! Animals can't run through them."
+                : n == 771 ? "New: gears! Animals can't run through them." : "";
+        Recipe r = designed(n - 300).withTip(tip);
+        return FOURTH_FLOOR_TURNS.contains(n) ? r.withTurnTiles(1) : r;
     }
 }
