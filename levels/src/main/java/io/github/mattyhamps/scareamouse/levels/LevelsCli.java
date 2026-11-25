@@ -17,6 +17,7 @@ import java.util.List;
  * <pre>
  *   audit                          check every level; exit code 1 if any fail
  *   check N                        explain level N
+ *   hard [--write]   (lists the extra-hard levels; --write saves data/hard-levels.json)
  *   make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--balance K] [--write]
  *                                  generate a replacement for level N (or a new level at the end);
  *                                  --write saves it into levels.json
@@ -44,6 +45,16 @@ public final class LevelsCli {
             case "make":
                 make(levels, file, args);
                 break;
+            case "hard": {   // the extra-hard levels (marked with a flame in the game); --write saves them
+                List<Integer> hard = Difficulty.hardLevels(levels);
+                System.out.println(hard.size() + " extra-hard levels: " + hard);
+                if (java.util.Arrays.asList(args).contains("--write")) {
+                    Path out = Paths.get(option(args, "--hard-file", "data/hard-levels.json"));
+                    Files.write(out, (hard + "\n").replace(" ", "").getBytes(StandardCharsets.UTF_8));
+                    System.out.println("Saved to " + out);
+                }
+                break;
+            }
             default:
                 usage();
         }
@@ -178,6 +189,6 @@ public final class LevelsCli {
     }
 
     private static void usage() {
-        System.out.println("Usage: audit | check N | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
+        System.out.println("Usage: audit | check N | hard [--write] | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
     }
 }

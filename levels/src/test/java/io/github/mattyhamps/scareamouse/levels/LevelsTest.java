@@ -78,6 +78,14 @@ class LevelsTest {
         assertTrue(checked > 0, "found no rooms in index.html");
     }
 
+    /** The flame marks in the game come from data/hard-levels.json; it must match the levels (LevelsCli hard --write). */
+    @Test
+    void hardLevelsListIsUpToDate() throws IOException {
+        String file = new String(Files.readAllBytes(Paths.get("../data/hard-levels.json")), StandardCharsets.UTF_8).trim();
+        assertEquals(Difficulty.hardLevels(levels).toString().replace(" ", ""), file,
+                "data/hard-levels.json is out of date: run LevelsCli hard --write");
+    }
+
     /** The game is drawn: no emoji anywhere in the page, the room drawings or the levels. */
     @Test
     void theGameHasNoEmoji() throws IOException {
