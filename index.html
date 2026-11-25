@@ -575,6 +575,15 @@
   .nav-castle:active{box-shadow:0 1px 0 var(--gold-d)}
   .pick-back{color:var(--paper-ink);background:var(--paper-d);border:0;box-shadow:0 4px 0 #cfae78}
   .dot{font-family:var(--font-body)}
+  /* the drawn animals */
+  svg.art{display:block;overflow:visible}
+  .room-body svg.art{position:static;inset:auto;width:auto;height:auto}
+  .chain span svg.art,.guide-art span svg.art,.walker svg.art,.pr-mouse svg.art,.brand .crest svg.art{display:inline-block;vertical-align:middle}
+  .animal span{filter:drop-shadow(0 3px 0 rgba(43,29,20,.22))}
+  .ghost svg.art{filter:drop-shadow(0 8px 10px rgba(0,0,0,.35))}
+  .piece.used svg.art{opacity:.6}
+  #winBig{display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:72px}
+  .hint-ring b{background:var(--paper);border-radius:50%;padding:2px}
 </style>
 </head>
 <body>
@@ -614,7 +623,7 @@
   <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
 </div></div>
 <div class="overlay" id="win"><div class="card">
-  <div class="big" id="winBig">🐭🕳️</div><h3 id="winTitle">Mouse escaped!</h3><p id="winText"></p>
+  <div class="big" id="winBig"></div><h3 id="winTitle">Mouse escaped!</h3><p id="winText"></p>
   <button class="btn go" id="nextBtn">Next level</button>
   <button class="btn" id="winLevelsBtn" style="margin-top:12px">All levels</button>
   <button class="btn replay" id="replayBtn">⏪ Instant replay</button>
@@ -637,6 +646,18 @@ Promise.all([
   // All game physics happen in the Java engine; the page only draws and animates the frames it returns.
   const simulate = (level, placed) => JSON.parse(scareSimulate(JSON.stringify(level), JSON.stringify(placed)));
   const EMOJI = { mouse:'🐭', cat:'🐱', dog:'🐶', bear:'🐻', lion:'🦁', elephant:'🐘' };
+  // The six animals, drawn flat in the game's palette (each on a 100×100 canvas). art(t, px) is an <svg> that size.
+  const ART = {
+    mouse: '<circle cx="24" cy="34" r="20" fill="#b9b2a6"/><circle cx="76" cy="34" r="20" fill="#9d968a"/><circle cx="25" cy="35" r="11" fill="#d4917f"/><circle cx="75" cy="35" r="11" fill="#b87666"/><ellipse cx="50" cy="62" rx="29" ry="26" fill="#b9b2a6"/><path d="M79 62 A29 26 0 0 1 50 88 A29 26 0 0 0 72 62 Z" fill="#9d968a"/><ellipse cx="50" cy="74" rx="13" ry="8" fill="#f1e3c2"/><ellipse cx="40" cy="57" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="60" cy="57" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="31" cy="68" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="69" cy="68" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="50" cy="70" rx="5" ry="3.8" fill="#a8353a"/>',
+    cat: '<path d="M20 50 L24 12 L46 34 Z" fill="#b5622a"/><path d="M80 50 L76 12 L54 34 Z" fill="#954d1f"/><path d="M27 42 L28 24 L38 34 Z" fill="#d4917f"/><path d="M73 42 L72 24 L62 34 Z" fill="#b87666"/><ellipse cx="50" cy="58" rx="33" ry="29" fill="#b5622a"/><path d="M83 58 A33 29 0 0 1 50 87 A33 29 0 0 0 76 58 Z" fill="#954d1f"/><path d="M44 30 L46 40 M50 29 L50 40 M56 30 L54 40" stroke="#954d1f" stroke-width="3.4" stroke-linecap="round"/><path d="M36 66 Q50 58 64 66 Q64 82 50 84 Q36 82 36 66 Z" fill="#f1e3c2"/><ellipse cx="39" cy="55" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="61" cy="55" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="29" cy="66" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="71" cy="66" rx="6" ry="3.6" fill="#d4917f"/><path d="M46 64 L54 64 L50 68 Z" fill="#a8353a"/>',
+    dog: '<ellipse cx="50" cy="56" rx="31" ry="30" fill="#cfae78"/><path d="M81 56 A31 30 0 0 1 50 86 A31 30 0 0 0 74 56 Z" fill="#b39260"/><path d="M58 28 C72 24 80 38 74 50 C66 50 58 42 58 28 Z" fill="#8a5432"/><path d="M24 30 C6 32 6 66 20 70 C30 62 30 40 26 30 Z" fill="#8a5432"/><path d="M76 30 C94 32 94 66 80 70 C70 62 70 40 74 30 Z" fill="#6e4126"/><ellipse cx="50" cy="70" rx="16" ry="12" fill="#f1e3c2"/><ellipse cx="40" cy="51" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="60" cy="51" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="30" cy="63" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="70" cy="63" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="50" cy="64" rx="8" ry="5.5" fill="#2b1d14"/><path d="M46 74 Q50 88 54 74 Z" fill="#a8353a"/>',
+    bear: '<circle cx="24" cy="28" r="14" fill="#8a5432"/><circle cx="76" cy="28" r="14" fill="#6e4126"/><circle cx="24" cy="29" r="6.5" fill="#cfae78"/><circle cx="76" cy="29" r="6.5" fill="#b39260"/><circle cx="50" cy="56" r="33" fill="#8a5432"/><path d="M83 56 A33 33 0 0 1 50 89 A33 33 0 0 0 76 56 Z" fill="#6e4126"/><ellipse cx="50" cy="69" rx="16" ry="12" fill="#cfae78"/><ellipse cx="38" cy="50" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="62" cy="50" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="50" cy="64" rx="7" ry="5" fill="#2b1d14"/><ellipse cx="28" cy="61" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="72" cy="61" rx="6" ry="3.6" fill="#d4917f"/>',
+    lion: '<path d="M50 10 C78 10 94 30 92 54 C90 76 74 92 50 92 C26 92 10 76 8 54 C6 30 22 10 50 10 Z" fill="#b5622a"/><path d="M50 10 C78 10 94 30 92 54 C90 76 74 92 50 92 C66 84 80 72 80 52 C80 30 68 16 50 10 Z" fill="#954d1f"/> <path d="M14 40 L6 46 L14 50 M86 40 L94 46 L86 50 M22 76 L14 84 L26 82 M78 76 L86 84 L74 82" fill="#b5622a"/> <circle cx="30" cy="30" r="7" fill="#d9a43a"/><circle cx="70" cy="30" r="7" fill="#b8862a"/> <circle cx="50" cy="55" r="27" fill="#d9a43a"/><path d="M77 55 A27 27 0 0 1 50 82 A27 27 0 0 0 71 55 Z" fill="#b8862a"/><path d="M38 63 Q50 55 62 63 Q62 77 50 79 Q38 77 38 63 Z" fill="#f1e3c2"/><ellipse cx="40" cy="51" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="60" cy="51" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="32" cy="62" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="68" cy="62" rx="6" ry="3.6" fill="#d4917f"/><path d="M45 60 L55 60 L50 65 Z" fill="#a8353a"/>',
+    elephant: '<path d="M26 28 C0 26 2 76 28 72 C32 58 34 40 26 28 Z" fill="#8f9cb8"/><path d="M74 28 C100 26 98 76 72 72 C68 58 66 40 74 28 Z" fill="#72809f"/><path d="M28 32 C14 36 16 62 28 64 Z" fill="#d4917f"/><path d="M72 32 C86 36 84 62 72 64 Z" fill="#b87666"/><ellipse cx="50" cy="48" rx="26" ry="27" fill="#8f9cb8"/><path d="M76 48 A26 27 0 0 1 56 74 L58 62 C66 60 70 54 70 48 Z" fill="#72809f"/><path d="M43 62 C43 78 44 88 56 90 C62 90 64 84 58 82 C54 82 56 74 57 62 Z" fill="#8f9cb8"/><path d="M52 62 C52 76 54 84 58 86 C62 88 64 84 58 82 C54 82 56 74 57 62 Z" fill="#72809f"/><ellipse cx="40" cy="45" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="60" cy="45" rx="3.6" ry="6.2" fill="#2b1d14"/><ellipse cx="33" cy="56" rx="6" ry="3.6" fill="#d4917f"/><ellipse cx="67" cy="56" rx="6" ry="3.6" fill="#d4917f"/><path d="M40 60 Q38 66 34 68 M60 60 Q62 66 66 68" stroke="#f1e3c2" stroke-width="4.5" stroke-linecap="round"/>',
+  };
+  const art = (t, px) => `<svg class="art" viewBox="0 0 100 100" width="${px}" height="${px}" role="img" aria-label="${t}">${ART[t]}</svg>`;
+  const holeArt = px => `<svg class="art" viewBox="0 0 100 50" width="${px}" height="${px/2}" role="img" aria-label="hole"><ellipse cx="50" cy="25" rx="46" ry="20" fill="#2b1d14"/></svg>`;
+  document.querySelector('.brand .crest').innerHTML = art('mouse', 28);
   const NAME = { mouse:'mouse', cat:'cat', dog:'dog', bear:'bear', lion:'lion', elephant:'elephant' };
   const $ = id => document.getElementById(id);
   // Pull request previews live at /pr-preview/pr-N/ on the same site: keep their progress separate
@@ -731,7 +752,7 @@ Promise.all([
 
   // Food-chain legend
   $('chain').innerHTML = '<span class="cap">each fears the next</span>' +
-    ORDER.concat('mouse').map(t=>`<span title="${t}">${EMOJI[t]}</span>`).join('<span class="arrow">→</span>');
+    ORDER.concat('mouse').map(t=>`<span title="${t}">${art(t,24)}</span>`).join('<span class="arrow">→</span>');
 
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
@@ -904,7 +925,7 @@ Promise.all([
         blocks += `<button class="plan-room${outside?' place':''}${done?' done':''}${here?' here':''}${fresh}" data-r="${r}" style="${pos}">
           ${outside ? `<span class="art">${PLACE_ART[rm.name]||''}</span>` : ''}
           <span class="pr-ic">${rm.ic}</span><b>${rm.name}</b><small>${done ? '✓ ' : ''}${s}/${n}</small>${boss}
-          ${here ? '<span class="pr-mouse">🐭</span>' : ''}${lift}</button>`;
+          ${here ? `<span class="pr-mouse">${art('mouse',20)}</span>` : ''}${lift}</button>`;
       } else if (r === firstMissing) {
         blocks += `<div class="plan-room next fogged${w < 20 ? ' narrow' : ''}" style="${pos}"><span class="fog"></span><span class="fog-q">${roomExists(r) ? '?' : `<small>coming${w < 20 ? ' ' : '<br>'}soon</small>`}</span></div>`;
       } else {
@@ -933,7 +954,7 @@ Promise.all([
         <b>🔒</b><small>${roomExists(rs[0]) ? `${rs.length} room${rs.length > 1 ? 's' : ''}` : 'coming soon'}</small></div>`;
       return `<button class="band-floor ${cls}${done?' done':''}${here?' here':''}${fresh}" data-a="${a}"><span class="bf-ic">${A.ic}</span>
         <span class="bf-text"><b>${A.name}</b><small>${rs.map(r => roomReached(r) ? room(r).name : '?').join(' · ')}</small></span>
-        <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?'<span class="pr-mouse">🐭</span>':''}${fresh ? '<span class="fog lift"></span>' : ''}</button>`;
+        <small class="bf-count">${done ? '✓' : `${areaSolved(a)}/${areaSize(a)}`}</small>${here?`<span class="pr-mouse">${art('mouse',20)}</span>`:''}${fresh ? '<span class="fog lift"></span>' : ''}</button>`;
     };
     const order = [7,6,5,4,3,2];  // floors inside the keep, top to bottom
     return `<div class="castle-view">
@@ -1206,7 +1227,7 @@ Promise.all([
         ? `<div class="node${boss} ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos}">${i+1}</div>`
         : `<div class="node locked${boss}" data-i="${i}" title="Locked" style="${pos}"><span class="lk">🔒</span><span>${i+1}</span></div>`;
     });
-    if (li >= from && li < to) { const [x, y] = L8.nodes[li - from]; nodes += `<div class="walker" style="left:${x.toFixed(2)}%;top:${y.toFixed(1)}px"><span>🐭</span></div>`; }
+    if (li >= from && li < to) { const [x, y] = L8.nodes[li - from]; nodes += `<div class="walker" style="left:${x.toFixed(2)}%;top:${y.toFixed(1)}px"><span>${art('mouse',26)}</span></div>`; }
     // furniture in the pockets beside each swing of the road
     const props = L8.pockets.map((p, k) => { const name = sc.props[k % sc.props.length];
       return `<div class="prop ${p.side}" style="left:${p.x}%;top:${p.y.toFixed(0)}px">${PROP[name]()}</div>`; }).join('');
@@ -1312,21 +1333,21 @@ Promise.all([
 
   // How-to-play cards. INTRO runs before level 1 (and from "How to play" in the level picker);
   // NEW_CARDS show once, the first time you open the level where something new appears.
-  const scares = (a, b) => `<span>${a}</span><i>scares</i><span>${b}</span>`;
+  const scares = (a, b) => `<span>${art(a,44)}</span><i>scares</i><span>${art(b,44)}</span>`;
   const INTRO = [
-    { art: '<span>🐭</span><i>➜</i><span>🕳️</span>', title: 'Help the mouse escape!',
+    { art: `<span>${art('mouse',48)}</span><i>➜</i><span>${holeArt(56)}</span>`, title: 'Help the mouse escape!',
       text: 'Scare the mouse so it runs into the hole.' },
-    { art: `<div class="g-row">${scares('🐱','🐭')}</div><div class="g-row">${scares('🐶','🐱')}</div><div class="g-row">${scares('🐻','🐶')}</div>`,
+    { art: `<div class="g-row">${scares('cat','mouse')}</div><div class="g-row">${scares('dog','cat')}</div><div class="g-row">${scares('bear','dog')}</div>`,
       title: 'Animals scare each other',
       text: 'Each animal scares just one other. A scared animal runs straight away, and it can scare the next animal on its way.' },
-    { art: '<span>👆</span><span>🐱</span><i>➜</i><span class="g-sq"></span><i>then</i><span class="g-go">▶ Go</span>', title: 'Set up a chain reaction',
+    { art: `<span>👆</span><span>${art('cat',44)}</span><i>➜</i><span class="g-sq"></span><i>then</i><span class="g-go">▶ Go</span>`, title: 'Set up a chain reaction',
       text: 'Tap an animal in your hand, then tap a square to place it. When you\'re ready, press Go and watch!' },
     { art: '<span>🧱</span><span>🥶</span>', title: 'Good to know',
       text: 'Running animals stop at walls and at the edge of the board. An animal touching two animals it fears freezes until one of them moves away.' },
   ];
   const NEW_CARDS = {
-    12: { art: scares('🦁','🐻'), title: 'New animal: the lion!', text: 'Lions scare bears.' },
-    32: { art: `<div class="g-row">${scares('🐘','🦁')}</div><div class="g-row">${scares('🐭','🐘')}</div>`, title: 'New animal: the elephant!',
+    12: { art: scares('lion','bear'), title: 'New animal: the lion!', text: 'Lions scare bears.' },
+    32: { art: `<div class="g-row">${scares('elephant','lion')}</div><div class="g-row">${scares('mouse','elephant')}</div>`, title: 'New animal: the elephant!',
           text: 'Elephants scare lions. And elephants are scared of mice!' },
     170: { art: '<span class="g-counter"></span><span class="g-counter"></span>', title: 'New: kitchen counters!',
            text: 'Animals can\'t run through counters. A running animal stops when it reaches one.' },
@@ -1435,8 +1456,8 @@ Promise.all([
   function renderTray(){
     const rem=remaining(); const tr=$('tray');
     if(!L.inv.length){ tr.innerHTML='<span class="empty">No animals to place.</span>'; return; }
-    tr.innerHTML = '<div class="lbl">Your animals</div>' + rem.map((t,i)=>`<div class="piece ${i===selected?'sel':''}" data-i="${i}">${EMOJI[t]}</div>`).join('')
-      + placed.map(p=>`<div class="piece used">${EMOJI[p.t]}</div>`).join('');
+    tr.innerHTML = '<div class="lbl">Your animals</div>' + rem.map((t,i)=>`<div class="piece ${i===selected?'sel':''}" data-i="${i}">${art(t,40)}</div>`).join('')
+      + placed.map(p=>`<div class="piece used">${art(p.t,40)}</div>`).join('');
     tr.querySelectorAll('.piece:not(.used)').forEach(p=>p.onpointerdown=e=>startDrag(e,{t:rem[+p.dataset.i], tray:+p.dataset.i}));
     $('board').classList.toggle('armed', mode==='edit' && rem.length>0);
   }
@@ -1449,7 +1470,7 @@ Promise.all([
       el.className='animal'+(a.placed&&mode==='edit'?' placed':'');
       el.style.width=el.style.height=cell+'px';
       el.style.transform=`translate(${P(a.x)}px,${P(a.y)}px)`;
-      el.innerHTML=`<span style="font-size:${Math.round(cell*0.68)}px">${EMOJI[a.t]}</span>`;
+      el.innerHTML=`<span>${art(a.t,Math.round(cell*0.84))}</span>`;
       if(a.placed&&mode==='edit'){ const pi=placed.findIndex(p=>p.x===a.x&&p.y===a.y); el.onpointerdown=e=>startDrag(e,{t:a.t, placedIdx:pi, el}); }
       b.appendChild(el); animalEls[a.id!=null?a.id:i]=el;
     });
@@ -1568,7 +1589,7 @@ Promise.all([
       const forLevel = first ? (hintShown ? 1 : 3) * (isBoss(li) ? 2 : 1) : 0, earned = forLevel + (cleared ? 5 : 0);
       if (earned) setTimeout(() => addCheese(earned), 600);
       const cheeseLine = !first ? '' : ` +${earned} 🧀` + (cleared ? ` (${forLevel} + 5 for the room)` : hintShown ? ` (${isBoss(li) ? 6 : 3} without hints)` : '');
-      $('winBig').textContent = cleared ? (isBoss(li) ? '👑🚪✨' : '🚪✨') : isBoss(li) ? '👑🐭' : '🐭🕳️';
+      $('winBig').innerHTML = cleared ? (isBoss(li) ? '👑🚪✨' : '🚪✨') : (isBoss(li) ? '👑' : '') + art('mouse', 64) + holeArt(70);
       clearedRoom = cleared ? rIdx : undefined;
       $('nextBtn').style.display = cleared ? 'none' : '';
       $('winLevelsBtn').textContent = cleared ? 'Open the door 🚪' : 'All levels';
@@ -1640,7 +1661,7 @@ Promise.all([
     if(!drag.moved){
       drag.moved=true;
       const g=document.createElement('div'); g.className='ghost';
-      g.innerHTML=`<span style="font-size:${Math.round(cell*0.75)}px">${EMOJI[drag.t]}</span>`;
+      g.innerHTML=`<span>${art(drag.t,Math.round(cell*0.9))}</span>`;
       document.body.appendChild(g); drag.ghost=g;
       if(drag.el) drag.el.classList.add('lifted');
       clearHint();
@@ -1703,7 +1724,7 @@ Promise.all([
     const add = (cls, css, html='') => { const e=document.createElement('div'); e.className=cls; e.style.cssText=css; e.innerHTML=html; $('board').appendChild(e); };
     rungs.forEach(r => {
       if (r.kind === 'square') { const s = L.solution[r.j];
-        add('hint-ring', `left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`, `<b>${EMOJI[s.t]}</b>`); }
+        add('hint-ring', `left:${P(s.x)+cell*.06}px;top:${P(s.y)+cell*.06}px;width:${cell*.88}px;height:${cell*.88}px`, `<b>${art(s.t,20)}</b>`); }
       else if (squared.has(r.j)) return;
       else if (r.kind === 'area') add('hint-area', `left:${P(r.ax)}px;top:${P(r.ay)}px;width:${cell*r.w}px;height:${cell*r.h}px`);
     });
