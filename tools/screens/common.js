@@ -8,8 +8,12 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applic
 
 function serve(port) {
   return http.createServer((q, r) => {
-    let f = path.join(root, decodeURIComponent(q.url.split('?')[0].split('#')[0]));
-    if (f.endsWith('/')) f += 'index.html';
+    // Work on the URL path, not the file path: on Windows path.join turns '/' into '\\', so checking the
+    // file path for a trailing '/' never matched and the page itself came back as "not found".
+    let u = decodeURIComponent(q.url.split('?')[0].split('#')[0]);
+    if (u.endsWith('/')) u += 'index.html';
+    const f = path.join(root, ...u.split('/'));
+    if (path.relative(root, f).startsWith('..')) { r.writeHead(403); r.end(); return; }   // stay inside the site folder
     fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; }
       r.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }); r.end(d); });
   }).listen(port);
