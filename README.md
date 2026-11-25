@@ -123,7 +123,7 @@ look to `BOARDS` in the same change. `LevelsTest` fails if a room has levels but
 
 **Hints and cheese.** Each animal you place has two hints, one per press: a 3×3 patch it goes in is
 shaded (1 cheese), then the exact square glows (3 cheese). If the animal is already on its right
-square, the hint just confirms it for 1 cheese. Cheese is scarce: you earn 1 the first time you solve
+square, the hint just confirms it, for free (and it doesn't stop the level paying out). Cheese is scarce: you earn 1 the first time you solve
 a level with no hints (3 on a boss level, nothing if you used a hint) and 2 for clearing a room. New
 players start with 5. Hints you've bought stay bought for that level.
 

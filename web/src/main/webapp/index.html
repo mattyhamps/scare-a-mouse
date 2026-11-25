@@ -823,7 +823,7 @@ Promise.all([
   if (!doorsSeen) { doorsSeen = []; for (let r=0; roomExists(r); r++) if (roomCleared(r)) doorsSeen.push(r); store.set('cm_doors2', doorsSeen); }
   // Cheese is scarce: a level solved the first time with no hints earns 1 (a boss level 3; nothing
   // if you used a hint), and clearing a room earns 2. It buys hints: 1 for the area an animal goes in,
-  // 3 for its exact square, or just 1 to confirm an animal you've already put in the right square.
+  // 3 for its exact square. Confirming an animal you've already put in the right square is free.
   // New players start with 5; players with progress from before cheese existed get it worked out
   // the same way. Balances saved under the old, more generous rules are kept.
   let cheese = store.get('cm_cheese', null);
@@ -834,7 +834,9 @@ Promise.all([
   if (!hintsUsed) { const old = store.get('cm_hints', {}); hintsUsed = {};
     for (const k in old) hintsUsed[k] = 2 * Math.floor(old[k] / 3) + Math.max(0, old[k] % 3 - 1);
     store.set('cm_hints2', hintsUsed); }
-  const HINT_COST = { area:1, square:3 }, CONFIRM_COST = 1;
+  const HINT_COST = { area:1, square:3 }, CONFIRM_COST = 0;
+  // level key -> whether a paid hint was used there (free confirmations don't stop a level paying out)
+  const hintsPaid = store.get('cm_hints_paid', {});
   function showCheese(bump){ const e=$('cheese'); e.innerHTML=`${icon('cheese', 16)} ${cheese}`; if(bump){ e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); } }
   function addCheese(n){ cheese = Math.max(0, cheese + n); store.set('cm_cheese', cheese); showCheese(n > 0); }
   if (!seenAreas) { seenAreas = AREAS.map((_,a)=>a).filter(a => roomsOf(a).length && areaReached(a)); store.set('cm_seen_areas', seenAreas); }
@@ -1431,7 +1433,7 @@ Promise.all([
     clearTimeout(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
-    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; hintStep=hintsUsed[levelKey(L)]||0; hintShown=hintStep>0;
+    placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; hintStep=hintsUsed[levelKey(L)]||0; hintShown = levelKey(L) in hintsPaid ? hintsPaid[levelKey(L)] : hintStep>0;
     $('lvlName').textContent = L.name;
     const boss = isBoss(li);
     $('lvlSub').innerHTML = (boss ? `${icon('crown', 16)} Boss · ` : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1}`);
@@ -1518,7 +1520,7 @@ Promise.all([
     $('goBtn').disabled = mode==='running' || mode==='replay';
     const n = plan().length;
     $('hintBtn').disabled = mode!=='edit' || hintStep>=n;
-    $('hintBtn').innerHTML = hintStep<n ? `Hint · ${hintCost()} ${icon('cheese', 18)}` : 'Hint';
+    $('hintBtn').innerHTML = hintStep<n ? (hintCost() ? `Hint · ${hintCost()} ${icon('cheese', 18)}` : 'Hint · free') : 'Hint';
     $('resetBtn').disabled = mode==='running' || mode==='replay' || (mode==='edit' && !placed.length);
     $('goBtn').textContent = mode==='running' ? 'Running…' : 'Go!';
   }
@@ -1772,7 +1774,7 @@ Promise.all([
     if (r.kind === 'area') return `${your}${n} goes somewhere in the shaded squares.`;
     return `put ${your}${n} on the glowing square.`;
   }
-  // The next hint's price: 1 just to confirm an animal that's already in its right square.
+  // The next hint's price: nothing just to confirm an animal that's already in its right square.
   const inRightSquare = j => placed.some(p => p.t === L.solution[j].t && p.x === L.solution[j].x && p.y === L.solution[j].y);
   const hintCost = () => { const r = plan()[hintStep]; return !r ? 0 : inRightSquare(r.j) ? CONFIRM_COST : HINT_COST[r.kind]; };
   function hint(){
@@ -1784,7 +1786,8 @@ Promise.all([
     const cost = hintCost(), confirm = inRightSquare(rungs[hintStep].j);
     if (cheese < cost && !DEV) { updateButtons(); toast(`This hint costs ${cost} cheese. Solve levels without hints to earn more.`); return; }
     if (cheese >= cost) addCheese(-cost);
-    const rung=rungs[hintStep++]; hintShown=true;
+    const rung=rungs[hintStep++]; if (!confirm) hintShown=true;
+    hintsPaid[levelKey(L)] = hintShown; store.set('cm_hints_paid', hintsPaid);
     // Confirming an animal that's already right counts as both of its hints.
     if (confirm && rung.kind === 'area') hintStep++;
     hintsUsed[levelKey(L)] = hintStep; store.set('cm_hints2', hintsUsed);
@@ -1874,7 +1877,7 @@ Promise.all([
     const b=$('resetProgress');
     if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent='Tap again to erase all progress'; clearTimeout(b._t); b._t=setTimeout(()=>{ b.classList.remove('armed'); b.textContent='Reset progress (testing)'; },3000); return; }
     clearTimeout(b._t); b.classList.remove('armed'); b.textContent='Reset progress (testing)';
-    solved={}; store.set('cm_solved',solved); hintsUsed={}; store.set('cm_hints2',hintsUsed); cheese=5; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
+    solved={}; store.set('cm_solved',solved); hintsUsed={}; store.set('cm_hints2',hintsUsed); for (const k in hintsPaid) delete hintsPaid[k]; store.set('cm_hints_paid',hintsPaid); cheese=5; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
   };
   $('picker').onclick=e=>{ if(e.target.id==='picker') $('picker').classList.remove('show'); };
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
