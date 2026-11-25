@@ -527,6 +527,13 @@
   .node.boss.locked{box-shadow:0 4px 0 #9d968a,0 0 0 3px #b87666}
   .node.boss::before{content:"";top:-16px;right:-12px;width:24px;height:24px;transform:rotate(18deg);filter:none;
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 18 L3 7 L8 12 L12 4 L16 12 L21 7 L22 18 Z' fill='%23d9a43a'/%3E%3Cpath d='M12 4 L16 12 L21 7 L22 18 L12 18 Z' fill='%23b8862a'/%3E%3Crect x='2' y='18' width='20' height='3' rx='1' fill='%23b8862a'/%3E%3C/svg%3E") center/contain no-repeat}
+  /* extra-hard levels: a flame at the node's shoulder (bosses have the crown instead) */
+  .node.hard{box-shadow:0 4px 0 var(--paper-d),0 0 0 3px #d9622a}
+  .node.hard::before{content:"";position:absolute;top:-17px;right:-12px;width:26px;height:26px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5 C13.5 5.5 19 8 19 14.5 A7 7 0 0 1 5 14.5 C5 10.5 7.5 9 8.5 5.5 C10 7.5 10.5 8.5 12 1.5 Z' fill='%23d9622a'/%3E%3Cpath d='M12 1.5 C13.5 5.5 19 8 19 14.5 A7 7 0 0 1 12 21.5 Z' fill='%23b84a22'/%3E%3Cpath d='M12 10 C13.2 12.4 15.6 13.6 15.6 16.6 A3.6 3.6 0 0 1 8.4 16.6 C8.4 14.2 10.6 13.2 12 10 Z' fill='%23f0c04a'/%3E%3C/svg%3E") center/contain no-repeat}
+  .node.hard.locked{box-shadow:0 4px 0 #9d968a,0 0 0 3px #c89a7e}
+  .node.hard.done{box-shadow:0 4px 0 var(--gold-d),0 0 0 3px #d9622a}
+  .node.hard.cur{box-shadow:0 4px 0 var(--paper-d),0 0 0 5px var(--red)}
   .drawn .walker{transform:translate(-50%,-128%)}
   .doorway.drawn{position:absolute;height:auto;display:block;background:none;box-shadow:none;padding:0;z-index:2}
   .doorway.drawn .arch{position:absolute;inset:0;margin:0;width:auto;height:auto;border-radius:50% 50% 0 0/32% 32% 0 0;background:transparent;box-shadow:none;perspective:200px}
@@ -600,9 +607,10 @@
 Promise.all([
   fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
   fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => []),
+  fetch('hard-levels.json').then(r => r.ok ? r.json() : []).catch(() => []),
   // Testing only: ?lab swaps in the levels from turn-lab.json (each named "Test <level number>").
   new URLSearchParams(location.search).has('lab') ? fetch('turn-lab.json').then(r => r.ok ? r.json() : []).catch(() => []) : []
-]).then(([LEVELS, LEGACY, LAB]) => { (function(){
+]).then(([LEVELS, LEGACY, HARD_LIST, LAB]) => { (function(){
   for (const t of LAB) { const n = +String(t.name).split(' ')[1]; if (n > 0 && n <= LEVELS.length) LEVELS[n - 1] = t; }
   const ORDER = ['mouse','cat','dog','bear','lion','elephant'];
   // All game physics happen in the Java engine; the page only draws and animates the frames it returns.
@@ -816,6 +824,9 @@ Promise.all([
   // The last level of each area (the Gate at 100, the Kitchens at 200, ...) is its boss: a harder
   // puzzle, with a crown on the map.
   const isBoss = i => i + 1 === areaEnd(areaOf(i));
+  // Extra-hard levels (data/hard-levels.json, worked out by LevelsCli hard): a flame on the map, 2 cheese.
+  const HARD = new Set(HARD_LIST.map(n => n - 1));
+  const isHard = i => HARD.has(i) && !isBoss(i);
   const roomExists = r => room(r).start < LEVELS.length;
   const roomReached = r => roomExists(r) && isOpen(room(r).start);
   // A room is cleared when all of its levels exist and are solved.
@@ -896,6 +907,7 @@ Promise.all([
     snow: '<path d="M12 2 L12 22 M3.5 7 L20.5 17 M20.5 7 L3.5 17" stroke="#cfe6f2" stroke-width="2.6" stroke-linecap="round"/><path d="M9.5 3.5 L12 6 L14.5 3.5 M9.5 20.5 L12 18 L14.5 20.5" stroke="#cfe6f2" stroke-width="2" fill="none" stroke-linecap="round"/>',
     door: '<path d="M4 23 L4 9 C4 3 20 3 20 9 L20 23 Z" fill="#857e72"/><path d="M6 23 L6 10 C6 5 18 5 18 10 L18 23 Z" fill="#f6dfa6"/><path d="M6 23 L6 10 C6 7 8 6 9 6 L9 23 Z" fill="#8a5432"/>',
     sparkle: '<path d="M12 1 L14.6 9.4 L23 12 L14.6 14.6 L12 23 L9.4 14.6 L1 12 L9.4 9.4 Z" fill="#d9a43a"/>',
+    flame: '<path d="M12 1.5 C13.5 5.5 19 8 19 14.5 A7 7 0 0 1 5 14.5 C5 10.5 7.5 9 8.5 5.5 C10 7.5 10.5 8.5 12 1.5 Z" fill="#d9622a"/><path d="M12 1.5 C13.5 5.5 19 8 19 14.5 A7 7 0 0 1 12 21.5 Z" fill="#b84a22"/><path d="M12 10 C13.2 12.4 15.6 13.6 15.6 16.6 A3.6 3.6 0 0 1 8.4 16.6 C8.4 14.2 10.6 13.2 12 10 Z" fill="#f0c04a"/>',
     crown: '<path d="M2 18 L3 7 L8 12 L12 4 L16 12 L21 7 L22 18 Z" fill="#d9a43a"/><path d="M12 4 L16 12 L21 7 L22 18 L12 18 Z" fill="#b8862a"/><rect x="2" y="18" width="20" height="3" rx="1" fill="#b8862a"/><circle cx="12" cy="13" r="1.6" fill="#a8353a"/>',
     lock: '<path d="M7 11 L7 7 C7 2 17 2 17 7 L17 11" fill="none" stroke="#857e72" stroke-width="3"/><rect x="4" y="10" width="16" height="12" rx="3" fill="#d9a43a"/><rect x="11" y="14" width="2.4" height="5" rx="1" fill="#2b1d14"/>',
     up: '<path d="M12 4 L20 13 L15 13 L15 20 L9 20 L9 13 L4 13 Z" fill="currentColor"/>',
@@ -1299,7 +1311,7 @@ Promise.all([
     const items = [...fixed, ...props, ...deco].sort((a, b) => a.y - b.y).map(p => p.svg).join('') + fly.map(p => p.svg).join('');
     const pos = ([x, y]) => `left:${(x / RW * 100).toFixed(3)}%;top:${(y / H * 100).toFixed(3)}%`;
     let nodeHtml = '';
-    nodes.forEach((p, k) => { const i = from + k, boss = isBoss(i) ? ' boss' : '';
+    nodes.forEach((p, k) => { const i = from + k, boss = isBoss(i) ? ' boss' : isHard(i) ? ' hard' : '';
       nodeHtml += isOpen(i) ? `<div class="node${boss} ${i===li?'cur':''} ${isDone(i)?'done':''}" data-i="${i}" style="${pos(p)}">${i+1}</div>`
         : `<div class="node locked${boss}" data-i="${i}" title="Locked" style="${pos(p)}">${i+1}</div>`; });
     if (li >= from && li < to) nodeHtml += `<div class="walker" style="${pos(nodes[li - from])}"><span>${art('mouse', 30)}</span></div>`;
@@ -1456,9 +1468,9 @@ Promise.all([
     placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; selPlaced=null; hints = hintBook[levelKey(L)] || { h: L.solution.map(() => 0), c: L.solution.map(() => false) }; hintShown = hints.h.some(n => n > 0) || hints.c.some(Boolean);
     $('lvlName').textContent = L.name;
     const boss = isBoss(li);
-    $('lvlSub').innerHTML = (boss ? `${icon('crown', 16)} Boss · ` : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1}`);
+    $('lvlSub').innerHTML = (boss ? `${icon('crown', 16)} Boss · ` : isHard(li) ? `${icon('flame', 16)} ` : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1}`);
     const areaName = AREAS[areaOf(li)].name;
-    $('tip').textContent = L.tip || (boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
+    $('tip').textContent = L.tip || (isHard(li) ? `Extra hard: one of the toughest puzzles ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}. Solve it without hints for 2 cheese.` : boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
     $('tip').classList.toggle('boss', boss); $('tip').classList.remove('hinting');
     { const j = hints.h.map((n, k) => n > 0 && !hints.c[k] ? k : -1).filter(k => k >= 0).pop(); if (j !== undefined) { $('tip').textContent = `Hint: ${hintText(j, hints.h[j])}`; $('tip').classList.add('hinting'); } }
@@ -1652,11 +1664,12 @@ Promise.all([
       renderDots();
       const last = li===LEVELS.length-1, cleared = !wasCleared && roomCleared(rIdx);
       // Cheese for a first solve: 1 with no hints (3 on a boss level), none with; +2 for clearing a room.
-      const forLevel = first && !hintShown ? (isBoss(li) ? 3 : 1) : 0, earned = forLevel + (cleared ? 2 : 0);
+      const forLevel = first && !hintShown ? (isBoss(li) ? 3 : isHard(li) ? 2 : 1) : 0, earned = forLevel + (cleared ? 2 : 0);
       if (earned) setTimeout(() => addCheese(earned), 600);
       const cheeseLine = !first ? '' : earned ? ` +${earned} cheese` + (cleared && forLevel ? ` (${forLevel} + 2 for the room)` : cleared ? ' for the room' : '')
         : ' Solve without hints to earn cheese.';
-      $('winBig').innerHTML = cleared ? (isBoss(li) ? icon('crown', 40) : '') + icon('door', 72) + icon('sparkle', 30) : (isBoss(li) ? icon('crown', 40) : '') + art('mouse', 64) + holeArt(70);
+      const badge = isBoss(li) ? icon('crown', 40) : isHard(li) ? icon('flame', 40) : '';
+      $('winBig').innerHTML = cleared ? badge + icon('door', 72) + icon('sparkle', 30) : badge + art('mouse', 64) + holeArt(70);
       clearedRoom = cleared ? rIdx : undefined;
       $('nextBtn').style.display = cleared ? 'none' : '';
       $('winLevelsBtn').textContent = cleared ? 'Open the door' : 'All levels';
@@ -1668,7 +1681,7 @@ Promise.all([
         confetti(); Sound.cheer();
       } else {
         Sound.win();
-        $('winTitle').textContent = last ? 'Castle cleared!' : isBoss(li) ? 'Boss beaten!' : 'Mouse escaped!';
+        $('winTitle').textContent = last ? 'Castle cleared!' : isBoss(li) ? 'Boss beaten!' : isHard(li) ? 'Extra hard, solved!' : 'Mouse escaped!';
         $('winText').textContent = (last ? 'You finished every level. More puzzles are on the way.' : `Level ${li+1} solved.`) + cheeseLine;
       }
       $('nextBtn').textContent = last ? 'Play again' : 'Next level';

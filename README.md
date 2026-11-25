@@ -137,12 +137,18 @@ over the levels with the same numbers (each is named "Test <number>").
 **No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms
 (`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.
 
+**Extra-hard levels.** About 1 level in 15 on each floor is marked with a flame (on the map, by the level
+number and in its tip) and pays 2 cheese. `Difficulty` scores how hard a level is to solve: more animals
+to place, placements that touch nothing on the board, tricks, a long chain, walls and turn tiles. The
+hardest of each floor, not counting the boss, get the flame. `LevelsCli hard --write` saves the list to
+`data/hard-levels.json`, and `LevelsTest` fails if the list is out of date, so run it after changing levels.
+
 **Hints and cheese.** Tap one of your animals (in the tray or on the board), then press Hint. Its first
 hint costs 1 cheese and shades the 3×3 patch it goes in; its second costs 2 and lights up its exact
 square. If the animal is already on its right square, the hint confirms that instead, for the same
 price, and that animal needs no more hints. Tapping a placed animal picks it; tapping it again sends
-it back to the tray. Cheese is scarce: you earn 1 the first time you solve a level with no hints (3 on
-a boss level, nothing if you used a hint) and 2 for clearing a room. New players start with 5. Hints
+it back to the tray. Cheese is scarce: you earn 1 the first time you solve a level with no hints (2 on
+an extra-hard level, 3 on a boss level, nothing if you used a hint) and 2 for clearing a room. New players start with 5. Hints
 you've bought stay bought for that level.
 
 Level tools:
