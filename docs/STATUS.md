@@ -6,17 +6,14 @@ _Last updated: 25 November 2026._
 
 ## Done
 
-- Levels 1–500 are live: the Outside (1–100), Cellars (101–200), First floor (201–350) and Second floor
-  (351–500), all with drawn rooms, a castle map, bosses, flames on the hardest levels (2 cheese), hints
+- Levels 1–650 are live: the Outside (1–100), Cellars (101–200), First floor (201–350), Second floor
+  (351–500) and Third floor (501–650: Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room), all with drawn rooms, a castle map, bosses, flames on the hardest levels (2 cheese), hints
   bought per animal with cheese, and the mouse travelling between rooms when you clear one.
-- Turn tiles are in the engine, the level maker and the game (blue painted space with chevrons that
-  flashes when it turns an animal). Adding `?lab` to the address loads test puzzles from turn-lab.json.
-
-## In progress
-
-- **PR #51, the Third floor (501–650):** Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room.
-  Turn tiles come in at 501 with a card and a slow ramp, then about 1 level in 6 or 7. Also rebuilt 13
-  older levels that repeated earlier puzzles, and added the duplicate check. Waiting for Matt to test.
+- Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
+  card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
+  puzzles from turn-lab.json.
+- No repeated puzzles: the level maker refuses a repeat (mirror images and turned boards count) and a test
+  checks the whole game. 13 older repeats were rebuilt.
 
 ## Next
 
