@@ -24,7 +24,7 @@ class ChainBuilderTest {
      */
     static IntStream recipes() {
         java.util.Set<String> seen = new java.util.HashSet<>();
-        return IntStream.rangeClosed(61, 350).filter(n -> seen.add(Recipe.forLevel(n).key()));
+        return IntStream.rangeClosed(61, 500).filter(n -> seen.add(Recipe.forLevel(n).key()));
     }
 
     @ParameterizedTest(name = "recipe for level {0}")
