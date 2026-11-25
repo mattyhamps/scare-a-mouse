@@ -78,6 +78,16 @@ class LevelsTest {
         assertTrue(checked > 0, "found no rooms in index.html");
     }
 
+    /** No two levels are the same puzzle, counting mirror images and turned boards. */
+    @Test
+    void noTwoLevelsAreTheSamePuzzle() {
+        StringBuilder msg = new StringBuilder();
+        for (int[] p : Duplicates.pairs(levels)) {
+            msg.append(" level ").append(p[0]).append(" repeats level ").append(p[1]).append(';');
+        }
+        assertTrue(msg.length() == 0, "Repeated puzzles:" + msg);
+    }
+
     /** The flame marks in the game come from data/hard-levels.json; it must match the levels (LevelsCli hard --write). */
     @Test
     void hardLevelsListIsUpToDate() throws IOException {

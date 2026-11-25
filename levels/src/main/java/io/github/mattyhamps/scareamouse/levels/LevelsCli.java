@@ -155,6 +155,11 @@ public final class LevelsCli {
             System.exit(2);
         }
         Level level = tipOverride == null ? built.level : built.level.withNameAndTip(name, tipOverride);
+        int twin = Duplicates.twin(levels, level, n);
+        if (twin > 0) {   // the same puzzle (or its mirror image) as another level: try another seed
+            System.out.println("Built level " + n + " but it is the same puzzle as level " + twin + ". Try another --seed.");
+            System.exit(3);
+        }
         System.out.printf("Built level %d in %.1fs (seed %d): %s%n", n, (System.currentTimeMillis() - start) / 1000.0,
                 built.seed, Interest.breakdown(level));
         if (contains(args, "--write")) {

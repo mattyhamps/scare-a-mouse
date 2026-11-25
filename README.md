@@ -103,7 +103,7 @@ Each castle room also tints the board (floor, stone and wall look) so it fits th
 Kitchens the walls are drawn as counters, in the Library and Study as bookshelves, in the Great hall as banquet
 tables, in the Ballroom as marble pillars and in the Gallery as statues, in the Chapel as pews, in the Secret passage as rock, in the Map room as map tables and in the Armory as weapon racks (from the Library on, only about 1 level
 in 5 has walls). The Second floor (351–500, the first 10×10 boards) eases in with the Chapel, has rock walls in most Secret passage levels, then gets harder through the Map room and Armory to its boss at 500. The First floor gets harder room by room: the Great hall is about as hard as the Study, the
-Ballroom and Gallery use more two-animal moves and more blockers, and level 350 is its boss.
+Ballroom and Gallery use more two-animal moves and more blockers, and level 350 is its boss. The Third floor (501–650: Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room) brings in turn tiles: 501–515 ramp up slowly (one animal and a short chain through one turn, then a second animal, then a trick), then each level reuses the recipe of the level 150 before it, so the floor is about as hard as the Second floor, with a turn tile in about 1 level in 6 or 7 (`Recipe.THIRD_FLOOR_TURNS`). Walls behave the same whatever they look like, so a room's new wall drawing (crates, toy blocks, potted palms, wash tubs, trophy stands) gets no tip or card. **No two levels may be the same puzzle**, counting mirror images and turned boards: the level maker refuses to save a repeat (`Duplicates`) and `LevelsTest` checks the whole set.
 
 Recipes are mixed through each batch of ten rather than grouped.
 
@@ -133,6 +133,20 @@ Levels only carry a `turns` list (`[x, y, dir]`, dir 0 up, 1 right, 2 down, 3 le
 tiles, so older levels are unchanged. For trying them out before they're in real levels, `TurnLab` builds
 test levels into `web/src/main/webapp/turn-lab.json`; adding `?lab` to the game's address swaps those in
 over the levels with the same numbers (each is named "Test <number>").
+
+**The plan for the rest of the castle** (all 10×10, each floor about as hard as the one before, with a mix
+of easier and harder levels, flames on the toughest and a boss at the end):
+
+| Floor | Levels | Rooms | New board piece |
+|---|---|---|---|
+| Third floor | 501–650 | Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room | Turn tiles (501), then about 1 level in 6 or 7 |
+| Fourth floor | 651–800 | Treasury, Music room, Sewing room, Guest bedrooms, Clock tower | Turn tiles now and then |
+| Towers and roof | 801–920 | Battlements, Aviary, Watchtower, Belfry | Mousetraps (801): the mouse is caught if it runs onto one; any other animal springs it safely |
+| Royal floor | 921–1070 | Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room | Trapdoors (921): run into one, come out of its partner |
+| Tower top | 1071–1100 | Tower top | Everything together, the finale |
+
+Past 1100 the castle grows an east wing: a mix of everything, moving the story along. Each new piece
+comes in at the start of a room, with a card and a few easy levels, then shows up more rarely.
 
 **No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms
 (`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.

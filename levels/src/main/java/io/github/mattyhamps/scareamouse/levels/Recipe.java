@@ -125,6 +125,11 @@ public final class Recipe {
         return new Recipe(size, newMoves, true, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, tricks);
     }
 
+    /** The same recipe with another tip. */
+    public Recipe withTip(String newTip) {
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, newTip, blockers, turnTiles, tricks);
+    }
+
     /** The same recipe with turn tiles that the chain has to use. */
     public Recipe withTurnTiles(int count) {
         return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, count, tricks);
@@ -150,8 +155,9 @@ public final class Recipe {
      * crown on the map. 25, 70, 170 and 260 were bosses when every room had one; they keep their
      * tougher recipes.
      */
-    public static final int[] BOSSES = {100, 200, 350, 500, 600, 750, 850, 980, 1000};
-    // Third floor (501+): introduce something new to learn there, such as a new board piece (planned).
+    public static final int[] BOSSES = {100, 200, 350, 500, 650, 800, 920, 1070, 1100};
+    // New board pieces: turn tiles on the Third floor (501), mousetraps on the towers and roof (801),
+    // trapdoors on the Royal floor (921), and all of them together at the Tower top (1071-1100).
 
     /**
      * Board size for level n: the boards grow as you go. Levels 1-100 are 7x7, 101-200 are 8x8,
@@ -186,6 +192,9 @@ public final class Recipe {
     }
 
     private static Recipe designed(int n) {
+        if (n > 500 && n <= 650) {
+            return thirdFloor(n);
+        }
         switch (n) {
             // Boss levels: the last level of each castle area is the hardest there (see BOSSES).
             case 25: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1); // tougher (no elephants yet: they arrive at level 33)
@@ -656,5 +665,42 @@ public final class Recipe {
             case 500: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN).withWalls(2, 4); // boss
             default: return null;
         }
+    }
+
+    /** Levels with a turn tile on the Third floor, after the first few (501-515), which all have one. */
+    static final java.util.Set<Integer> THIRD_FLOOR_TURNS = new java.util.HashSet<>(java.util.Arrays.asList(
+            518, 526, 529, 536, 543, 549, 555, 562, 568, 575, 581, 588, 594, 601, 607, 614, 620, 627, 633, 640, 647, 650));
+
+    /**
+     * 501-650: the Third floor (Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room), 10x10.
+     * Turn tiles come in at 501 and ramp up slowly: one animal and a short chain (501-506), a second
+     * animal (507-509), then a trick (510-515). From 516 on the floor follows the Second floor's mix
+     * (each level uses the recipe of the level 150 before it, so it's about as hard), with a turn tile
+     * in about 1 level in 6 or 7. 650 is the boss.
+     */
+    private static Recipe thirdFloor(int n) {
+        String newTiles = "New: turn tiles! An animal that runs onto one goes the way it points.";
+        switch (n) {
+            case 501: return new Recipe(Animal.BEAR, 0, false, newTiles, Trick.PLAIN).withTurnTiles(1);
+            case 502: return new Recipe(Animal.BEAR, 0, false, "", Trick.PLAIN).withTurnTiles(1);
+            case 503: return new Recipe(Animal.LION, 0, false, "", Trick.PLAIN).withTurnTiles(1);
+            case 504: return new Recipe(Animal.BEAR, 0, false, "", Trick.PLAIN).withTurnTiles(1);
+            case 505: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withTurnTiles(1);
+            case 506: return new Recipe(Animal.LION, 0, false, "", Trick.PLAIN).withTurnTiles(1);
+            case 507: return new Recipe(Animal.LION, 0, false, "", Trick.PLAIN).withCatches(1).withTurnTiles(1);
+            case 508: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withCatches(1).withTurnTiles(1);
+            case 509: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withTurnTiles(1);
+            case 510: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withTurnTiles(1);
+            case 511: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
+            case 512: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withTurnTiles(1);
+            case 513: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
+            case 514: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withCatches(1).withTurnTiles(1);
+            case 515: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withBlockers(Animal.CAT, Animal.DOG);
+            default:
+                break;
+        }
+        // Walls work the same whatever they look like, so new wall drawings get no tip or card.
+        Recipe r = designed(n - 150).withTip("");
+        return THIRD_FLOOR_TURNS.contains(n) ? r.withTurnTiles(1) : r;
     }
 }
