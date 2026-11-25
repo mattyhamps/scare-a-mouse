@@ -300,7 +300,7 @@
   .plan-room b{font:600 13px Fredoka,system-ui;line-height:1.1;text-align:center}
   .plan-room small{font-size:10px;font-weight:700;color:#8a5c10}
   .plan-room.done small{color:#3b6d11}
-  .plan-room .pr-ic{font-size:20px}
+  .plan-room .pr-ic{font-size:20px;line-height:0}
   .plan-room.here{box-shadow:0 0 0 3px var(--gold),0 0 16px rgba(242,184,75,.8)}
   .plan-room .pr-mouse{position:absolute;right:4px;top:2px;font-size:16px;animation:bob 1.2s ease-in-out infinite;z-index:2}
   .plan-room .crown{position:absolute;left:4px;top:2px;font-size:14px;z-index:2}
@@ -627,6 +627,9 @@
   .plan .fog{display:none}
   .stairs{font:600 15px var(--font-body);border:0;border-radius:12px;padding:10px 14px;background:var(--paper-d);color:var(--paper-ink);box-shadow:0 4px 0 #cfae78}
   .stairs.locked{background:#b9b2a6;color:#f1e3c2;box-shadow:0 4px 0 #9d968a;opacity:1}
+  .stairs svg.icon,.nav-castle svg.icon{vertical-align:-3px}
+  .room-head .ic{line-height:0}
+  .plan-room .crown{line-height:0}
 </style>
 </head>
 <body>
@@ -657,7 +660,7 @@
   </div>
 </div>
 <div class="overlay" id="picker"><div class="card pick">
-  <div class="pick-nav" id="pickNav" hidden><button class="nav-castle" id="pickCastle">🏰 Castle</button><button class="pick-back" id="pickBack" hidden>‹</button></div>
+  <div class="pick-nav" id="pickNav" hidden><button class="nav-castle" id="pickCastle"><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M2 22 L2 9 L5 9 L5 11 L7 11 L7 9 L10 9 L10 4 L12 2 L14 4 L14 9 L17 9 L17 11 L19 11 L19 9 L22 9 L22 22 Z" fill="currentColor"/><path d="M9.5 22 L9.5 17 C9.5 14 14.5 14 14.5 17 L14.5 22 Z" fill="#b8862a"/></svg> Castle</button><button class="pick-back" id="pickBack" hidden>‹</button></div>
   <div class="pick-head"><h3 id="pickTitle">The castle</h3></div>
   <p><span id="progress"></span><span id="howToWrap"> · <button class="link-btn" id="howTo">How to play</button></span></p>
   <div class="map" id="dots"></div>
@@ -803,50 +806,50 @@ Promise.all([
   // its boss. A new board size (7x7 outside, 8x8 on the first floor, 9x9 on the second, then 10x10)
   // starts with a new area.
   const AREAS = [
-    {name:'Outside',         ic:'🌳', kind:'outside'},
-    {name:'Cellars',         ic:'🍷', kind:'cellars'},
-    {name:'First floor',     ic:'📚'},
-    {name:'Second floor',    ic:'⚔️'},
-    {name:'Third floor',     ic:'🏆'},
-    {name:'Fourth floor',    ic:'💰'},
-    {name:'Towers and roof', ic:'🚩'},
-    {name:'Royal floor',     ic:'👑'},
-    {name:'Tower top',       ic:'🌙', kind:'top'},
-    {name:'East wing',       ic:'🏯'},
+    {name:'Outside',         kind:'outside'},
+    {name:'Cellars',         kind:'cellars'},
+    {name:'First floor',},
+    {name:'Second floor',},
+    {name:'Third floor',},
+    {name:'Fourth floor',},
+    {name:'Towers and roof',},
+    {name:'Royal floor',},
+    {name:'Tower top',       kind:'top'},
+    {name:'East wing',},
   ];
   // Rooms in order. `end` is the room's last level, `area` its place in AREAS, `plan` its spot on the
   // area's map (x, y, width, height in %). out: outdoors (no torches or windows); top/deco: scenery.
   const ROOMS = [
-    {end:20,  area:0, name:'Meadow',         ic:'🌼', bg:'#55703f', out:1, plan:[4,76,44,20],  top:['🌳','🌼','🦋','🌷','🌳'], deco:['🌼','🌷','🦋','🐝','🌾','🍄']},
-    {end:40,  area:0, name:'Orchard',        ic:'🍎', bg:'#4f6a3a', out:1, plan:[52,60,44,20], top:['🌳','🍎','🧺','🍐','🌳'], deco:['🍎','🌳','🧺','🐛','🍐','🪜']},
-    {end:60,  area:0, name:'Stables',        ic:'🐴', bg:'#6b5434',        plan:[4,42,44,20],  top:['🐴','🌾','🐎'], deco:['🌾','🥕','🪵','🧺','🐓','🍎']},
-    {end:80,  area:0, name:'Moat bridge',    ic:'🌉', bg:'#3f5f6a', out:1, plan:[52,24,44,18], top:['🌊','🦆','🌉','🦆','🌊'], deco:['🦆','🐸','🪷','🐟','🌾','🪨']},
-    {end:100, area:0, name:'Gate',           ic:'🏰', bg:'#4b5a3a', out:1, plan:[28,2,44,18],  top:['🌲','🚩','🏰','🚩','🌲'], deco:['🌿','🪨','🌼','🍄','🛡️','🐌']},
+    {end:20,  area:0, name:'Meadow',         bg:'#55703f', out:1, plan:[4,76,44,20],  top:['🌳','🌼','🦋','🌷','🌳'], deco:['🌼','🌷','🦋','🐝','🌾','🍄']},
+    {end:40,  area:0, name:'Orchard',        bg:'#4f6a3a', out:1, plan:[52,60,44,20], top:['🌳','🍎','🧺','🍐','🌳'], deco:['🍎','🌳','🧺','🐛','🍐','🪜']},
+    {end:60,  area:0, name:'Stables',        bg:'#6b5434',        plan:[4,42,44,20],  top:['🐴','🌾','🐎'], deco:['🌾','🥕','🪵','🧺','🐓','🍎']},
+    {end:80,  area:0, name:'Moat bridge',    bg:'#3f5f6a', out:1, plan:[52,24,44,18], top:['🌊','🦆','🌉','🦆','🌊'], deco:['🦆','🐸','🪷','🐟','🌾','🪨']},
+    {end:100, area:0, name:'Gate',           bg:'#4b5a3a', out:1, plan:[28,2,44,18],  top:['🌲','🚩','🏰','🚩','🌲'], deco:['🌿','🪨','🌼','🍄','🛡️','🐌']},
     // Into the castle through the cellars
-    {end:120, area:1, name:'Storeroom',      ic:'📦', bg:'#4a3e30', plan:[6,70,42,24], top:['🛢️','📦','🧺'], deco:['📦','🧺','🥔','🕸️','🐀','🕯️']},
-    {end:145, area:1, name:'Wine cellar',    ic:'🍷', bg:'#40302e', plan:[54,62,40,32],  top:['🛢️','🍷','🛢️'], deco:['🛢️','🍇','🍷','🕸️','🧀','🐀']},
-    {end:170, area:1, name:'Dungeon',        ic:'⛓️', bg:'#2f2f36', plan:[54,24,40,30], top:['⛓️','💀','⛓️'], deco:['⛓️','🦴','🕸️','🐀','💀','🪨']},
-    {end:200, area:1, name:'Kitchens',       ic:'🍲', bg:'#664a32', plan:[6,6,42,56],  top:['🍳','🍲','🥖'], deco:['🧀','🥖','🧅','🥕','🫖','🍯']},
-    {end:230, area:2, name:'Library',        ic:'📚', bg:'#3f3a5a', plan:[4,54,34,40],  top:['📚','🕯️','📚'], deco:['📜','📖','🪶','🕯️','🔭','📚']},
-    {end:260, area:2, name:'Study',          ic:'🪶', bg:'#4a3f36', plan:[4,6,34,42],   top:['🗺️','🪶','🕯️'], deco:['🪶','📜','🔍','🕯️','🌍','📐']},
-    {end:290, area:2, name:'Great hall',     ic:'🛡️', bg:'#5b3c3a', plan:[44,6,52,34], top:['🛡️','🍗','🛡️'], deco:['🕯️','🍷','🍗','🪑','🎺','🥧']},
-    {end:320, area:2, name:'Ballroom',       ic:'🎻', bg:'#5b3a5c', plan:[44,46,52,24],   top:['🎻','🪩','🎺'], deco:['💃','🎶','🥂','🎭','🕺','🌹']},
-    {end:350, area:2, name:'Gallery',        ic:'🖼️', bg:'#5a4048', plan:[44,76,52,18], top:['🖼️','🏺','🖼️'], deco:['🏺','🗿','🪞','🖼️','🎨','💐']},
-    {end:390, area:3, name:'Chapel',         ic:'🔔', bg:'#4d4a63', plan:[6,58,40,34],  top:['🕯️','🔔','🕯️'], deco:['🌸','🕯️','📿','💐','🕊️','🔔']},
-    {end:420, area:3, name:'Secret passage', ic:'🗝️', bg:'#2a2833', plan:[52,72,42,14],  top:['🕸️','🗝️','🕸️'], deco:['🕸️','🕷️','🗝️','🦴','🪨','🕯️']},
-    {end:460, area:3, name:'Map room',       ic:'🗺️', bg:'#4a4a36', plan:[52,24,42,36],  top:['🗺️','🧭','🗺️'], deco:['🧭','📜','🌍','🕯️','📐','🔭']},
-    {end:500, area:3, name:'Armory',         ic:'⚔️', bg:'#45484f', plan:[6,6,40,40],  top:['🛡️','⚔️','🛡️'], deco:['⚔️','🏹','🪓','🛡️','🔨','🪖']},
-    {end:550, area:4, name:'Guard room',     ic:'🪖', bg:'#4a4540', plan:[6,50,42,40], top:['🪖','🔥','🪖'], deco:['🎲','🍺','🪖','🕯️','🗡️','🪑']},
-    {end:600, area:4, name:'Trophy room',    ic:'🏆', bg:'#4f4030', plan:[52,10,42,40], top:['🏆','🦌','🏆'], deco:['🏆','🛡️','🦌','🏅','⚔️','🖼️']},
-    {end:650, area:5, name:'Treasury',       ic:'💎', bg:'#5a4a25', plan:[6,58,42,34],  top:['💎','👑','💎'], deco:['💰','🪙','💎','📦','🏆','💍']},
-    {end:700, area:5, name:'Music room',     ic:'🎼', bg:'#4a3a52', plan:[52,58,42,34], top:['🎻','🎼','🎺'], deco:['🎵','🎹','🎻','🪕','🎶','🕯️']},
-    {end:750, area:5, name:'Clock tower',    ic:'🕰️', bg:'#4a4440', plan:[30,8,40,40],  top:['⚙️','🕰️','⚙️'], deco:['⚙️','🦉','🔔','🪜','🕸️','⏳']},
-    {end:800, area:6, name:'Battlements',    ic:'🚩', bg:'#4e5866', out:1, plan:[6,44,88,26], top:['🚩','☁️','🏹','☁️','🚩'], deco:['☁️','🐦','🪨','🏹','🦅','🌬️']},
-    {end:850, area:6, name:'Watchtower',     ic:'🔭', bg:'#4a5060', plan:[34,6,32,30],  top:['🔭','🦅','🔭'], deco:['🔭','🦅','☁️','🏹','🪶','🌬️']},
-    {end:900, area:7, name:'Royal chambers', ic:'🛏️', bg:'#5c3646', plan:[6,58,42,34],  top:['🖼️','🛏️','🪞'], deco:['🧸','🕯️','👗','🎀','🪞','🌹']},
-    {end:930, area:7, name:'Tower stairs',   ic:'🪜', bg:'#454049', plan:[56,54,20,40], top:['🕸️','🪜','🕸️'], deco:['🕯️','🕸️','🦇','🪨','🗝️','🕷️']},
-    {end:980, area:7, name:'Throne room',    ic:'👑', bg:'#5e2f35', plan:[18,8,64,38],  top:['🚩','👑','🚩'], deco:['👑','🕯️','🛡️','🎺','🏆','🌹']},
-    {end:1000,area:8, name:'Tower top',      ic:'🌙', bg:'#2e3557', out:1, night:1, plan:[25,25,50,50], top:['⭐','🌙','⭐'], deco:['⭐','🦇','✨','🦉','☁️','🌟']},
+    {end:120, area:1, name:'Storeroom',      bg:'#4a3e30', plan:[6,70,42,24], top:['🛢️','📦','🧺'], deco:['📦','🧺','🥔','🕸️','🐀','🕯️']},
+    {end:145, area:1, name:'Wine cellar',    bg:'#40302e', plan:[54,62,40,32],  top:['🛢️','🍷','🛢️'], deco:['🛢️','🍇','🍷','🕸️','🧀','🐀']},
+    {end:170, area:1, name:'Dungeon',        bg:'#2f2f36', plan:[54,24,40,30], top:['⛓️','💀','⛓️'], deco:['⛓️','🦴','🕸️','🐀','💀','🪨']},
+    {end:200, area:1, name:'Kitchens',       bg:'#664a32', plan:[6,6,42,56],  top:['🍳','🍲','🥖'], deco:['🧀','🥖','🧅','🥕','🫖','🍯']},
+    {end:230, area:2, name:'Library',        bg:'#3f3a5a', plan:[4,54,34,40],  top:['📚','🕯️','📚'], deco:['📜','📖','🪶','🕯️','🔭','📚']},
+    {end:260, area:2, name:'Study',          bg:'#4a3f36', plan:[4,6,34,42],   top:['🗺️','🪶','🕯️'], deco:['🪶','📜','🔍','🕯️','🌍','📐']},
+    {end:290, area:2, name:'Great hall',     bg:'#5b3c3a', plan:[44,6,52,34], top:['🛡️','🍗','🛡️'], deco:['🕯️','🍷','🍗','🪑','🎺','🥧']},
+    {end:320, area:2, name:'Ballroom',       bg:'#5b3a5c', plan:[44,46,52,24],   top:['🎻','🪩','🎺'], deco:['💃','🎶','🥂','🎭','🕺','🌹']},
+    {end:350, area:2, name:'Gallery',        bg:'#5a4048', plan:[44,76,52,18], top:['🖼️','🏺','🖼️'], deco:['🏺','🗿','🪞','🖼️','🎨','💐']},
+    {end:390, area:3, name:'Chapel',         bg:'#4d4a63', plan:[6,58,40,34],  top:['🕯️','🔔','🕯️'], deco:['🌸','🕯️','📿','💐','🕊️','🔔']},
+    {end:420, area:3, name:'Secret passage', bg:'#2a2833', plan:[52,72,42,14],  top:['🕸️','🗝️','🕸️'], deco:['🕸️','🕷️','🗝️','🦴','🪨','🕯️']},
+    {end:460, area:3, name:'Map room',       bg:'#4a4a36', plan:[52,24,42,36],  top:['🗺️','🧭','🗺️'], deco:['🧭','📜','🌍','🕯️','📐','🔭']},
+    {end:500, area:3, name:'Armory',         bg:'#45484f', plan:[6,6,40,40],  top:['🛡️','⚔️','🛡️'], deco:['⚔️','🏹','🪓','🛡️','🔨','🪖']},
+    {end:550, area:4, name:'Guard room',     bg:'#4a4540', plan:[6,50,42,40], top:['🪖','🔥','🪖'], deco:['🎲','🍺','🪖','🕯️','🗡️','🪑']},
+    {end:600, area:4, name:'Trophy room',    bg:'#4f4030', plan:[52,10,42,40], top:['🏆','🦌','🏆'], deco:['🏆','🛡️','🦌','🏅','⚔️','🖼️']},
+    {end:650, area:5, name:'Treasury',       bg:'#5a4a25', plan:[6,58,42,34],  top:['💎','👑','💎'], deco:['💰','🪙','💎','📦','🏆','💍']},
+    {end:700, area:5, name:'Music room',     bg:'#4a3a52', plan:[52,58,42,34], top:['🎻','🎼','🎺'], deco:['🎵','🎹','🎻','🪕','🎶','🕯️']},
+    {end:750, area:5, name:'Clock tower',    bg:'#4a4440', plan:[30,8,40,40],  top:['⚙️','🕰️','⚙️'], deco:['⚙️','🦉','🔔','🪜','🕸️','⏳']},
+    {end:800, area:6, name:'Battlements',    bg:'#4e5866', out:1, plan:[6,44,88,26], top:['🚩','☁️','🏹','☁️','🚩'], deco:['☁️','🐦','🪨','🏹','🦅','🌬️']},
+    {end:850, area:6, name:'Watchtower',     bg:'#4a5060', plan:[34,6,32,30],  top:['🔭','🦅','🔭'], deco:['🔭','🦅','☁️','🏹','🪶','🌬️']},
+    {end:900, area:7, name:'Royal chambers', bg:'#5c3646', plan:[6,58,42,34],  top:['🖼️','🛏️','🪞'], deco:['🧸','🕯️','👗','🎀','🪞','🌹']},
+    {end:930, area:7, name:'Tower stairs',   bg:'#454049', plan:[56,54,20,40], top:['🕸️','🪜','🕸️'], deco:['🕯️','🕸️','🦇','🪨','🗝️','🕷️']},
+    {end:980, area:7, name:'Throne room',    bg:'#5e2f35', plan:[18,8,64,38],  top:['🚩','👑','🚩'], deco:['👑','🕯️','🛡️','🎺','🏆','🌹']},
+    {end:1000,area:8, name:'Tower top',      bg:'#2e3557', out:1, night:1, plan:[25,25,50,50], top:['⭐','🌙','⭐'], deco:['⭐','🦇','✨','🦉','☁️','🌟']},
   ];
   // Each room's board: floor tiles, castle-wall stone and the look of walls. Kept close to the
   // original board, just tinted to fit the room. [floor A, floor B, stone light, stone, stone dark]
@@ -884,7 +887,7 @@ Promise.all([
 
   // Room r covers levels (start, end]; past level 1000 the castle grows an east wing, 50 levels a room.
   const room = r => r < ROOMS.length ? {...ROOMS[r], start: r ? ROOMS[r-1].end : 0}
-    : {name:`East wing ${r-ROOMS.length+1}`, ic:'🏯', bg:'#4a4155', area:9, plan:[10,10,80,80], top:['🕯️','🏯','🕯️'],
+    : {name:`East wing ${r-ROOMS.length+1}`, bg:'#4a4155', area:9, plan:[10,10,80,80], top:['🕯️','🏯','🕯️'],
        deco:['🕯️','🪨','🌿','🕸️'], start: 1000 + (r-ROOMS.length)*50, end: 1000 + (r-ROOMS.length+1)*50};
   // The rooms of area a, in order (the east wing only grows as far as there are levels for it).
   const roomsOf = a => { const out=[]; for (let r=0; r<ROOMS.length || room(r).start < LEVELS.length; r++) if (room(r).area===a) out.push(r); return out; };
@@ -948,6 +951,35 @@ Promise.all([
     'Gate': `<span class="pa sky"></span><span class="pa gatehouse"></span><span class="pe wave" style="left:14%;top:2%">🚩</span><span class="pe wave" style="left:78%;top:2%">🚩</span>`,
   };
 
+  // Small flat icons (24×24) for rooms and buttons, drawn in paper colours to sit on a coloured block.
+  // icon(key, px) gives an <svg>; room icons are keyed by the room's name.
+  const ICONS = {
+    'Meadow': '<circle cx="12" cy="6" r="4" fill="#f1e3c2"/><circle cx="18" cy="11" r="4" fill="#e0cb9c"/><circle cx="15.5" cy="18" r="4" fill="#e0cb9c"/><circle cx="8.5" cy="18" r="4" fill="#f1e3c2"/><circle cx="6" cy="11" r="4" fill="#f1e3c2"/><circle cx="12" cy="12.5" r="3.6" fill="#d9a43a"/>',
+    'Orchard': '<path d="M12 7 C6 4 2 9 4 15 C6 21 10 22 12 20 C14 22 18 21 20 15 C22 9 18 4 12 7 Z" fill="#f1e3c2"/><path d="M12 7 C18 4 22 9 20 15 C18 21 14 22 12 20 C15 17 16 11 12 7 Z" fill="#e0cb9c"/><path d="M12 7 C12 4 13 2 15 1" stroke="#e0cb9c" stroke-width="2" fill="none"/><path d="M13 5 C15 2 19 2 20 4 C17 6 15 6 13 5 Z" fill="#d9a43a"/>',
+    'Stables': '<path d="M5 3 L5 12 C5 17 8 21 12 21 C16 21 19 17 19 12 L19 3 L15 3 L15 12 C15 15 14 17 12 17 C10 17 9 15 9 12 L9 3 Z" fill="#f1e3c2"/><path d="M15 3 L19 3 L19 12 C19 17 16 21 12 21 L12 17 C14 17 15 15 15 12 Z" fill="#e0cb9c"/><circle cx="7" cy="7" r="1" fill="#2b1d14"/><circle cx="17" cy="7" r="1" fill="#2b1d14"/>',
+    'Moat bridge': '<path d="M2 14 L2 9 L22 9 L22 14 L18 14 C18 11 15 10 12 10 C9 10 6 11 6 14 Z" fill="#f1e3c2"/><rect x="2" y="7" width="20" height="2" fill="#e0cb9c"/><path d="M2 18 q2.5 -2 5 0 t5 0 t5 0 t5 0" stroke="#e0cb9c" stroke-width="2" fill="none"/><path d="M2 22 q2.5 -2 5 0 t5 0 t5 0 t5 0" stroke="#e0cb9c" stroke-width="2" fill="none"/>',
+    'Gate': '<path d="M3 22 L3 5 L6 5 L6 8 L9 8 L9 5 L15 5 L15 8 L18 8 L18 5 L21 5 L21 22 Z" fill="#f1e3c2"/><rect x="15" y="5" width="6" height="17" fill="#e0cb9c"/><path d="M8 22 L8 15 C8 11 16 11 16 15 L16 22 Z" fill="#2b1d14"/><path d="M10 13 L10 22 M12 12 L12 22 M14 13 L14 22 M8 17 L16 17" stroke="#857e72" stroke-width="1.2"/>',
+    'Storeroom': '<rect x="3" y="4" width="18" height="17" rx="2" fill="#f1e3c2"/><rect x="15" y="4" width="6" height="17" rx="1" fill="#e0cb9c"/><path d="M5 6 L19 19 M19 6 L5 19" stroke="#e0cb9c" stroke-width="2.4"/><rect x="3" y="4" width="18" height="3" fill="#e0cb9c"/>',
+    'Wine cellar': '<rect x="10" y="1" width="4" height="6" fill="#e0cb9c"/><path d="M10 7 L14 7 C17 9 17 11 17 13 L17 22 L7 22 L7 13 C7 11 7 9 10 7 Z" fill="#f1e3c2"/><path d="M13 7 L14 7 C17 9 17 11 17 13 L17 22 L13 22 Z" fill="#e0cb9c"/><rect x="7" y="14" width="10" height="4" fill="#d9a43a"/>',
+    'Dungeon': '<rect x="3" y="3" width="18" height="18" rx="3" fill="#f1e3c2"/><rect x="6" y="6" width="12" height="12" fill="#2b1d14"/><path d="M9 6 L9 18 M12 6 L12 18 M15 6 L15 18" stroke="#e0cb9c" stroke-width="2"/>',
+    'Kitchens': '<path d="M3 10 L21 10 L19 20 C19 21 18 22 17 22 L7 22 C6 22 5 21 5 20 Z" fill="#f1e3c2"/><path d="M14 10 L21 10 L19 20 C19 21 18 22 17 22 L14 22 Z" fill="#e0cb9c"/><rect x="2" y="8" width="20" height="3" rx="1.5" fill="#e0cb9c"/><path d="M8 6 q1 -2 0 -4 M12 6 q1 -2 0 -4 M16 6 q1 -2 0 -4" stroke="#f1e3c2" stroke-width="1.6" fill="none"/>',
+    'Library': '<path d="M2 5 C6 3 10 4 12 6 L12 21 C10 19 6 18 2 20 Z" fill="#f1e3c2"/><path d="M22 5 C18 3 14 4 12 6 L12 21 C14 19 18 18 22 20 Z" fill="#e0cb9c"/><path d="M4 9 L10 9 M4 12 L10 12 M14 9 L20 9 M14 12 L20 12" stroke="#b39260" stroke-width="1.2"/>',
+    'Study': '<path d="M20 2 C10 4 6 10 5 18 L7 18 C9 12 13 7 20 2 Z" fill="#f1e3c2"/><path d="M20 2 C17 9 13 14 7 18 L9 18 C14 14 18 9 20 2 Z" fill="#e0cb9c"/><path d="M5 18 L3 22" stroke="#f1e3c2" stroke-width="2" stroke-linecap="round"/>',
+    'Great hall': '<path d="M3 3 L21 3 L21 11 C21 17 16 21 12 22 C8 21 3 17 3 11 Z" fill="#f1e3c2"/><path d="M12 3 L21 3 L21 11 C21 17 16 21 12 22 Z" fill="#e0cb9c"/><path d="M12 6 L12 18 M7 10 L17 10" stroke="#d9a43a" stroke-width="2.4"/>',
+    'Ballroom': '<path d="M9 4 L20 2 L20 16" stroke="#f1e3c2" stroke-width="2.4" fill="none"/><path d="M9 4 L9 18" stroke="#f1e3c2" stroke-width="2.4"/><ellipse cx="6.5" cy="18.5" rx="3.6" ry="3" fill="#f1e3c2"/><ellipse cx="17.5" cy="16.5" rx="3.6" ry="3" fill="#e0cb9c"/><path d="M9 7 L20 5" stroke="#e0cb9c" stroke-width="2.4"/>',
+    'Gallery': '<rect x="2" y="3" width="20" height="18" rx="1" fill="#d9a43a"/><rect x="5" y="6" width="14" height="12" fill="#f1e3c2"/><path d="M5 18 L10 11 L13 15 L15 13 L19 18 Z" fill="#7a9a4a"/><circle cx="15.5" cy="9" r="1.6" fill="#d9a43a"/>',
+    'Chapel': '<path d="M12 2 C7 2 5 6 5 10 L5 16 L3 18 L21 18 L19 16 L19 10 C19 6 17 2 12 2 Z" fill="#f1e3c2"/><path d="M12 2 C17 2 19 6 19 10 L19 16 L21 18 L12 18 Z" fill="#e0cb9c"/><circle cx="12" cy="20.5" r="2" fill="#d9a43a"/>',
+    'Secret passage': '<circle cx="7" cy="12" r="5" fill="none" stroke="#d9a43a" stroke-width="3"/><rect x="11" y="10.5" width="11" height="3" fill="#d9a43a"/><rect x="17" y="13" width="2.4" height="4" fill="#d9a43a"/><rect x="20" y="13" width="2" height="3" fill="#d9a43a"/>',
+    'Map room': '<circle cx="12" cy="12" r="10" fill="#f1e3c2"/><path d="M12 2 A10 10 0 0 1 12 22 Z" fill="#e0cb9c"/><path d="M12 4 L14.5 12 L12 20 L9.5 12 Z" fill="#a8353a"/><path d="M12 12 L14.5 12 L12 20 Z" fill="#842629"/><circle cx="12" cy="12" r="1.6" fill="#2b1d14"/>',
+    'Armory': '<path d="M4 2 L6 2 L20 16 L18 18 Z" fill="#f1e3c2"/><path d="M20 2 L18 2 L4 16 L6 18 Z" fill="#e0cb9c"/><path d="M14 18 L20 12 M10 18 L4 12" stroke="#d9a43a" stroke-width="2.4"/><circle cx="21" cy="21" r="2" fill="#d9a43a"/><circle cx="3" cy="21" r="2" fill="#d9a43a"/>',
+    _: '<path d="M12 2 L14.6 8.6 L22 9 L16.2 13.6 L18.2 21 L12 16.8 L5.8 21 L7.8 13.6 L2 9 L9.4 8.6 Z" fill="#f1e3c2"/>',
+    crown: '<path d="M2 18 L3 7 L8 12 L12 4 L16 12 L21 7 L22 18 Z" fill="#d9a43a"/><path d="M12 4 L16 12 L21 7 L22 18 L12 18 Z" fill="#b8862a"/><rect x="2" y="18" width="20" height="3" rx="1" fill="#b8862a"/><circle cx="12" cy="13" r="1.6" fill="#a8353a"/>',
+    lock: '<path d="M7 11 L7 7 C7 2 17 2 17 7 L17 11" fill="none" stroke="#857e72" stroke-width="3"/><rect x="4" y="10" width="16" height="12" rx="3" fill="#d9a43a"/><rect x="11" y="14" width="2.4" height="5" rx="1" fill="#2b1d14"/>',
+    up: '<path d="M12 4 L20 13 L15 13 L15 20 L9 20 L9 13 L4 13 Z" fill="currentColor"/>',
+    down: '<path d="M12 20 L20 11 L15 11 L15 4 L9 4 L9 11 L4 11 Z" fill="currentColor"/>',
+    castle: '<path d="M2 22 L2 9 L5 9 L5 11 L7 11 L7 9 L10 9 L10 4 L12 2 L14 4 L14 9 L17 9 L17 11 L19 11 L19 9 L22 9 L22 22 Z" fill="currentColor"/><path d="M9.5 22 L9.5 17 C9.5 14 14.5 14 14.5 17 L14.5 22 Z" fill="#b8862a"/>',
+  };
+  const icon = (k, px) => `<svg class="icon" viewBox="0 0 24 24" width="${px}" height="${px}" aria-hidden="true">${ICONS[k] || ICONS._}</svg>`;
   // Room blocks on a floor's map take these colours in turn (face, lower lip).
   const PLAN_COLORS = [['#b5622a','#954d1f'],['#2f4f8f','#233b6c'],['#a8353a','#842629'],['#3f6b3a','#2f5530'],['#5e3460','#4a2850'],['#8a5432','#6e4126']];
   // A map box: one block per room of the area, joined by corridors in order.
@@ -966,11 +998,11 @@ Promise.all([
         const n = rm.end - rm.start, s = solvedIn(r), done = roomCleared(r), here = r === mouseRoom;
         const fresh = !seenRooms.includes(r) ? ' reveal' : '';
         const lift = fresh ? '<span class="fog lift"></span>' : '';  // the fog clears off a room you just reached
-        const boss = rm.end === areaEnd(a) ? '<span class="crown">👑</span>' : '';
+        const boss = rm.end === areaEnd(a) ? `<span class="crown">${icon('crown',18)}</span>` : '';
         const [rc, rcd] = PLAN_COLORS[(k + a * 2) % PLAN_COLORS.length];
         blocks += `<button class="plan-room${outside?' place':''}${done?' done':''}${here?' here':''}${fresh}" data-r="${r}" style="${pos};--rc:${outside ? '#3f6b3a' : rc};--rcd:${outside ? '#2f5530' : rcd}">
           ${outside ? `<span class="art">${PLACE_ART[rm.name]||''}</span>` : ''}
-          <span class="pr-ic">${rm.ic}</span><b>${rm.name}</b><small>${done ? '✓ ' : ''}${s}/${n}</small>${boss}
+          <span class="pr-ic">${icon(rm.name,26)}</span><b>${rm.name}</b><small>${done ? '✓ ' : ''}${s}/${n}</small>${boss}
           ${here ? `<span class="pr-mouse">${art('mouse',20)}</span>` : ''}${lift}</button>`;
       } else if (r === firstMissing) {
         blocks += `<div class="plan-room next fogged${w < 20 ? ' narrow' : ''}" style="${pos}"><span class="fog"></span><span class="fog-q">${roomExists(r) ? '?' : `<small>coming${w < 20 ? ' ' : '<br>'}soon</small>`}</span></div>`;
@@ -979,8 +1011,8 @@ Promise.all([
       }
     });
     const up = AREAS[a+1] && roomsOf(a+1).length ? a+1 : null, down = a > 0 ? a-1 : null;
-    const stairs = `${down!==null ? `<button class="stairs down" data-a="${down}">${outside ? '' : (a===1 ? '⬇ Outside' : `⬇ ${AREAS[down].name}`)}</button>` : ''}
-      ${up!==null ? `<button class="stairs up${areaReached(up)?'':' locked'}" data-a="${up}" ${areaReached(up)?'':'disabled'}>${areaReached(up) ? `⬆ ${outside ? 'Into the castle' : AREAS[up].name}` : (outside ? '🔒 Into the castle' : '🔒 Upstairs')}</button>` : ''}`;
+    const stairs = `${down!==null ? `<button class="stairs down" data-a="${down}">${outside ? '' : `${icon('down',16)} ${a===1 ? 'Outside' : AREAS[down].name}`}</button>` : ''}
+      ${up!==null ? `<button class="stairs up${areaReached(up)?'':' locked'}" data-a="${up}" ${areaReached(up)?'':'disabled'}>${areaReached(up) ? `${icon('up',16)} ${outside ? 'Into the castle' : AREAS[up].name}` : `${icon('lock',16)} ${outside ? 'Into the castle' : 'Upstairs'}`}</button>` : ''}`;
     return `<div class="plan ${outside ? 'outside' : 'floor'}${AREAS[a].kind === 'cellars' ? ' cellars' : ''}">
       ${outside ? '<span class="castle-wall"></span><span class="moat"></span>' : ''}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="corridors">${corridors}</svg>
@@ -1354,7 +1386,7 @@ Promise.all([
     } else exit = `<div class="doorway soon"><div class="label">More levels coming soon</div></div>`;
     const came = r > 0 ? `From the ${room(r-1).name}` : 'Start here';
     return `<section class="room scene f-${sc.floor}${sc.dark ? ' dark' : ''}${outdoor ? ' outdoor' : ''}${rm.night ? ' night' : ''}" data-room="${r}" style="--rb:${rm.bg}">
-      <div class="room-head"><span class="ic">${rm.ic}</span><b>${rm.name}</b><small>${LEVELS[from].w}×${LEVELS[from].h} · ${solvedIn(r)}/${rm.end-rm.start}</small>
+      <div class="room-head"><span class="ic">${icon(rm.name,22)}</span><b>${rm.name}</b><small>${LEVELS[from].w}×${LEVELS[from].h} · ${solvedIn(r)}/${rm.end-rm.start}</small>
         ${DEV && rm.end <= LEVELS.length ? `<button class="devtest" data-r="${r}">Test</button>` : ''}</div>
       <div class="room-body" style="height:${L8.H.toFixed(0)}px">
         <div class="scene-head hk-${sc.head}">${sceneHead(sc.head, rm)}</div>
