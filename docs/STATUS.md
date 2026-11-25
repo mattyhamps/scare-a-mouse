@@ -18,6 +18,9 @@ _Last updated: 25 November 2026._
 - Claude Code is set up on Matt's Windows PC (JDK 21, Maven, Node 22, Playwright). The screenshot tools
   in `tools/screens` work on Windows too.
 
+- Level spots on the room maps never overlap: where a tight bend brings two together, the room spreads
+  them out (and grows a little if it has to). This fixed the Guard room and a few spots in other rooms.
+
 ## Next
 
 1. **Fourth floor (651–800):** Treasury, Music room, Sewing room, Guest bedrooms, Clock tower. Turn tiles

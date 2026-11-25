@@ -1333,8 +1333,11 @@ Promise.all([
     return out;
   }
   // Where the road crosses itself, nudge any level sitting on the crossing along the road until it is clear.
+  // True for points of the road that sit where it crosses itself.
+  const crossingTest = geo => { const D = geo.dense, L = geo.L;
+    return i => D.some((q, j) => Math.abs(L[j] - L[i]) > 120 && Math.hypot(q[0] - D[i][0], q[1] - D[i][1]) < 46); };
   function nodesClearOfCrossings(geo, nodes) {
-    const D = geo.dense, L = geo.L, near = i => D.some((q, j) => Math.abs(L[j] - L[i]) > 120 && Math.hypot(q[0] - D[i][0], q[1] - D[i][1]) < 46);
+    const D = geo.dense, near = crossingTest(geo);
     const idx = p => { let best = 0, bd = 1e9; D.forEach((q, i) => { const d = Math.hypot(q[0] - p[0], q[1] - p[1]); if (d < bd) { bd = d; best = i; } }); return best; };
     return nodes.map(p => { let i = idx(p); if (!near(i)) return p;
       for (let s = 1; s < 60; s++) for (const j of [i + s, i - s]) if (j > 0 && j < D.length && !near(j)) return D[j].slice(0, 2);
@@ -1352,7 +1355,36 @@ Promise.all([
     b = build(V);
     let nodes = nodesAlong(b.geo, n, b.start, END);
     if (sc.avoidCrossings) nodes = nodesClearOfCrossings(b.geo, nodes);
+    // A tight bend can bring the levels on either side of it on top of each other. Then spread them out
+    // so no two touch, making the room a little longer if they don't fit.
+    for (let grow = 0; grow < 8 && n > 1 && closest(nodes) < SPOT; grow++) {
+      const nearCross = sc.avoidCrossings ? crossingTest(b.geo) : () => false;
+      const spaced = nodesSpaced(b.geo, n, b.start, END, i => !nearCross(i));
+      if (spaced) { nodes = spaced; break; }
+      V *= 1.08; b = build(V); nodes = nodesAlong(b.geo, n, b.start, END);
+      if (sc.avoidCrossings) nodes = nodesClearOfCrossings(b.geo, nodes);
+    }
     return { H: b.H, geo: b.geo, shape: b.shape, nodes };
+  }
+  // Two level spots closer than this (in room units, about a spot's width plus a little) overlap.
+  const SPOT = 50;
+  const closest = nodes => { let m = Infinity;
+    for (let a = 0; a < nodes.length; a++) for (let c = a + 1; c < nodes.length; c++) m = Math.min(m, Math.hypot(nodes[a][0] - nodes[c][0], nodes[a][1] - nodes[c][1]));
+    return m; };
+  // Puts n levels along the road so that none is closer than SPOT to another: each one at least `step`
+  // further along the road than the last, using the largest step that still fits them all. null if
+  // they can't all fit. ok(i) can rule out points of the road (where it crosses itself).
+  function nodesSpaced(geo, n, startAt, endAt, ok) {
+    const D = geo.dense, L = geo.L, T = L[L.length - 1] - endAt;
+    const place = step => { const out = []; let last = -Infinity;
+      for (let i = 0; i < D.length && out.length < n; i++) {
+        if (L[i] < startAt || L[i] > T || L[i] - last < step || !ok(i)) continue;
+        if (out.some(p => Math.hypot(p[0] - D[i][0], p[1] - D[i][1]) < SPOT)) continue;
+        out.push([D[i][0], D[i][1]]); last = L[i]; }
+      return out; };
+    let lo = 0, hi = (T - startAt) / Math.max(1, n - 1) + 1, best = null;
+    for (let it = 0; it < 24; it++) { const mid = (lo + hi) / 2, got = place(mid); if (got.length >= n) { best = got; lo = mid; } else hi = mid; }
+    return best;
   }
   function roomScene(r) {
     const rm = room(r), from = rm.start, to = Math.min(LEVELS.length, rm.end), n = Math.max(1, to - from);
