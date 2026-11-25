@@ -121,10 +121,13 @@ look to `BOARDS` in the same change. `LevelsTest` fails if a room has levels but
 **No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms
 (`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.
 
-**Hints and cheese.** Each animal you place has two hints, one per press: a 3×3 patch it goes in is
-shaded, then the exact square glows. Hints cost cheese (1 and 2 🧀). You earn cheese the first time you solve a level: 3 🧀 with no hints, 1 🧀
-with hints, double on boss levels, plus 5 🧀 for clearing a room. New players start with 5 🧀.
-Hints you've bought stay bought for that level.
+**Hints and cheese.** Tap one of your animals (in the tray or on the board), then press Hint. Its first
+hint costs 1 cheese and shades the 3×3 patch it goes in; its second costs 2 and lights up its exact
+square. If the animal is already on its right square, the hint confirms that instead, for the same
+price, and that animal needs no more hints. Tapping a placed animal picks it; tapping it again sends
+it back to the tray. Cheese is scarce: you earn 1 the first time you solve a level with no hints (3 on
+a boss level, nothing if you used a hint) and 2 for clearing a room. New players start with 5. Hints
+you've bought stay bought for that level.
 
 Level tools:
 
