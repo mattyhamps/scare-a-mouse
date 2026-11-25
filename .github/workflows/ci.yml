@@ -3,7 +3,8 @@ name: Build, test and publish
 # Every pull request gets its own preview site; merging into main publishes the live site.
 #   Live:    https://mattyhamps.github.io/scare-a-mouse/
 #   Preview: https://mattyhamps.github.io/scare-a-mouse/pr-preview/pr-<number>/
-# Both are folders on the gh-pages branch (Settings > Pages > Deploy from a branch: gh-pages).
+#   Old:     https://mattyhamps.github.io/scare-a-mouse/v1/ (frozen copies of earlier versions, v1, v2...)
+# All are folders on the gh-pages branch (Settings > Pages > Deploy from a branch: gh-pages).
 
 on:
   push:
@@ -119,8 +120,8 @@ jobs:
             fi
             message="Preview for pull request #$PR ($ACTION)"
           else
-            # Live site at the top level; leave the previews folder alone.
-            find . -mindepth 1 -maxdepth 1 ! -name .git ! -name pr-preview -exec rm -rf {} +
+            # Live site at the top level; leave the previews and the frozen old versions (v1, v2...) alone.
+            find . -mindepth 1 -maxdepth 1 ! -name .git ! -name pr-preview ! -regex '\./v[0-9]+' -exec rm -rf {} +
             cp -R ../site/. .
             message="Publish ${GITHUB_SHA::7} from main"
           fi
