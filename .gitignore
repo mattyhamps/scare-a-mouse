@@ -3,3 +3,7 @@ target/
 *.iml
 .vscode/
 .DS_Store
+tools/screens/out/
+tools/art/third_floor_art*.json
+tools/art/__pycache__/
+node_modules/
