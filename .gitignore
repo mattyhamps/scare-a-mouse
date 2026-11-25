@@ -5,5 +5,7 @@ target/
 .DS_Store
 tools/screens/out/
 tools/art/third_floor_art*.json
+tools/art/fourth_floor_art.json
 tools/art/__pycache__/
 node_modules/
+tools/levels/build.log
