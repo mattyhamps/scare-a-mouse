@@ -110,6 +110,12 @@
   .trip-mouse span{display:block;animation:bob 1.2s ease-in-out infinite}
   .trip-mouse.walking span{animation:hop .26s ease-in-out infinite}
   .trip-mouse svg.art{display:inline-block}
+  /* the level you tapped on the map: a gold ring, and its "Level N" button by Close */
+  .map .node.picked{box-shadow:0 0 0 6px var(--gold),0 3px 0 rgba(0,0,0,.35)}
+  .pick-foot{display:flex;gap:10px}
+  .pick-foot .btn{flex:1;margin:0}
+  .pick-foot #playLevel{flex:1.5;display:flex;align-items:center;justify-content:center;gap:8px}
+  .pick-foot #playLevel[hidden]{display:none}
   .node.next{animation:nextGlow 1.1s ease-in-out infinite}
   @keyframes nextGlow{0%,100%{box-shadow:0 0 0 3px rgba(242,184,75,.4),0 3px 0 rgba(0,0,0,.35)}50%{box-shadow:0 0 0 9px rgba(242,184,75,.15),0 0 18px rgba(242,184,75,.8)}}
   /* the door at the end of each room */
@@ -563,7 +569,7 @@
   <div class="pick-head"><h3 id="pickTitle">The castle</h3></div>
   <p><span id="progress"></span><span id="howToWrap"> · <button class="link-btn" id="howTo">How to play</button></span></p>
   <div class="map" id="dots"></div>
-  <button class="btn" id="closePick">Close</button>
+  <div class="pick-foot"><button class="btn go" id="playLevel" hidden></button><button class="btn" id="closePick">Close</button></div>
   <!-- Developer mode only (see DEV_HASH) -->
   <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
 </div></div>
@@ -1314,6 +1320,7 @@ Promise.all([
     if (mouseRoom === null) mouseRoom = roomIndexOf(li);
     const m = $('dots');
     let title, back = null;
+    pickedLevel = null; $('playLevel').hidden = true;
     if (view.kind === 'room') {
       const rm = room(view.r);
       title = rm.name; back = { kind:'area', a: rm.area, label: AREAS[rm.area].name };
@@ -1338,7 +1345,8 @@ Promise.all([
     // taps: areas open their map, rooms their road, levels load
     m.querySelectorAll('.band-floor[data-a], .stairs[data-a]:not([disabled])').forEach(b => b.onclick = () => { view = { kind:'area', a: +b.dataset.a }; renderDots(); });
     m.querySelectorAll('.plan-room[data-r]').forEach(b => b.onclick = () => { view = { kind:'room', r: +b.dataset.r }; renderDots(); centerOn('.node.cur') || (m.scrollTop = 0); });
-    m.querySelectorAll('.node:not(.locked)').forEach(d=>d.onclick=()=>{ $('picker').classList.remove('show'); load(+d.dataset.i); });
+    // tapping a level picks it; its "Level N" button opens it
+    m.querySelectorAll('.node:not(.locked)').forEach(d=>d.onclick=()=>pickLevel(+d.dataset.i));
     // Developer mode: solve every level in a room but the last, and go to the last one, to try clearing it.
     m.querySelectorAll('.devtest').forEach(btn => btn.onclick = () => {
       const r = +btn.dataset.r, rm = room(r);
@@ -1353,6 +1361,16 @@ Promise.all([
     $('resetProgress').classList.toggle('hidden', !DEV);
     $('lvlBtn').textContent = `Level ${li+1} ▾`;
   }
+  // The level tapped on the map (null: none). It gets a ring, and the button by Close opens it.
+  let pickedLevel = null;
+  function pickLevel(i) {
+    pickedLevel = i; const m = $('dots');
+    m.querySelectorAll('.node.picked').forEach(n => n.classList.remove('picked'));
+    const n = i === null ? null : m.querySelector(`.node[data-i="${i}"]`); if (n) n.classList.add('picked');
+    $('playLevel').hidden = i === null;
+    if (i !== null) $('playLevel').innerHTML = `${icon('play', 18)} Level ${i + 1}`;
+  }
+  $('playLevel').onclick = () => { if (pickedLevel === null) return; const i = pickedLevel; endTrip(); $('picker').classList.remove('show'); load(i); };
   // Scrolls the map so the first element matching sel is in the middle; false if there is none.
   function centerOn(sel){
     const m = $('dots'), el = m.querySelector(sel); if (!el) return false;
@@ -1843,7 +1861,7 @@ Promise.all([
   // After a room is cleared: its door opens, then the mouse travels to the next room. On the same
   // floor it walks the corridor on the floor's map; to a new floor it first climbs the castle map,
   // then comes up the stairs on the new floor's map. Then the new room opens with the mouse walking
-  // in to its first level. A tap on the map skips to the new room.
+  // in to its first level, picked, with its "Level N" button showing. A tap on the map skips ahead.
   let tripTimers = [], tripSkip = null;
   function endTrip() {
     tripTimers.forEach(clearTimeout); tripTimers = [];
@@ -1882,7 +1900,7 @@ Promise.all([
     const enterRoom = () => {
       endTrip(); mouseRoom = next; view = { kind:'room', r: next }; renderDots();
       const n = m.querySelector(`.node[data-i="${to.start}"]`); if (!n) return;
-      centerOn(`.node[data-i="${to.start}"]`); n.classList.add('next');
+      centerOn(`.node[data-i="${to.start}"]`); pickLevel(to.start);
       const w = document.createElement('div'); w.className = 'walker walking'; w.innerHTML = `<span>${art('mouse', 30)}</span>`;
       w.style.transition = 'none'; w.style.left = n.style.left; w.style.top = '100%'; n.parentNode.appendChild(w);
       w.offsetWidth; w.style.transition = 'top 1s linear'; w.style.top = n.style.top;
