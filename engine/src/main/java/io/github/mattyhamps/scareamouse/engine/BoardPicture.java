@@ -7,7 +7,8 @@ import java.util.List;
 /**
  * Text pictures of a board, used by the physics tests.
  * Legend: M mouse, C cat, D dog, B bear, L lion, E elephant, # wall, . floor,
- * ^ &gt; v &lt; turn tiles (pointing up, right, down, left), T mousetrap (t once sprung, when drawing a result).
+ * ^ &gt; v &lt; turn tiles (pointing up, right, down, left), T mousetrap (t once sprung, when drawing a result),
+ * O trapdoor (two of them make the pair).
  * <pre>
  *   ".MC...."   a mouse with a cat to its right
  * </pre>
@@ -26,6 +27,7 @@ public final class BoardPicture {
         List<Piece> others = new ArrayList<>();
         List<int[]> turns = new ArrayList<>();
         List<int[]> traps = new ArrayList<>();
+        List<int[]> doors = new ArrayList<>();
         for (int y = 0; y < rows.size(); y++) {
             String row = rows.get(y);
             for (int x = 0; x < row.length(); x++) {
@@ -42,6 +44,10 @@ public final class BoardPicture {
                     traps.add(new int[] {x, y});
                     continue;
                 }
+                if (c == 'O') {
+                    doors.add(new int[] {x, y});
+                    continue;
+                }
                 Animal a = Animal.fromLetter(c);
                 if (a != null) {
                     (a == Animal.MOUSE ? mice : others).add(new Piece(a, x, y));
@@ -53,7 +59,7 @@ public final class BoardPicture {
         int hx = hole == null ? -1 : hole[0];
         int hy = hole == null ? -1 : hole[1];
         return new Level("test", "", rows.get(0).length(), rows.size(), hx, hy,
-                walls, fixed, Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), turns, traps);
+                walls, fixed, Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), turns, traps, doors);
     }
 
     /** Draws where everything ended up (escaped animals are left off). */
@@ -82,6 +88,9 @@ public final class BoardPicture {
         for (int k = 0; k < level.traps.size(); k++) {
             int[] t = level.traps.get(k);
             g[t[1]][t[0]] = sprung.contains(k) ? 't' : 'T';
+        }
+        for (int[] t : level.trapdoors) {
+            g[t[1]][t[0]] = 'O';
         }
         for (SimResult.Snapshot s : frame) {
             if (!s.gone) {

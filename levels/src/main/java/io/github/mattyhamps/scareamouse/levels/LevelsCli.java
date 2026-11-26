@@ -116,6 +116,10 @@ public final class LevelsCli {
         String name = option(args, "--name", adding ? "Level " + n : old.name);
         String tip = option(args, "--tip", adding ? "" : old.tip);
         long start = System.currentTimeMillis();
+        if (n == Recipe.TRAPDOOR_INTRO) {   // made by hand, like level 1: the trapdoors take the mouse under a mousetrap
+            save(levels, file, args, n, TrapdoorLab.intro(name, option(args, "--tip", adding ? "New: trapdoors!" : old.tip)), start);
+            return;
+        }
         Recipe recipe = Recipe.forLevel(n);
         if (Recipe.TRAP_INTRO.containsKey(n)) {   // the mouse-and-cats levels that bring in mousetraps
             String introTip = option(args, "--tip", adding ? recipe.tip : old.tip);

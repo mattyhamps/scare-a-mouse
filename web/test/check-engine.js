@@ -15,15 +15,16 @@ const run = (level, placed) => JSON.parse(scareSimulate(JSON.stringify(level), J
 
 const LETTERS = { M: 'mouse', C: 'cat', D: 'dog', B: 'bear', L: 'lion', E: 'elephant' };
 function levelFromBoard(rows, hole) {
-  const walls = [], mice = [], others = [], turns = [], traps = [];
+  const walls = [], mice = [], others = [], turns = [], traps = [], trapdoors = [];
   rows.forEach((row, y) => [...row].forEach((ch, x) => {
     if (ch === '#') walls.push([x, y]);
     else if ('^>v<'.includes(ch)) turns.push([x, y, '^>v<'.indexOf(ch)]);
     else if (ch === 'T') traps.push([x, y]);
+    else if (ch === 'O') trapdoors.push([x, y]);
     else if (LETTERS[ch]) (ch === 'M' ? mice : others).push({ t: LETTERS[ch], x, y });
   }));
   return { name: 'test', tip: '', w: rows[0].length, h: rows.length, hole: hole || [-1, -1],
-    walls, fixed: [...mice, ...others], inv: [], solution: [], turns, traps };
+    walls, fixed: [...mice, ...others], inv: [], solution: [], turns, traps, trapdoors };
 }
 function render(level, frame, snaps) {
   const sprung = new Set((snaps || []).flat());
@@ -31,6 +32,7 @@ function render(level, frame, snaps) {
   level.walls.forEach(([x, y]) => { g[y][x] = '#'; });
   (level.turns || []).forEach(([x, y, d]) => { g[y][x] = '^>v<'[d]; });
   (level.traps || []).forEach(([x, y], k) => { g[y][x] = sprung.has(k) ? 't' : 'T'; });
+  (level.trapdoors || []).forEach(([x, y]) => { g[y][x] = 'O'; });
   frame.forEach(a => { if (!a.gone) g[a.y][a.x] = Object.keys(LETTERS).find(k => LETTERS[k] === a.t); });
   return g.map(r => r.join('')).join('/');
 }

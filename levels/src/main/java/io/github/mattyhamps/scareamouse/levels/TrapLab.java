@@ -197,7 +197,7 @@ public final class TrapLab {
         return true;
     }
 
-    private static String str(List<int[]> traps) {
+    static String str(List<int[]> traps) {
         List<String> s = new ArrayList<>();
         for (int[] t : traps) {
             s.add(Arrays.toString(t));
