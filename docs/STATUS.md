@@ -2,7 +2,7 @@
 
 Update this file in every pull request: what changed, what's next, and any decision Matt made.
 
-_Last updated: 25 November 2026._
+_Last updated: 26 November 2026._
 
 ## Done
 
@@ -11,6 +11,7 @@ _Last updated: 25 November 2026._
   (651–800: Treasury, Music room, Sewing room, Guest bedrooms, Clock tower), all with drawn rooms, a
   castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
   the mouse travelling between rooms when you clear one.
+- Levels 801–860, the Royal floor's first two rooms, with mousetraps (see below).
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
@@ -46,18 +47,34 @@ _Last updated: 25 November 2026._
   `?lab=trap-lab` (801–812, made by `TrapLab`). 801–802 have only the mouse and cats: the hole is straight
   ahead of the mouse with a trap in between, so cats have to turn it the long way round (sending it
   straight gets it caught, so you can try that and see). Matt wants one or two of these, not more.
+- The castle's upper floors were reordered (Matt): the Royal floor now comes before the Towers and roof,
+  as in a real castle where the royal rooms sit under the roof. Royal floor 801–950: Royal chambers,
+  Wardrobe, Sitting room (new, in place of the Crown vault), Tower stairs, Throne room; mousetraps at 801,
+  boss at 950. Towers and roof 951–1070: Battlements, Aviary, Watchtower, Belfry and the Crown vault (moved
+  up, last before the Tower top), five rooms of 24 levels so the vault fits; trapdoors at 951.
+- The Royal chambers (801–830) and Wardrobe (831–860), drawn in `tools/art/gen25.py` (`export_royal.py`):
+  Royal chambers is the king and queen's bedroom (rose wallpaper, curtained windows, coat of arms; a canopy
+  bed, fireplace, cradle, crowned armchair, writing desk, orange trees, a royal pet bed), dusty-rose floor
+  with a red velvet path that crosses the room in drooping swags. Board walls are velvet footstools.
+  The Wardrobe is the royal dressing room (striped lilac wall with shelves of folded clothes, hats and
+  capes; robes on a rail, a gown on a stand, an open wardrobe, a swinging mirror, a shoe shelf, a
+  shoemaker's bench), basket-weave wood floor with a lilac carpet shaped like coat hangers on a rail. No
+  walls on the Wardrobe's boards (Matt's call).
+- Their levels have fresh recipes (`Recipe.royalFloor`): 801–802 only the mouse and cats (made by
+  `TrapLab.catsOnly`, through `LevelsCli make`), 803–807 steer around traps in longer chains, the second
+  card at 808 with easy spring levels (808–811), then a mix of easy and hard with traps in about 1 level
+  in 5 and footstools in about 1 in 5 in the Royal chambers. `LevelsCli make` now refuses a trap level
+  where a trap doesn't matter (`TrapLab.trapsDoTheirJob`).
 
 ## Next
 
-1. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**
-   (the piece is done; see above). Next: Matt tries the test levels, then the Battlements and Aviary
-   drawings (show Matt first), then their levels with fresh recipes: 801–805 steer around traps and get
-   harder (start with one or two mouse-and-cats levels like the test ones), the second card with easy spring
-   levels, both mixed after that, then traps in about
-   1 level in 5. Work two rooms at a time.
-2. **Royal floor (921–1070):** Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room. New
-   piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other, still
-   going the same way.
+1. **Royal floor (861–950):** the Sitting room, Tower stairs and Throne room (boss at 950): drawings
+   first (show Matt), then levels with fresh recipes, traps in about 1 level in 5. `trap-lab.json` is
+   kept for now.
+2. **Towers and roof (951–1070):** Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each).
+   New piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other,
+   still going the same way. Matt picked a cannon for the Battlements' board walls, a birdcage for the
+   Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying).
 3. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
 
 ## Before release
@@ -79,7 +96,7 @@ Notes from Matt's legal and App Store checklist (a separate document):
 - New pieces ramp up slowly. The first turn-tile test levels jumped from very easy to very hard ("0 to
   100"). The real ramp goes: one animal and a short chain through the new piece, then longer chains, then
   a second animal to place, then the piece combined with tricks, and only then sparingly mixed in.
-  Mousetraps (801) and trapdoors (921) follow the same pattern.
+  Mousetraps (801) and trapdoors (951) follow the same pattern.
 - Pieces you step on stay flat on the floor. The turn tile is a flat blue painted space with a plain
   outline and three chevrons. Raised or blocky versions (tokens, slabs, a bevelled edge) looked like walls
   that would block the animal instead of something it runs onto. Keep this in mind for how mousetraps
@@ -101,7 +118,7 @@ Notes from Matt's legal and App Store checklist (a separate document):
   mouse travels there.
 - New wall drawings normally get no tip, but round ones that could be mistaken for animals get a
   "New: ..." tip the first time they appear (drums at 683, gears at 771). No card for them.
-- From the Towers and roof on, work a couple of rooms at a time (drawings, then levels, one pull
+- From the Royal floor on, work a couple of rooms at a time (drawings, then levels, one pull
   request), not a whole floor at once.
 - Big jobs like building hundreds of levels are much faster in Claude Code on Matt's own computer than in
   a cloud session.

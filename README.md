@@ -140,7 +140,7 @@ tiles, so older levels are unchanged. For trying them out before they're in real
 test levels into `web/src/main/webapp/turn-lab.json`; adding `?lab` to the game's address swaps those in
 over the levels with the same numbers (each is named "Test <number>").
 
-**Mousetraps** (Towers and roof, from 801): levels carry a `traps` list (`[x, y]`) only when they have
+**Mousetraps** (Royal floor, from 801): levels carry a `traps` list (`[x, y]`) only when they have
 traps. The engine reports which traps were sprung on each step (`snaps`) and whether the mouse was
 caught (`caught`). A recipe asks for them two ways. `withTraps(min, max)`: traps close off the other
 solutions, preferring squares where those solutions' mice would run, so the mouse has to be steered
@@ -159,8 +159,8 @@ of easier and harder levels, flames on the toughest and a boss at the end):
 |---|---|---|---|
 | Third floor | 501–650 | Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room | Turn tiles (501), then about 1 level in 6 or 7 |
 | Fourth floor | 651–800 | Treasury, Music room, Sewing room, Guest bedrooms, Clock tower | None; turn tiles in about 1 level in 6 or 7 |
-| Towers and roof | 801–920 | Battlements, Aviary, Watchtower, Belfry | Mousetraps (801): the mouse is caught if it runs onto one; any other animal springs it safely |
-| Royal floor | 921–1070 | Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room | Trapdoors (921): run into one, come out of its partner |
+| Royal floor | 801–950 | Royal chambers, Wardrobe, Sitting room, Tower stairs, Throne room | Mousetraps (801): the mouse is caught if it runs onto one; any other animal springs it safely |
+| Towers and roof | 951–1070 | Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each) | Trapdoors (951): run into one, come out of its partner |
 | Tower top | 1071–1100 | Tower top | Everything together, the finale |
 
 Past 1100 the castle grows an east wing: a mix of everything, moving the story along. Each new piece
