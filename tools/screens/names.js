@@ -9,7 +9,7 @@ const fs = require('fs'), path = require('path'), { serve, browser, openLevel, r
   const PORT = 8794, base = `http://localhost:${PORT}/`, srv = serve(PORT), b = await browser();
   const levels = JSON.parse(fs.readFileSync(path.join(root, 'levels.json'), 'utf8'));
   const hard = new Set(JSON.parse(fs.readFileSync(path.join(root, 'hard-levels.json'), 'utf8')));
-  const BOSSES = [100, 200, 350, 500, 650, 800, 950, 1070, 1100];
+  const BOSSES = [100, 200, 350, 500, 650, 800, 950, 1075, 1100];
   let bad = 0;
   for (const W of widths.length ? widths : [360, 390]) {
     const p = await b.newPage({ viewport: { width: W, height: 800 } });

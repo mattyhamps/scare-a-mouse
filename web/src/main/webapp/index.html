@@ -838,13 +838,13 @@ Promise.all([
     {end:890, area:6, name:'Sitting room',   bg:'#3f5a52', plan:[54,34,40,30]},
     {end:920, area:6, name:'Tower stairs',   bg:'#454049', plan:[6,30,22,30]},
     {end:950, area:6, name:'Throne room',    bg:'#5e2f35', plan:[24,2,52,24]},
-    // 951-1070: the towers and the roof (trapdoors come in at 951), five rooms of 24 levels
-    {end:974, area:7, name:'Battlements',    bg:'#4e5866', out:1, plan:[6,62,88,24]},
-    {end:998, area:7, name:'Aviary',         bg:'#4a5a48', plan:[6,30,40,26]},
-    {end:1022,area:7, name:'Watchtower',     bg:'#4a5060', plan:[54,30,40,26]},
-    {end:1046,area:7, name:'Belfry',         bg:'#4a4440', plan:[6,2,40,22]},
-    {end:1070,area:7, name:'Crown vault',    bg:'#5a4a25', plan:[54,2,40,22]},
-    // 1071-1100: the top of the tower, the finale
+    // 951-1075: the towers and the roof (trapdoors come in at 951), five rooms of 25 levels
+    {end:975, area:7, name:'Battlements',    bg:'#4e5866', out:1, plan:[6,62,88,24]},
+    {end:1000,area:7, name:'Aviary',         bg:'#4a5a48', plan:[6,30,40,26]},
+    {end:1025,area:7, name:'Watchtower',     bg:'#4a5060', plan:[54,30,40,26]},
+    {end:1050,area:7, name:'Belfry',         bg:'#4a4440', plan:[6,2,40,22]},
+    {end:1075,area:7, name:'Crown vault',    bg:'#5a4a25', plan:[54,2,40,22]},
+    // 1076-1100: the top of the tower, the finale
     {end:1100,area:8, name:'Tower top',      bg:'#2e3557', out:1, night:1, plan:[25,25,50,50]},
   ];
   // Each room's board: floor tiles, castle-wall stone and the look of walls. Kept close to the
@@ -1191,7 +1191,7 @@ Promise.all([
     'Tower stairs': { ground:'towerstone', side:'#454049', shape:'stairwell', path:'staircarpet', propsEvery:120, props:['hoist','portrait_mouse','banner_stand','landing_bench','portrait_lion','statue_niche','portrait_elephant','lantern_post','ivy_pot'], deco:[] },
     'Throne room': { ground:'goldmarble', side:'#5e2f35', shape:'processional', path:'throne', columns:[['throne_pillar', 14, 230], ['throne_pillar', 332, 230]], propsEvery:150, maxProps:7, props:['lion_plinth','gold_candelabra','court_bench','regalia_case','trumpet_stand','palm_tub','gift_chest'], deco:[] },
     'Battlements': { ground:'wallwalk', side:'#85827c', parapet:1, shape:'turrets', path:'planks', propsEvery:130, maxProps:8, props:['cannon','catapult','sentry_box','signal_fire','quiver_rack','lookout_scope','cannonballs','flag_pole'], deco:[] },
-    'Aviary':      { ground:'clovergrass', side:'#4a5a48', shape:'flight', path:'gravel', propsEvery:130, maxProps:7, props:['tall_birdcage','parrot_perch','bird_bath','nest_post','feeder_table','bird_tree','hook_cage'], deco:[], fly:['bird_fly_blue','bird_fly_red'] },
+    'Aviary':      { ground:'clovergrass', side:'#4a5a48', shape:'flight', path:'gravel', propsEvery:130, maxProps:7, props:['tall_birdcage','parrot_perch','bird_bath','nest_post','feeder_table','bird_tree','hook_cage'], deco:[], fly:['bird_fly_blue','bird_fly_red'], flyClear:[40,48] },
     'Kitchens':    { ground:'terracotta', side:'#857e72', shape:'waves', wave:130, path:'cream', props:['kitchen_table','barrel_k','cat_bed','tub','crate_cabbage','logs','keg','crate_carrot','sack','kitchen_table'], deco:['stool','sack_gold','flour_spill','bucket','barrel_k'], sconces:1 },
   };
   const DEFAULT_ROOM = { ground:'stone', side:'#857e72', shape:'waves', path:'sand', props:[], deco:[] };
@@ -1612,7 +1612,8 @@ Promise.all([
       taken.push([x + bx, y + by, x + bx + bw, y + by + bh]); fixed.push({ y: y + by + bh, svg: `<g transform="translate(${x} ${y})">${art[1]}</g>` }); }
     const props = placeProps(sc.props, Math.min(sc.maxProps ?? 99, Math.round((H - WALL) / (sc.propsEvery || 150))), geo, nodes, taken, H, rnd);
     const deco = placeProps(sc.deco, Math.round((H - WALL) / (sc.decoEvery || 70)), geo, nodes, taken, H, rnd, { clearRoad: 16, clearNode: 22 });
-    const fly = sc.fly ? placeProps(sc.fly, 2, geo, nodes, taken, H, rnd, { clearRoad: 6, clearNode: 20 }) : [];
+    const [flyRoad, flyNode] = sc.flyClear || [6, 20];   // the Aviary's birds keep to open grass, clear of the path and the levels
+    const fly = sc.fly ? placeProps(sc.fly, 2, geo, nodes, taken, H, rnd, { clearRoad: flyRoad, clearNode: flyNode }) : [];
     const items = [...fixed, ...props, ...deco].sort((a, b) => a.y - b.y).map(p => p.svg).join('') + fly.map(p => p.svg).join('');
     const pos = ([x, y]) => `left:${(x / RW * 100).toFixed(3)}%;top:${(y / H * 100).toFixed(3)}%`;
     let nodeHtml = '';

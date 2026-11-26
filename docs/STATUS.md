@@ -12,7 +12,7 @@ _Last updated: 26 November 2026._
   castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
   the mouse travelling between rooms when you clear one.
 - Levels 801–950, the whole Royal floor (five rooms and its boss), with mousetraps (see below).
-- Levels 951–998, the Towers and roof's first two rooms, with trapdoors (see below).
+- Levels 951–1000, the Towers and roof's first two rooms, with trapdoors (see below).
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
@@ -51,8 +51,11 @@ _Last updated: 26 November 2026._
 - The castle's upper floors were reordered (Matt): the Royal floor now comes before the Towers and roof,
   as in a real castle where the royal rooms sit under the roof. Royal floor 801–950: Royal chambers,
   Wardrobe, Sitting room (new, in place of the Crown vault), Tower stairs, Throne room; mousetraps at 801,
-  boss at 950. Towers and roof 951–1070: Battlements, Aviary, Watchtower, Belfry and the Crown vault (moved
-  up, last before the Tower top), five rooms of 24 levels so the vault fits; trapdoors at 951.
+  boss at 950. Towers and roof 951–1075: Battlements, Aviary, Watchtower, Belfry and the Crown vault (moved
+  up, last before the Tower top); trapdoors at 951.
+- **Rooms of 25 on the Towers and roof** (Matt, #64): every room ends on a 5 or a 0. Battlements 951–975,
+  Aviary 976–1000, Watchtower 1001–1025, Belfry 1026–1050, Crown vault 1051–1075 (the floor's boss moved
+  from 1070 to 1075), Tower top 1076–1100 (the finale boss stays at 1100). They were 24 each before.
 - The Royal chambers (801–830) and Wardrobe (831–860), drawn in `tools/art/gen25.py` (`export_royal.py`):
   Royal chambers is the king and queen's bedroom (rose wallpaper, curtained windows, coat of arms; a canopy
   bed, fireplace, cradle, crowned armchair, writing desk, orange trees, a royal pet bed), dusty-rose floor
@@ -131,13 +134,14 @@ _Last updated: 26 November 2026._
   lion and elephant, a second animal to place, then trapdoors with tricks and with a mousetrap.
 - Dragging an animal onto the board no longer drops it on a turn tile, mousetrap or trapdoor (tapping
   already didn't).
-- The Battlements (951–974) and Aviary (975–998), drawn in `tools/art/gen26.py` (`export_towers.py`):
+- The Battlements (951–975) and Aviary (976–1000), drawn in `tools/art/gen26.py` (`export_towers.py`):
   the Battlements is the defenders' wall, outdoors (sky, hills far below, far-off towers, a parapet to the
   door's tower; a cannon, a pyramid of cannonballs, a catapult, a striped sentry box, a signal fire, a rack
   of bows and arrows, a brass telescope), a grey stone wall-walk with merlons down both sides and a plank
   path that swings round round turret platforms at the corners (`turrets`). The Aviary is a garden bird
   house (glass and iron arches with ivy; tall cages, a cage on a shepherd's hook, a parrot perch, a bird
-  bath, nest boxes, a seed table, a little tree with birds, two birds flying), clover grass with a pale gravel
+  bath, nest boxes, a seed table, a little tree with birds, two birds flying in open grass, clear of the
+  path and the level spots: `flyClear` in `ROOM_SCENES`), clover grass with a pale gravel
   path gliding side to side (`flight`). Matt turned down a loop-the-loop path (too twirly, levels
   overlapped) and asked for bird colours that stand out (deep blue, purple, orange, red).
 - **No walls on the Towers and roof** (Matt): the boards have no wall drawing (the cannon and birdcage board
@@ -145,17 +149,18 @@ _Last updated: 26 November 2026._
 - Their levels (`Recipe.towersFloor`): 951 is made by hand ("Under the Trap": one cat, the trapdoors take
   the mouse under a mousetrap), 952–956 learn trapdoors (chains through one started by a dog, bear and
   lion, a second animal to place, an elephant chain), then trapdoors about 1 level in 7 (Matt: sparse after
-  onboarding), mousetraps about as often, turn tiles twice. 974 and 998 were changed after the dry run.
-  Flames so far: 965, 981, 986 (counted across 951–1070, so they'll shift as the floor fills up).
-  `LevelsTest` now also accepts a level count that ends a 24-level room.
+  onboarding), mousetraps about as often, turn tiles twice. 974, 998 and 999 were changed after the dry run.
+  975 ("Turret Trapdoor", once "Bird House") moved into the Battlements with its puzzle kept; 999 and 1000
+  are new. Flames so far: 965, 981, 986 (counted across 951–1075, so they'll shift as the floor fills up).
+  `LevelsTest` now also accepts a level count that ends a 25-level Towers and roof room.
 
 ## Next
 
-1. **Towers and roof (999–1070):** the Watchtower, Belfry and Crown vault (24 levels each), boss at 1070.
-   Drawings first (show Matt), then levels with the same mix as 951–998: no walls on this floor (Matt),
+1. **Towers and roof (1001–1075):** the Watchtower, Belfry and Crown vault (25 levels each), boss at 1075.
+   Drawings first (show Matt), then levels with the same mix as 951–1000: no walls on this floor (Matt),
    trapdoors about 1 level in 7, mousetraps about as often, a turn tile now and then. Keep mixing in the new
    puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
-2. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+2. **Tower top (1076–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
 3. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
    without scrolling: the level screen, the map, the cards and pop-ups), at a few phone sizes, with and without
    the preview banner. In a phone browser the level screen is still too tall: on Matt's iPhone (about 390×664
