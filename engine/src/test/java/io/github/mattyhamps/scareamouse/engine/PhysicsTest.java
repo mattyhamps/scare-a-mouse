@@ -43,10 +43,13 @@ class PhysicsTest {
 
         if (expect.containsKey("pic")) {
             assertEquals(String.join("/", strings(expect.get("pic"))),
-                    String.join("/", BoardPicture.render(level, r.lastFrame())), "final board");
+                    String.join("/", BoardPicture.render(level, r.lastFrame(), r.snaps)), "final board");
         }
         if (expect.containsKey("win")) {
             assertEquals(expect.get("win"), r.win, "win");
+        }
+        if (expect.containsKey("caught")) {
+            assertEquals(expect.get("caught"), r.caught, "caught");
         }
         if (expect.containsKey("loop")) {
             assertEquals(expect.get("loop"), r.loop, "loop");

@@ -28,6 +28,8 @@ public final class SimResult {
     public final boolean win;
     /** The run was stopped because the board repeated an earlier state. */
     public final boolean loop;
+    /** The mouse ran onto a set mousetrap (the run fails). */
+    public final boolean caught;
     /** How many different animals moved at least once. */
     public final int moved;
     /** Steps taken until the mouse escaped (0 if it didn't). */
@@ -39,10 +41,18 @@ public final class SimResult {
      * the same square (a standoff, rule 4). Lined up with {@link #frames}. Null unless recorded.
      */
     public final List<List<Integer>> bumps;
+    /**
+     * For each frame, the mousetraps (indexes into the level's traps) sprung that step. Lined up with
+     * {@link #frames}. Null unless recorded.
+     */
+    public final List<List<Integer>> snaps;
 
-    SimResult(boolean win, boolean loop, int moved, int ticks, List<List<Snapshot>> frames, List<List<Integer>> bumps) {
+    SimResult(boolean win, boolean loop, boolean caught, int moved, int ticks, List<List<Snapshot>> frames,
+              List<List<Integer>> bumps, List<List<Integer>> snaps) {
         this.win = win;
         this.loop = loop;
+        this.caught = caught;
+        this.snaps = snaps;
         this.moved = moved;
         this.ticks = ticks;
         this.frames = frames;
@@ -53,11 +63,12 @@ public final class SimResult {
         return frames == null ? null : frames.get(frames.size() - 1);
     }
 
-    /** JSON for the browser: {win, loop, moved, ticks, frames:[[{id,t,x,y,gone}...]...], bumps:[[ids]...]}. */
+    /** JSON for the browser: {win, loop, caught, moved, ticks, frames:[[{id,t,x,y,gone}...]...], bumps:[[ids]...], snaps:[[traps]...]}. */
     public String toJson() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("win", win);
         m.put("loop", loop);
+        m.put("caught", caught);
         m.put("moved", moved);
         m.put("ticks", ticks);
         List<Object> fs = new ArrayList<>();
@@ -84,6 +95,13 @@ public final class SimResult {
             }
         }
         m.put("bumps", bs);
+        List<Object> ss = new ArrayList<>();
+        if (snaps != null) {
+            for (List<Integer> k : snaps) {
+                ss.add(new ArrayList<Object>(k));
+            }
+        }
+        m.put("snaps", ss);
         return Json.write(m);
     }
 }

@@ -1017,12 +1017,24 @@ public final class ChainBuilder {
     }
 
     /**
-     * One candidate level: built by {@link #build}, then, for recipes with walls, other solutions are
-     * closed off with walls on the squares they use. Returns null if the wall count is out of range.
-     * The caller still runs {@link LevelChecker}.
+     * One candidate level: built by {@link #build}; then, for recipes with mousetraps, a trap goes on the
+     * mouse's way with one more animal for you to spring it, and traps go where other solutions' mice
+     * would run; then, for
+     * recipes with walls, other solutions are closed off with walls on the squares they use. Returns null
+     * if the trap or wall count is out of range. The caller still runs {@link LevelChecker}.
      */
     static Level candidate(Recipe recipe, LevelGenerator.Rng rng, String name) {
         Level level = build(recipe, rng, name);
+        for (int t = 0; t < recipe.springTraps && level != null; t++) {
+            level = addSpringer(level, rng);
+        }
+        if (level != null && recipe.trapsMax > 0) {
+            level = closeOffWithTraps(level, recipe.trapsMax);
+            int closing = level == null ? 0 : level.traps.size() - recipe.springTraps;
+            if (level == null || closing < recipe.trapsMin || closing > recipe.trapsMax) {
+                return null;
+            }
+        }
         if (level == null || recipe.wallsMax == 0) {
             return level;
         }
@@ -1070,7 +1082,7 @@ public final class ChainBuilder {
                 List<int[]> walls = new ArrayList<>(level.walls);
                 walls.add(new int[] {Integer.parseInt(xy[0]), Integer.parseInt(xy[1])});
                 Level tryLevel = new Level(level.name, level.tip, level.w, level.h, level.holeX, level.holeY, walls,
-                        level.fixed, level.inventory, level.solution, level.turns);
+                        level.fixed, level.inventory, level.solution, level.turns, level.traps);
                 if (Simulator.run(tryLevel, tryLevel.solution).win) {
                     next = tryLevel;
                     break;
@@ -1082,6 +1094,150 @@ public final class ChainBuilder {
             level = next;
         }
         return null;
+    }
+
+    /**
+     * SPRING TRAPS: puts a trap on the mouse's way and gives you one more animal, which has to go where the
+     * chain scares it across the trap before the mouse gets there (any other animal springs a trap safely).
+     */
+    static Level addSpringer(Level level, LevelGenerator.Rng rng) {
+        List<List<SimResult.Snapshot>> f = Simulator.record(level, level.solution).frames;
+        List<int[]> path = new ArrayList<>();   // squares the mouse runs onto in the intended run
+        for (int k = 1; k < f.size(); k++) {
+            SimResult.Snapshot m = f.get(k).get(0);
+            SimResult.Snapshot was = f.get(k - 1).get(0);
+            if (!m.gone && (m.x != was.x || m.y != was.y) && level.isOpen(m.x, m.y) && !occupiedBySolution(level, m.x, m.y)) {
+                path.add(new int[] {m.x, m.y});
+            }
+        }
+        shuffle(path, rng);
+        Animal[] kinds = {Animal.CAT, Animal.DOG, Animal.BEAR, Animal.LION, Animal.ELEPHANT};
+        for (int[] sq : path.subList(0, Math.min(path.size(), 4))) {
+            List<int[]> traps = new ArrayList<>(level.traps);
+            traps.add(sq);
+            Level trapped = level.withTraps(traps);
+            int k = traps.size() - 1;
+            List<int[]> spots = trapped.openSquares();
+            spots.removeIf(p -> occupiedBySolution(trapped, p[0], p[1]));
+            shuffle(spots, rng);
+            int tries = 0;
+            for (int[] q : spots) {
+                if (tries++ > 40) {
+                    break;
+                }
+                for (int t = 0; t < kinds.length; t++) {
+                    Animal kind = kinds[(t + (int) (rng.next() * kinds.length)) % kinds.length];
+                    List<Piece> sol = new ArrayList<>(trapped.solution);
+                    Piece springer = new Piece(kind, q[0], q[1]);
+                    sol.add(springer);
+                    SimResult r = Simulator.record(trapped, sol);
+                    if (!r.win || !springerSprung(r, k, sq, level.fixed.size() + sol.size() - 1)) {
+                        continue;
+                    }
+                    List<Animal> hand = new ArrayList<>(trapped.inventory);
+                    hand.add(kind);
+                    hand.sort((x, y) -> x.id().compareTo(y.id()));
+                    return new Level(level.name, level.tip, level.w, level.h, level.holeX, level.holeY, level.walls,
+                            level.fixed, hand, sol, level.turns, traps);
+                }
+            }
+        }
+        return null;
+    }
+
+    /** True if trap k was sprung in the run, by the animal with this id. */
+    private static boolean springerSprung(SimResult r, int k, int[] sq, int id) {
+        for (int f = 1; f < r.snaps.size(); f++) {
+            if (r.snaps.get(f).contains(k)) {
+                SimResult.Snapshot a = r.frames.get(f).get(id);
+                return a.x == sq[0] && a.y == sq[1];
+            }
+        }
+        return false;
+    }
+
+    private static <T> void shuffle(List<T> list, LevelGenerator.Rng rng) {
+        for (int i = list.size() - 1; i > 0; i--) {
+            int j = (int) (rng.next() * (i + 1));
+            T t = list.get(i);
+            list.set(i, list.get(j));
+            list.set(j, t);
+        }
+    }
+
+    /**
+     * STEER-AROUND TRAPS: while the level has other solutions besides the intended one, puts a trap on the
+     * square that rules out the most of them, preferring squares their mice would run over (a trap there
+     * catches the mouse) to squares where their animals would go (nothing can be placed on a trap). The
+     * intended run must still win.
+     */
+    static Level closeOffWithTraps(Level level, int maxTraps) {
+        int added = 0;
+        for (int guard = 0; guard < 8; guard++) {
+            List<List<Piece>> all = LevelChecker.solutions(level, level.inventory, 25);
+            List<List<Piece>> others = new ArrayList<>();
+            for (List<Piece> s : all) {
+                if (!sameSet(s, level.solution)) {
+                    others.add(s);
+                }
+            }
+            if (others.isEmpty()) {
+                return level;
+            }
+            if (all.size() >= 25 || added >= maxTraps) {
+                return null;
+            }
+            java.util.Map<String, Integer> votes = new java.util.HashMap<>();
+            for (List<Piece> s : others) {
+                java.util.Set<String> path = new java.util.HashSet<>();
+                List<List<SimResult.Snapshot>> f = Simulator.record(level, s).frames;
+                for (int k = 1; k < f.size(); k++) {
+                    SimResult.Snapshot m = f.get(k).get(0);
+                    if (!m.gone) {
+                        path.add(m.x + "," + m.y);
+                    }
+                }
+                for (String sq : path) {
+                    votes.merge(sq, 3, Integer::sum);
+                }
+                for (Piece p : s) {
+                    votes.merge(p.x + "," + p.y, 1, Integer::sum);
+                }
+            }
+            List<String> squares = new ArrayList<>(votes.keySet());
+            squares.sort((a, b) -> votes.get(b) - votes.get(a));
+            Level next = null;
+            for (String sq : squares) {
+                String[] xy = sq.split(",");
+                int x = Integer.parseInt(xy[0]);
+                int y = Integer.parseInt(xy[1]);
+                if (!level.isOpen(x, y) || occupiedBySolution(level, x, y)) {
+                    continue;
+                }
+                List<int[]> traps = new ArrayList<>(level.traps);
+                traps.add(new int[] {x, y});
+                Level tryLevel = level.withTraps(traps);
+                if (Simulator.run(tryLevel, tryLevel.solution).win) {
+                    next = tryLevel;
+                    break;
+                }
+            }
+            if (next == null) {
+                return null;
+            }
+            level = next;
+            added++;
+        }
+        return null;
+    }
+
+    private static boolean occupiedBySolution(Level level, int x, int y) {
+        for (Piece p : level.solution) {
+            if (p.x == x && p.y == y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Squares the intended run uses: where your animals go and every square an animal passes through. */

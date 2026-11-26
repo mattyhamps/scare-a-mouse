@@ -27,9 +27,13 @@ and every part of the project uses that code.
    wins. Every other animal treats it like a wall.
 7. **Turn tiles:** an animal that runs onto a turn tile heads the way its chevrons point from then on
    (unless something scares it, as usual). Animals can't be placed on turn tiles.
+8. **Mousetraps:** the mouse is caught if it runs onto a set trap, and the run fails. Any other animal
+   that runs onto a set trap springs it and keeps going; a sprung trap is harmless for the rest of the
+   run (Go resets it). Only running onto a trap counts, not standing next to it. Animals can't be
+   placed on traps.
 
-A run ends when the mouse gets into the hole, when nothing moves for a step, or when the board repeats
-(an endless loop).
+A run ends when the mouse gets into the hole, when the mouse is caught, when nothing moves for a step, or
+when the board repeats (an endless loop).
 
 ## Project layout
 
@@ -136,6 +140,18 @@ tiles, so older levels are unchanged. For trying them out before they're in real
 test levels into `web/src/main/webapp/turn-lab.json`; adding `?lab` to the game's address swaps those in
 over the levels with the same numbers (each is named "Test <number>").
 
+**Mousetraps** (Towers and roof, from 801): levels carry a `traps` list (`[x, y]`) only when they have
+traps. The engine reports which traps were sprung on each step (`snaps`) and whether the mouse was
+caught (`caught`). A recipe asks for them two ways. `withTraps(min, max)`: traps close off the other
+solutions, preferring squares where those solutions' mice would run, so the mouse has to be steered
+around them (this needs a recipe that has a few other solutions to close off, like a moving level with
+one CATCH or STOP, or a lane blocker). `withSpringTraps(n)`: a trap goes on the intended mouse's way and
+you get one more animal, which has to go where the chain scares it across the trap first. On the board a
+trap is a snap trap with a big wedge of cheese; when it springs it snaps with stars, and a sprung one is
+faded with no cheese. A caught mouse gets the bar on its tail and "The mouse got caught!". `TrapLab`
+builds twelve test levels (801–812: two with only the mouse and cats, then steer-around, then spring) into `web/src/main/webapp/trap-lab.json`; add `?lab=trap-lab` to the
+address to play them.
+
 **The plan for the rest of the castle** (all 10×10, each floor about as hard as the one before, with a mix
 of easier and harder levels, flames on the toughest and a boss at the end):
 
@@ -155,7 +171,7 @@ comes in at the start of a room, with a card and a few easy levels, then shows u
 
 **Extra-hard levels.** About 1 level in 15 on each floor is marked with a flame (on the map, by the level
 number and in its tip) and pays 2 cheese. `Difficulty` scores how hard a level is to solve: more animals
-to place, placements that touch nothing on the board, tricks, a long chain, walls and turn tiles. The
+to place, placements that touch nothing on the board, tricks, a long chain, walls, turn tiles and traps. The
 hardest of each floor, not counting the boss, get the flame. `LevelsCli hard --write` saves the list to
 `data/hard-levels.json`, and `LevelsTest` fails if the list is out of date, so run it after changing levels.
 

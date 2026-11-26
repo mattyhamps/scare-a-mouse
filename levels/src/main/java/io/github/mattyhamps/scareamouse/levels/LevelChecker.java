@@ -18,7 +18,7 @@ import java.util.List;
  *   <li>no shortcuts: in every solution, at least {@code minDepth} other animals start running before the mouse;</li>
  *   <li>every animal in your hand is needed;</li>
  *   <li>every solution moves at least {@code minMoved} animals (for chains where the mouse moves early);</li>
- *   <li>no clutter: every board animal, wall and turn tile affects the puzzle (remove any one and either the solution
+ *   <li>no clutter: every board animal, wall, turn tile and mousetrap affects the puzzle (remove any one and either the solution
  *       breaks or the puzzle gets easier);</li>
  *   <li>for intro levels, the animal being introduced actually moves.</li>
  * </ul>
@@ -94,6 +94,9 @@ public final class LevelChecker {
         }
         for (int i = 0; i < level.turns.size(); i++) {
             parts.add(level.withoutTurn(i));
+        }
+        for (int i = 0; i < level.traps.size(); i++) {
+            parts.add(level.withoutTrap(i));
         }
         for (Level part : parts) {
             boolean stillWins = false;

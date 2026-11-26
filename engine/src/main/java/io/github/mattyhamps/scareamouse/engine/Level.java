@@ -31,6 +31,12 @@ public final class Level {
      * heads the way its arrow points. Nothing can be placed on them.
      */
     public final List<int[]> turns;
+    /**
+     * Mousetraps as {x, y}. The mouse is caught if it runs onto a set trap (the run fails); any other
+     * animal that runs onto one springs it and keeps going, and then it's harmless. Nothing can be
+     * placed on them.
+     */
+    public final List<int[]> traps;
 
     public Level(String name, String tip, int w, int h, int holeX, int holeY,
                  List<int[]> walls, List<Piece> fixed, List<Animal> inventory, List<Piece> solution) {
@@ -39,6 +45,11 @@ public final class Level {
 
     public Level(String name, String tip, int w, int h, int holeX, int holeY,
                  List<int[]> walls, List<Piece> fixed, List<Animal> inventory, List<Piece> solution, List<int[]> turns) {
+        this(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, Collections.<int[]>emptyList());
+    }
+
+    public Level(String name, String tip, int w, int h, int holeX, int holeY, List<int[]> walls, List<Piece> fixed,
+                 List<Animal> inventory, List<Piece> solution, List<int[]> turns, List<int[]> traps) {
         this.name = name;
         this.tip = tip;
         this.w = w;
@@ -50,6 +61,17 @@ public final class Level {
         this.inventory = Collections.unmodifiableList(new ArrayList<>(inventory));
         this.solution = Collections.unmodifiableList(new ArrayList<>(solution));
         this.turns = Collections.unmodifiableList(new ArrayList<>(turns));
+        this.traps = Collections.unmodifiableList(new ArrayList<>(traps));
+    }
+
+    /** True if (x, y) holds a mousetrap. */
+    public boolean isTrap(int x, int y) {
+        for (int[] t : traps) {
+            if (t[0] == x && t[1] == y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** The arrow's direction (0 up, 1 right, 2 down, 3 left) if (x, y) is a turn tile, otherwise -1. */
@@ -71,9 +93,9 @@ public final class Level {
         return false;
     }
 
-    /** True if (x, y) is on the board and holds no wall, no hole, no turn tile and no fixed animal. */
+    /** True if (x, y) is on the board and holds no wall, no hole, no turn tile, no trap and no fixed animal. */
     public boolean isOpen(int x, int y) {
-        if (x < 0 || y < 0 || x >= w || y >= h || isWall(x, y) || (x == holeX && y == holeY) || turnAt(x, y) >= 0) {
+        if (x < 0 || y < 0 || x >= w || y >= h || isWall(x, y) || (x == holeX && y == holeY) || turnAt(x, y) >= 0 || isTrap(x, y)) {
             return false;
         }
         for (Piece p : fixed) {
@@ -100,31 +122,41 @@ public final class Level {
     public Level withoutFixed(int index) {
         List<Piece> f = new ArrayList<>(fixed);
         f.remove(index);
-        return new Level(name, tip, w, h, holeX, holeY, walls, f, inventory, solution, turns);
+        return new Level(name, tip, w, h, holeX, holeY, walls, f, inventory, solution, turns, traps);
     }
 
     public Level withoutWall(int index) {
         List<int[]> ws = new ArrayList<>(walls);
         ws.remove(index);
-        return new Level(name, tip, w, h, holeX, holeY, ws, fixed, inventory, solution, turns);
+        return new Level(name, tip, w, h, holeX, holeY, ws, fixed, inventory, solution, turns, traps);
     }
 
     public Level withoutTurn(int index) {
         List<int[]> ts = new ArrayList<>(turns);
         ts.remove(index);
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, ts);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, ts, traps);
     }
 
     public Level withTurns(List<int[]> newTurns) {
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, newTurns);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, newTurns, traps);
+    }
+
+    public Level withTraps(List<int[]> newTraps) {
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, newTraps);
+    }
+
+    public Level withoutTrap(int index) {
+        List<int[]> ts = new ArrayList<>(traps);
+        ts.remove(index);
+        return withTraps(ts);
     }
 
     public Level withNameAndTip(String newName, String newTip) {
-        return new Level(newName, newTip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns);
+        return new Level(newName, newTip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, traps);
     }
 
     public Level withSolution(List<Piece> newSolution) {
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, newSolution, turns);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, newSolution, turns, traps);
     }
 
     // ---- JSON (same shape the game page reads) ----
@@ -155,11 +187,19 @@ public final class Level {
                 turns.add(new int[] {Json.toInt(p.get(0)), Json.toInt(p.get(1)), Json.toInt(p.get(2))});
             }
         }
+        List<int[]> traps = new ArrayList<>();
+        Object trapsJson = m.get("traps");
+        if (trapsJson != null) {
+            for (Object o : (List<?>) trapsJson) {
+                List<?> p = (List<?>) o;
+                traps.add(new int[] {Json.toInt(p.get(0)), Json.toInt(p.get(1))});
+            }
+        }
         return new Level(
                 (String) m.get("name"), (String) m.get("tip"),
                 Json.toInt(m.get("w")), Json.toInt(m.get("h")),
                 Json.toInt(hole.get(0)), Json.toInt(hole.get(1)),
-                walls, Piece.listFromJson(m.get("fixed")), inv, Piece.listFromJson(m.get("solution")), turns);
+                walls, Piece.listFromJson(m.get("fixed")), inv, Piece.listFromJson(m.get("solution")), turns, traps);
     }
 
     public Map<String, Object> toJson() {
@@ -187,6 +227,13 @@ public final class Level {
                 ts.add(new int[] {t[0], t[1], t[2]});
             }
             m.put("turns", ts);
+        }
+        if (!traps.isEmpty()) {   // the same for mousetraps
+            List<Object> ts = new ArrayList<>();
+            for (int[] t : traps) {
+                ts.add(new int[] {t[0], t[1]});
+            }
+            m.put("traps", ts);
         }
         return m;
     }
