@@ -361,5 +361,109 @@
   "expect": {
    "loop": true
   }
+ },
+ {
+  "name": "8 · the mouse runs onto a mousetrap and is caught",
+  "board": [
+   "CM.T.."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "caught": true,
+   "win": false,
+   "steps": 2,
+   "pic": [
+    "C..M.."
+   ]
+  }
+ },
+ {
+  "name": "8 · a trap in front of the hole: the mouse is caught before it gets there",
+  "board": [
+   "CM.T"
+  ],
+  "hole": [
+   4,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "caught": true,
+   "win": false
+  }
+ },
+ {
+  "name": "8 · any other animal springs the trap and keeps running",
+  "board": [
+   "DC.T..."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "caught": false,
+   "pic": [
+    "D..t..C"
+   ]
+  }
+ },
+ {
+  "name": "8 · standing next to a trap does nothing",
+  "board": [
+   "MT"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "caught": false,
+   "pic": [
+    "MT"
+   ]
+  }
+ },
+ {
+  "name": "8 · a cat springs the trap first, so the mouse runs over it safely and into the hole",
+  "board": [
+   ".....D...",
+   ".....C...",
+   "CM...T...",
+   ".........",
+   "........."
+  ],
+  "hole": [
+   9,
+   2
+  ],
+  "placed": [],
+  "expect": {
+   "caught": false,
+   "win": true
+  }
+ },
+ {
+  "name": "8 · the same board without the dog: the trap is still set and the mouse is caught",
+  "board": [
+   ".........",
+   ".....C...",
+   "CM...T...",
+   ".........",
+   "........."
+  ],
+  "hole": [
+   9,
+   2
+  ],
+  "placed": [],
+  "expect": {
+   "caught": true,
+   "win": false,
+   "pic": [
+    ".........",
+    ".....C...",
+    "C....M...",
+    ".........",
+    "........."
+   ]
+  }
  }
 ]

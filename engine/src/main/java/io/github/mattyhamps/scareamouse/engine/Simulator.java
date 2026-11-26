@@ -30,9 +30,12 @@ import java.util.Set;
  *       in wins the level. Every other animal treats it like a wall.</li>
  *   <li><b>Turn tiles:</b> an animal that runs onto a turn tile heads the way its arrow points from
  *       then on (unless something scares it, as usual). Animals can't be placed on them.</li>
+ *   <li><b>Mousetraps:</b> the mouse is caught if it runs onto a set trap, and the run fails. Any other
+ *       animal that runs onto a set trap springs it and keeps going; a sprung trap is harmless for the
+ *       rest of the run. Only running onto a trap counts. Animals can't be placed on them.</li>
  * </ol>
- * The run ends when the mouse gets into the hole, when a step passes with nothing moving, or when the
- * board repeats an earlier state (an endless loop).
+ * The run ends when the mouse gets into the hole, when the mouse is caught, when a step passes with
+ * nothing moving, or when the board repeats an earlier state (an endless loop).
  */
 public final class Simulator {
     /** Up, right, down, left. */
@@ -62,6 +65,14 @@ public final class Simulator {
         for (int[] t : level.turns) {
             turn[t[1] * w + t[0]] = t[2];
         }
+        final int[] trap = new int[w * h];   // index into level.traps, or -1
+        java.util.Arrays.fill(trap, -1);
+        for (int k = 0; k < level.traps.size(); k++) {
+            int[] t = level.traps.get(k);
+            trap[t[1] * w + t[0]] = k;
+        }
+        final boolean[] sprung = new boolean[level.traps.size()];
+        int sprungCount = 0;
 
         List<Piece> all = new ArrayList<>(level.fixed);
         all.addAll(placed);
@@ -84,9 +95,11 @@ public final class Simulator {
 
         List<List<SimResult.Snapshot>> frames = record ? new ArrayList<>() : null;
         List<List<Integer>> bumps = record ? new ArrayList<>() : null;
+        List<List<Integer>> snaps = record ? new ArrayList<>() : null;
         if (record) {
             frames.add(snap(type, x, y, gone));
             bumps.add(new ArrayList<Integer>());
+            snaps.add(new ArrayList<Integer>());
         }
         boolean[] everMoved = new boolean[n];
         Set<String> seen = new HashSet<>();
@@ -129,7 +142,7 @@ public final class Simulator {
             }
 
             // Loop detection: the same positions and directions as before means it would repeat forever.
-            StringBuilder key = new StringBuilder();
+            StringBuilder key = new StringBuilder().append(sprungCount).append('|');   // traps only ever go from set to sprung
             for (int i = 0; i < n; i++) {
                 if (i > 0) {
                     key.append(';');
@@ -139,7 +152,7 @@ public final class Simulator {
                 }
             }
             if (!seen.add(key.toString())) {
-                return new SimResult(false, true, count(everMoved), 0, frames, bumps);
+                return new SimResult(false, true, false, count(everMoved), 0, frames, bumps, snaps);
             }
 
             List<Integer> runners = new ArrayList<>();
@@ -171,6 +184,8 @@ public final class Simulator {
             boolean[] done = new boolean[n];
             boolean anyDone = false;
             boolean won = false;
+            boolean caught = false;
+            List<Integer> snapped = new ArrayList<>();   // traps sprung this step
             boolean progress = true;
             while (progress) {
                 progress = false;
@@ -198,6 +213,17 @@ public final class Simulator {
                         x[i] = nx;
                         y[i] = ny;
                         grid[ny * w + nx] = i;
+                        int k = trap[ny * w + nx];
+                        if (k >= 0 && !sprung[k]) {   // rule 8: a set trap snaps
+                            sprung[k] = true;
+                            sprungCount++;
+                            snapped.add(k);
+                            if (type[i] == Animal.MOUSE) {
+                                caught = true;
+                                dx[i] = 0;
+                                dy[i] = 0;
+                            }
+                        }
                         if (turn[ny * w + nx] >= 0) {   // rule 7: the arrow sets the new heading
                             dx[i] = DIRS[turn[ny * w + nx]][0];
                             dy[i] = DIRS[turn[ny * w + nx]][1];
@@ -217,15 +243,19 @@ public final class Simulator {
             if (record) {
                 frames.add(snap(type, x, y, gone));
                 bumps.add(standoff);
+                snaps.add(snapped);
             }
             if (won) {
-                return new SimResult(true, false, count(everMoved), tick + 1, frames, bumps);
+                return new SimResult(true, false, false, count(everMoved), tick + 1, frames, bumps, snaps);
+            }
+            if (caught) {
+                return new SimResult(false, false, true, count(everMoved), 0, frames, bumps, snaps);
             }
             if (!anyDone) {
                 break; // nothing moved: the board is settled
             }
         }
-        return new SimResult(false, false, count(everMoved), 0, frames, bumps);
+        return new SimResult(false, false, false, count(everMoved), 0, frames, bumps, snaps);
     }
 
     /** Walls, the castle edge, and the hole for anything but the mouse. */

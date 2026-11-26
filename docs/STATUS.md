@@ -32,14 +32,22 @@ _Last updated: 25 November 2026._
 - Tester link: https://mattyhamps.github.io/scare-a-mouse/?demo plays only the Meadow (levels 1–20) with
   its own saved progress, no developer mode and no feedback button. The rest of the castle says "Coming
   soon", and clearing level 20 opens the door and then shows a thank-you screen with "Play again".
+- Mousetraps, the piece (no real levels yet): engine rule 8, the drawing (classic snap trap with a big
+  wedge of cheese; sprung = faded, no cheese), the snap with stars and a "Snap!" sound, a caught mouse with
+  the bar on its tail and "The mouse got caught!", and two cards (801: mousetraps; 806: springing traps).
+  The level maker can make trap levels: `Recipe.withTraps(min, max)` (steer around) and
+  `withSpringTraps(n)` (a trap on the mouse's way plus one more animal to send over it first). Steer-around
+  traps need a recipe with a few other solutions to close off: moving levels with one CATCH or STOP, or a
+  lane blocker, work; plain one-animal levels don't (they only ever have one solution). Ten test levels:
+  `?lab=trap-lab` (801–810, made by `TrapLab`).
 
 ## Next
 
-1. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**. The
-   mouse is caught if it runs onto one (the run fails, cartoon "Snap!"); any other animal that runs over
-   it springs it safely, and then it's harmless. Only running onto it counts, not standing next to it.
-   Give it fresh recipes: the Third and Fourth floors both reused the Second floor's 150 in the same
-   order, and mousetraps need their own anyway. Work two rooms at a time.
+1. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**
+   (the piece is done; see above). Next: Matt tries the test levels, then the Battlements and Aviary
+   drawings (show Matt first), then their levels with fresh recipes: 801–805 steer around traps and get
+   harder, the second card at 806 with easy spring levels, both mixed from about 811, then traps in about
+   1 level in 5. Work two rooms at a time.
 2. **Royal floor (921–1070):** Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room. New
    piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other, still
    going the same way.

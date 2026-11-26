@@ -88,6 +88,12 @@ public final class Duplicates {
             int[] q = move(t, p[0], p[1], w, h), r = move(t, p[0] + DIRS[p[2]][0], p[1] + DIRS[p[2]][1], w, h);
             turns.add(q[0] + "," + q[1] + ">" + (r[0] - q[0]) + "," + (r[1] - q[1]));
         }
+        List<String> traps = new ArrayList<>();
+        for (int[] p : l.traps) {
+            int[] q = move(t, p[0], p[1], w, h);
+            traps.add(q[0] + "," + q[1]);
+        }
+        Collections.sort(traps);
         List<String> hand = new ArrayList<>();
         for (Animal a : l.inventory) {
             hand.add(a.id());
@@ -99,6 +105,6 @@ public final class Duplicates {
         int[] hole = move(t, l.holeX, l.holeY, w, h);
         boolean flip = t >= 4;
         return (flip ? h + "x" + w : w + "x" + h) + " hole " + hole[0] + "," + hole[1] + " walls " + walls + " animals " + fixed
-                + " hand " + hand + " turns " + turns;
+                + " hand " + hand + " turns " + turns + (traps.isEmpty() ? "" : " traps " + traps);
     }
 }

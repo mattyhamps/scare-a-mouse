@@ -20,7 +20,8 @@ function serve(port) {
 }
 async function browser() { return chromium.launch(process.env.CHROME ? { executablePath: process.env.CHROME } : {}); }
 // The same layout key the game uses for progress (index.html, levelKey).
-const levelKey = l => { const s = JSON.stringify(l.turns && l.turns.length ? [l.hole, l.walls, l.fixed, l.inv, l.turns] : [l.hole, l.walls, l.fixed, l.inv]);
+const levelKey = l => { const parts = [l.hole, l.walls, l.fixed, l.inv]; if (l.turns && l.turns.length) parts.push(l.turns);
+  if (l.traps && l.traps.length) parts.push(['traps', ...l.traps]); const s = JSON.stringify(parts);
   let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
 // Pretend every level before n is solved and open level n (1-based). Cards already seen unless showCards.
 async function openLevel(p, base, n, { showCards = false } = {}) {

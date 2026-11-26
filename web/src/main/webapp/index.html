@@ -124,6 +124,22 @@
   .tile.turn.flash .mark svg{animation:turnPop .5s ease-out}
   @keyframes turnFlash{0%{background:rgba(47,79,143,.55)}100%{background:rgba(47,79,143,.17)}}
   @keyframes turnPop{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
+  /* mousetraps: a classic snap trap with a big wedge of cheese, flat on the floor. Once sprung (bar over,
+     cheese gone) it is faded: harmless for the rest of the run. */
+  .tile.trap .mark{position:absolute;inset:4%;display:block}
+  .tile.trap .mark svg{width:100%;height:100%;display:block}
+  .tile.trap .mark .sprung, .tile.trap.sprung .mark .set{display:none}
+  .tile.trap.sprung .mark .sprung{display:block}
+  .tile.trap.snap .mark{animation:trapSnap .4s ease-out}
+  @keyframes trapSnap{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(.92) rotate(4deg)}100%{transform:scale(1)}}
+  .stars{position:absolute;pointer-events:none;z-index:6}
+  .stars i{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;animation:starOut .8s ease-out forwards}
+  .stars i svg{width:100%;height:100%;display:block}
+  @keyframes starOut{0%{transform:translate(0,0) scale(.3);opacity:1}70%{opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(1) rotate(160deg);opacity:0}}
+  .animal.caught>span{animation:caught .5s ease-out}
+  @keyframes caught{0%{transform:scale(1)}25%{transform:scale(1.15,.85)}50%{transform:translateX(-6%)}75%{transform:translateX(6%)}100%{transform:none}}
+  .animal .snapbar{position:absolute;left:8%;right:8%;bottom:8%;height:30%;pointer-events:none}
+  .animal .snapbar svg{width:100%;height:100%;display:block}
   .node.next{animation:nextGlow 1.1s ease-in-out infinite}
   @keyframes nextGlow{0%,100%{box-shadow:0 0 0 3px rgba(242,184,75,.4),0 3px 0 rgba(0,0,0,.35)}50%{box-shadow:0 0 0 9px rgba(242,184,75,.15),0 0 18px rgba(242,184,75,.8)}}
   /* the door at the end of each room */
@@ -468,6 +484,8 @@
   .guide-art .g-turn{position:relative;display:inline-block;width:56px;height:56px;border-radius:14%;background:#e9dfc9;box-shadow:inset 0 0 0 2px rgba(47,79,143,.7);animation:none}
   .guide-art .g-turn::before{content:"";position:absolute;inset:6%;border-radius:12%;background:rgba(47,79,143,.17)}
   .guide-art .g-turn svg{position:absolute;inset:14%;width:72%;height:72%;fill:#2f4f8f}
+  .guide-art .g-trap{display:inline-block;width:60px;height:60px}
+  .guide-art .g-trap svg{width:100%;height:100%;display:block}
   .guide-art .g-wall{position:relative;width:44px;height:44px;border-radius:6px;background:var(--stone);box-shadow:inset -8px -8px 0 var(--stone-d);animation:none}
   .room-loading{padding:40px 12px;text-align:center;color:var(--paper);font:600 15px var(--font-body)}
   /* the drawn animals */
@@ -625,10 +643,11 @@ Promise.all([
   fetch('levels.json').then(r => { if (!r.ok) throw new Error('levels.json: ' + r.status); return r.json(); }),
   fetch('legacy-holes.json').then(r => r.ok ? r.json() : []).catch(() => []),
   fetch('hard-levels.json').then(r => r.ok ? r.json() : []).catch(() => []),
-  // Testing only: ?lab swaps in the levels from turn-lab.json (each named "Test <level number>").
-  new URLSearchParams(location.search).has('lab') ? fetch('turn-lab.json').then(r => r.ok ? r.json() : []).catch(() => []) : []
+  // Testing only: ?lab swaps in the levels from turn-lab.json (each named "Test <level number>"); ?lab=trap-lab
+  // uses trap-lab.json instead.
+  new URLSearchParams(location.search).has('lab') ? fetch(`${(new URLSearchParams(location.search).get('lab') || '').match(/^[a-z-]+$/) ? new URLSearchParams(location.search).get('lab') : 'turn-lab'}.json`).then(r => r.ok ? r.json() : []).catch(() => []) : []
 ]).then(([LEVELS, LEGACY, HARD_LIST, LAB]) => { (function(){
-  for (const t of LAB) { const n = +String(t.name).split(' ')[1]; if (n > 0 && n <= LEVELS.length) LEVELS[n - 1] = t; }
+  for (const t of LAB) { const n = +String(t.name).split(' ')[1]; if (n > 0 && n <= LEVELS.length + 1) LEVELS[n - 1] = t; }   // a test level can also go just past the last one
   // The tester link: ?demo plays only the first room (the Meadow, levels 1-20), with its own saved progress,
   // no developer mode, and a thank-you screen once the Meadow is cleared. The rest of the castle shows as coming soon.
   const DEMO = new URLSearchParams(location.search).has('demo'), DEMO_LEVELS = 20;
@@ -688,6 +707,7 @@ Promise.all([
       scared(t){ const v = VOICE[t] || VOICE.cat; note(v[0], 0.12, v[2], t==='bear'||t==='lion'||t==='elephant' ? 0.06 : 0.08, 0, v[1]); },
       bump(){ note(140, 0.12, 'square', 0.07, 0, 90); },
       turn(){ note(620, 0.09, 'triangle', 0.07, 0, 1040); },
+      snap(){ note(1500, 0.04, 'square', 0.08, 0, 400); note(170, 0.09, 'square', 0.09, 0.03, 80); },
       win(){ [523,659,784,1047].forEach((f,k)=>note(f, 0.22, 'triangle', 0.10, k*0.11)); },
       fail(){ note(392, 0.16, 'triangle', 0.08); note(294, 0.28, 'triangle', 0.08, 0.15); },
       door(){ [784,988,1319].forEach((f,k)=>note(f, 0.5, 'sine', 0.07, k*0.09)); },
@@ -697,7 +717,8 @@ Promise.all([
 
   // Progress is keyed by each level's exact layout, so a rebuilt level automatically shows as unplayed.
   // solved = { layoutKey: [placed animals of the winning setup] }
-  function levelKey(l){ const s=JSON.stringify(l.turns && l.turns.length ? [l.hole,l.walls,l.fixed,l.inv,l.turns] : [l.hole,l.walls,l.fixed,l.inv]); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+  function levelKey(l){ const parts=[l.hole,l.walls,l.fixed,l.inv]; if(l.turns && l.turns.length) parts.push(l.turns); if(l.traps && l.traps.length) parts.push(['traps', ...l.traps]);
+    const s=JSON.stringify(parts); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
   let solved = store.get('cm_solved', {});
   // The hole used to sit in the castle wall. Levels whose hole simply moved onto the board keep the
   // same solution, so carry over progress saved under the old layout.
@@ -915,6 +936,26 @@ Promise.all([
 
   // Small flat icons (24×24) for rooms and buttons, drawn in paper colours to sit on a coloured block.
   // icon(key, px) gives an <svg>; room icons are keyed by the room's name.
+  // The mousetrap: wood base, spring, snap bar, and a big wedge of cheese on the pedal. Sprung: the bar is
+  // over on the pedal side, the cheese is gone and the whole trap is faded.
+  const TRAP_ART = {
+    set: `<rect x="2.5" y="5.5" width="19" height="13" rx="2.2" fill="#d6a062" stroke="#7a4d22" stroke-width="1"/>
+      <path d="M4.8 8.6h3.6M5.2 15.4h3.2" stroke="#7a4d22" stroke-width=".6" opacity=".4"/>
+      <line x1="11" y1="7.2" x2="11" y2="16.8" stroke="#4d535c" stroke-width="1.1"/>
+      <circle cx="11" cy="8.4" r="1.4" fill="#d6a062" stroke="#4d535c" stroke-width="1"/><circle cx="11" cy="15.6" r="1.4" fill="#d6a062" stroke="#4d535c" stroke-width="1"/>
+      <path d="M11 7.2H4.4V16.8H11" fill="none" stroke="#4d535c" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="4.4" y1="12" x2="13.4" y2="12" stroke="#4d535c" stroke-width="1"/>
+      <rect x="13.2" y="8.6" width="6.4" height="6.8" rx=".9" fill="#a3a9b1" stroke="#4d535c" stroke-width=".7"/>
+      <path d="M12.2 17.2h8.9v-10.4z" fill="#f4c64e" stroke="#b9821c" stroke-width=".65" stroke-linejoin="round"/><circle cx="19" cy="15" r=".95" fill="#b9821c"/><circle cx="16.2" cy="15.9" r=".6" fill="#b9821c"/><circle cx="19.6" cy="11.6" r=".55" fill="#b9821c"/>`,
+    sprung: `<g opacity=".72"><rect x="2.5" y="5.5" width="19" height="13" rx="2.2" fill="#d6a062" stroke="#7a4d22" stroke-width="1"/>
+      <path d="M4.8 8.6h3.6M5.2 15.4h3.2" stroke="#7a4d22" stroke-width=".6" opacity=".4"/>
+      <rect x="13.2" y="8.6" width="6.4" height="6.8" rx=".9" fill="#a3a9b1" stroke="#4d535c" stroke-width=".7"/>
+      <line x1="11" y1="7.2" x2="11" y2="16.8" stroke="#4d535c" stroke-width="1.1"/>
+      <circle cx="11" cy="8.4" r="1.4" fill="#d6a062" stroke="#4d535c" stroke-width="1"/><circle cx="11" cy="15.6" r="1.4" fill="#d6a062" stroke="#4d535c" stroke-width="1"/>
+      <path d="M11 7.2H19.6V16.8H11" fill="none" stroke="#4d535c" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="5.6" y1="9.6" x2="9.4" y2="13.4" stroke="#4d535c" stroke-width="1"/></g>`,
+  };
+  const trapSvg = (state) => `<svg class="${state}" viewBox="0 0 24 24">${TRAP_ART[state]}</svg>`;
   const ICONS = {
     'Meadow': '<circle cx="12" cy="6" r="4" fill="#f1e3c2"/><circle cx="18" cy="11" r="4" fill="#e0cb9c"/><circle cx="15.5" cy="18" r="4" fill="#e0cb9c"/><circle cx="8.5" cy="18" r="4" fill="#f1e3c2"/><circle cx="6" cy="11" r="4" fill="#f1e3c2"/><circle cx="12" cy="12.5" r="3.6" fill="#d9a43a"/>',
     'Orchard': '<path d="M12 7 C6 4 2 9 4 15 C6 21 10 22 12 20 C14 22 18 21 20 15 C22 9 18 4 12 7 Z" fill="#f1e3c2"/><path d="M12 7 C18 4 22 9 20 15 C18 21 14 22 12 20 C15 17 16 11 12 7 Z" fill="#e0cb9c"/><path d="M12 7 C12 4 13 2 15 1" stroke="#e0cb9c" stroke-width="2" fill="none"/><path d="M13 5 C15 2 19 2 20 4 C17 6 15 6 13 5 Z" fill="#d9a43a"/>',
@@ -1599,6 +1640,10 @@ Promise.all([
            text: 'Animals can\'t run through the weapon racks. Careful, they\'re sharp!' },
     500: { art: `<span>${art('dog',44)}</span><span>${icon('arrow',26)}</span><span class="g-turn"><svg viewBox="0 0 24 24">${[2.4,7.6,12.8].map((y,k)=>`<path d="M4.5 ${y+6.4} L12 ${y} L19.5 ${y+6.4} L19.5 ${y+10.2} L12 ${y+3.8} L4.5 ${y+10.2} Z" opacity="${[1,.72,.45][k]}"/>`).join('')}</svg></span>`, title: 'New: turn tiles!',
            text: 'An animal that runs onto a turn tile turns and runs the way its arrows point. You can\'t put animals on them.' },
+    800: { art: `<span>${art('mouse',44)}</span><span>${icon('arrow',26)}</span><span class="g-trap">${trapSvg('set')}</span>`, title: 'New: mousetraps!',
+           text: 'If the mouse runs onto a mousetrap, it gets caught. Steer it around them. You can\'t put animals on them.' },
+    805: { art: `<span>${art('dog',44)}</span><span>${icon('arrow',26)}</span><span class="g-trap">${trapSvg('sprung')}</span>`, title: 'New: springing traps!',
+           text: 'Any other animal that runs onto a trap springs it and keeps running. A sprung trap can\'t catch the mouse.' },
     322: { art: '<span class="g-statue"></span><span class="g-statue"></span>', title: 'New: statues!',
            text: 'Animals can\'t run through the statues. Mind the art!' },
   };
@@ -1657,6 +1702,7 @@ Promise.all([
     b.className='board edit armed' + boardTheme;
     const walls=new Set(L.walls.map(w=>w.join(',')));
     const turns=new Map((L.turns||[]).map(t=>[t[0]+','+t[1], t[2]]));   // turn tiles: square -> arrow (0 up, 1 right, 2 down, 3 left)
+    const traps=new Map((L.traps||[]).map((t,k)=>[t[0]+','+t[1], k]));   // mousetraps: square -> index (the engine reports sprung traps by index)
     let html='';
     for(let y=-1;y<=L.h;y++) for(let x=-1;x<=L.w;x++){
       const side = (v,n) => v<0||v>=n;
@@ -1668,10 +1714,26 @@ Promise.all([
       } else if(border) html+=`<div class="tile border" style="${pos}"></div>`;
       else if(walls.has(x+','+y)) html+=`<div class="tile floor ${(x+y)%2?'alt':''}" style="${pos}"><div class="tile wall" style="left:4%;top:4%;width:92%;height:92%;position:absolute"></div></div>`;
       else if(turns.has(x+','+y)) html+=`<div class="tile floor turn ${(x+y)%2?'alt':''}" data-x="${x}" data-y="${y}" style="${pos}"><span class="mark" style="transform:rotate(${turns.get(x+','+y)*90}deg)"><svg viewBox="0 0 24 24">${[2.4,7.6,12.8].map((y,k)=>`<path d="M4.5 ${y+6.4} L12 ${y} L19.5 ${y+6.4} L19.5 ${y+10.2} L12 ${y+3.8} L4.5 ${y+10.2} Z" opacity="${[1,.72,.45][k]}"/>`).join('')}</svg></span></div>`;
+      else if(traps.has(x+','+y)) html+=`<div class="tile floor trap ${(x+y)%2?'alt':''}" data-k="${traps.get(x+','+y)}" style="${pos}"><span class="mark">${trapSvg('set')}${trapSvg('sprung')}</span></div>`;
       else html+=`<div class="tile floor placeable ${(x+y)%2?'alt':''}" data-x="${x}" data-y="${y}" style="${pos}"></div>`;
     }
     b.innerHTML=html;
     b.querySelectorAll('.placeable').forEach(t=>t.onclick=()=>tapCell(+t.dataset.x,+t.dataset.y));
+  }
+
+  // Shows which traps are sprung after step f of a run (none at the start).
+  function setTraps(res, f){
+    const sprung = new Set(); for (let k = 0; k <= f; k++) ((res && res.snaps || [])[k] || []).forEach(t => sprung.add(t));
+    $('board').querySelectorAll('.tile.trap').forEach(t => { t.classList.remove('snap'); t.classList.toggle('sprung', sprung.has(+t.dataset.k)); });
+  }
+  // Cartoon stars bursting out of a square.
+  function stars(x, y, count){
+    const s = document.createElement('div'); s.className = 'stars';
+    s.style.cssText = `left:${P(x)}px;top:${P(y)}px;width:${cell}px;height:${cell}px`;
+    for (let k = 0; k < count; k++) { const a = (k / count) * Math.PI * 2 - Math.PI / 2, i = document.createElement('i');
+      i.style.setProperty('--sx', `${Math.round(Math.cos(a) * cell * 0.85)}px`); i.style.setProperty('--sy', `${Math.round(Math.sin(a) * cell * 0.85)}px`);
+      i.innerHTML = `<svg viewBox="0 0 24 24">${ICONS.sparkle}</svg>`; s.appendChild(i); }
+    $('board').appendChild(s); setTimeout(() => s.remove(), 900);
   }
 
   function occupied(x,y){ return L.fixed.some(a=>a.x===x&&a.y===y) || placed.some(a=>a.x===x&&a.y===y); }
@@ -1742,11 +1804,18 @@ Promise.all([
       if((p.x!==a.x||p.y!==a.y) && !a.gone){ const t=$('board').querySelector(`.tile.turn[data-x="${a.x}"][data-y="${a.y}"]`);
         if(t){ t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); turned=true; } }
     });
+    // a set mousetrap snaps: any other animal springs it and keeps going; the mouse gets caught by the tail
+    ((res.snaps||[])[f]||[]).forEach(k=>{ const t=$('board').querySelector(`.tile.trap[data-k="${k}"]`); if(!t) return;
+      t.classList.add('sprung'); t.classList.remove('snap'); void t.offsetWidth; t.classList.add('snap');
+      const caught = res.caught && f===res.frames.length-1 && cur[0].x===L.traps[k][0] && cur[0].y===L.traps[k][1];
+      stars(L.traps[k][0], L.traps[k][1], caught ? 6 : 4); Sound.snap();
+      if(caught){ const m=animalEls[cur[0].id]; m.classList.add('caught'); m.insertAdjacentHTML('beforeend', `<i class="snapbar"><svg viewBox="0 0 24 8" preserveAspectRatio="none"><path d="M2 1.5V6.5H22V1.5" fill="none" stroke="#4d535c" stroke-width="2.2" stroke-linejoin="round"/></svg></i>`); voice=null; }
+    });
     if(turned) Sound.turn();
     if(voice) Sound.scared(voice);
     if(bumped) Sound.bump();
   }
-  const showStart = res => renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=L.fixed.length})));
+  const showStart = res => { setTraps(res, 0); renderAnimals(res.frames[0].map(a=>({...a, placed: a.id>=L.fixed.length}))); };
 
   // Plays a whole run, then calls done.
   function animate(res, stepMs, done){
@@ -1807,6 +1876,7 @@ Promise.all([
     document.body.classList.remove('replaying');
     // back on the last step of the run, then the win card again
     renderAnimals(lastRun.frames[lastRun.frames.length-1].map(a=>({...a, placed: a.id>=L.fixed.length})));
+    setTraps(lastRun, lastRun.frames.length-1);
     mode='won'; updateButtons();
     $('win').classList.add('show');
   }
@@ -1852,10 +1922,11 @@ Promise.all([
     } else {
       mode='failed'; Sound.fail();
       const last=(res.bumps||[])[res.frames.length-1]||[];
-      toast(res.loop ? 'The animals are stuck going back and forth.'
+      toast(res.caught ? 'The mouse got caught!'
+          : res.loop ? 'The animals are stuck going back and forth.'
           : last.length ? 'Stuck! Two animals tried to move into the same square.'
           : 'The mouse is still in the castle.');
-      backTimer=setTimeout(()=>{ if(mode==='failed') backToStart(); }, last.length ? 2600 : 1400);
+      backTimer=setTimeout(()=>{ if(mode==='failed') backToStart(); }, last.length || res.caught ? 2600 : 1400);
     }
     updateButtons();
   }
@@ -1863,7 +1934,7 @@ Promise.all([
   function backToStart(){
     clearTimeout(timer); clearTimeout(backTimer);
     mode='edit'; $('board').className='board edit' + boardTheme;
-    renderTray(); renderAnimals(); updateButtons();
+    setTraps(null, 0); renderTray(); renderAnimals(); updateButtons();
   }
   function reset(){ placed=[]; selected=0; selPlaced=null; clearHint(); backToStart(); }
 

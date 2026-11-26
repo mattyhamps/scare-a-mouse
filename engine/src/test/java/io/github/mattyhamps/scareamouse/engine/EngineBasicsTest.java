@@ -42,4 +42,26 @@ class EngineBasicsTest {
                 + "\"fixed\":[{\"t\":\"mouse\",\"x\":3,\"y\":3}],\"inv\":[\"cat\"],\"solution\":[{\"t\":\"cat\",\"x\":4,\"y\":3}]}";
         assertEquals(text, Json.write(Level.fromJson(Json.parse(text)).toJson()));
     }
+
+    @Test
+    void trapsRoundTripAndBlockPlacing() {
+        String text = "{\"name\":\"T\",\"tip\":\"\",\"w\":7,\"h\":7,\"hole\":[-1,3],\"walls\":[],"
+                + "\"fixed\":[{\"t\":\"mouse\",\"x\":3,\"y\":3}],\"inv\":[\"cat\"],\"solution\":[{\"t\":\"cat\",\"x\":4,\"y\":3}],"
+                + "\"traps\":[[1,3],[5,5]]}";
+        Level level = Level.fromJson(Json.parse(text));
+        assertEquals(text, Json.write(level.toJson()));
+        assertTrue(level.isTrap(1, 3));
+        assertFalse(level.isOpen(5, 5));   // nothing can be placed on a trap
+        assertTrue(level.isOpen(5, 4));
+    }
+
+    @Test
+    void snapsSayWhichTrapSprungWhen() {
+        // The cat runs from the dog over the second trap on its second step.
+        Level level = BoardPicture.level(Arrays.asList("T.....", "DC.T.."), null);
+        SimResult r = Simulator.record(level, Collections.<Piece>emptyList());
+        assertFalse(r.caught);
+        assertTrue(r.snaps.get(1).isEmpty());
+        assertEquals(Arrays.asList(1), r.snaps.get(2));
+    }
 }
