@@ -12,7 +12,7 @@ _Last updated: 26 November 2026._
   castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
   the mouse travelling between rooms when you clear one.
 - Levels 801–950, the whole Royal floor (five rooms and its boss), with mousetraps (see below).
-- Levels 951–1000, the Towers and roof's first two rooms, with trapdoors (see below).
+- Levels 951–1075, the whole Towers and roof (five rooms and its boss), with trapdoors (see below).
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
@@ -153,15 +153,30 @@ _Last updated: 26 November 2026._
   975 ("Turret Trapdoor", once "Bird House") moved into the Battlements with its puzzle kept; 999 and 1000
   are new. Flames so far: 965, 981, 986 (counted across 951–1075, so they'll shift as the floor fills up).
   `LevelsTest` now also accepts a level count that ends a 25-level Towers and roof room.
+- The Watchtower (1001–1025), Belfry (1026–1050) and Crown vault (1051–1075), also in `gen26.py` (Matt picked
+  each idea, then asked for more contrast):
+  - Watchtower: the lookout room, a round sandstone room with windows over the fields and a map of the lands
+    over the door; a map table, a stand of spyglasses, a signal horn, a beacon lamp, a desk with a logbook and
+    hourglass, a cockerel weathervane, a bench with a blanket. Dark flagstones; a pale rope-edged path that winds
+    round sandstone pillars down the middle (`slalom`, the pillars come from the shape: `pillar` in `ROOM_SCENES`).
+  - Belfry: the bell loft, oak beams, three bronze bells (the big one on a wheel), louvred windows, sleepy bats;
+    a cracked old bell, a bell on a frame, a ladder, a coil of rope, a bat post, handbells, a crate with a spare
+    clapper. Dark planks; a cream bell-rope path that swings across in big arches (`bellswing`).
+  - Crown vault: the crown jewels behind a round steel vault door (its way out), crowns in lit alcoves; a crown
+    on a plinth, an orb and sceptre, a jewelled sword in a case, a tiara cabinet, a ring tray, an ermine robe, a
+    crowned bust (none of them repeat the Treasury's). Near-black floor; a red velvet queue with brass posts down
+    both edges (`queue`, `posts` in `ROOM_SCENES`).
+  - Boards: sandy, oak and gold, no walls. Map icons: a tower, a bell, a crown.
+- Their levels (`Recipe.towersFloor`): the same mix as 951–1000, no walls, trapdoors in 12 of the 75 (about
+  1 in 6 or 7), mousetraps in 13, turn tiles in 3. 1005 was changed after the dry run. 1075 is the floor's boss:
+  three to place, a trap to spring and a trapdoor. Flames across the floor: 965, 981, 986, 1021, 1029, 1034, 1040.
 
 ## Next
 
-1. **Towers and roof (1001–1075):** the Watchtower, Belfry and Crown vault (25 levels each), boss at 1075.
-   Drawings first (show Matt), then levels with the same mix as 951–1000: no walls on this floor (Matt),
-   trapdoors about 1 level in 7, mousetraps about as often, a turn tile now and then. Keep mixing in the new
-   puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
-2. **Tower top (1076–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
-3. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
+1. **Tower top (1076–1100):** everything together, the finale (boss at 1100). Drawings first (show Matt).
+   Keep mixing in the new puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
+   Past 1100 an east wing: a mix of everything.
+2. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
    without scrolling: the level screen, the map, the cards and pop-ups), at a few phone sizes, with and without
    the preview banner. In a phone browser the level screen is still too tall: on Matt's iPhone (about 390×664
    visible) the animal tray and the buttons sit partly below the fold.
