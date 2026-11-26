@@ -1641,9 +1641,9 @@ Promise.all([
     500: { art: `<span>${art('dog',44)}</span><span>${icon('arrow',26)}</span><span class="g-turn"><svg viewBox="0 0 24 24">${[2.4,7.6,12.8].map((y,k)=>`<path d="M4.5 ${y+6.4} L12 ${y} L19.5 ${y+6.4} L19.5 ${y+10.2} L12 ${y+3.8} L4.5 ${y+10.2} Z" opacity="${[1,.72,.45][k]}"/>`).join('')}</svg></span>`, title: 'New: turn tiles!',
            text: 'An animal that runs onto a turn tile turns and runs the way its arrows point. You can\'t put animals on them.' },
     800: { art: `<span>${art('mouse',44)}</span><span>${icon('arrow',26)}</span><span class="g-trap">${trapSvg('set')}</span>`, title: 'New: mousetraps!',
-           text: 'If the mouse runs onto a mousetrap, it gets caught. Steer it around them. You can\'t put animals on them.' },
-    805: { art: `<span>${art('dog',44)}</span><span>${icon('arrow',26)}</span><span class="g-trap">${trapSvg('sprung')}</span>`, title: 'New: springing traps!',
-           text: 'Any other animal that runs onto a trap springs it and keeps running. A sprung trap can\'t catch the mouse.' },
+           text: 'A mousetrap catches the mouse, but other animals can run over it safely. You can\'t put animals on traps.' },
+    807: { art: `<span>${art('cat',40)}</span><span>${icon('arrow',22)}</span><span class="g-trap">${trapSvg('sprung')}</span><span>${art('mouse',40)}</span>`, title: 'Sprung traps are safe!',
+           text: 'When another animal runs over a trap, it snaps shut. After that, it\'s safe for the mouse.' },
     322: { art: '<span class="g-statue"></span><span class="g-statue"></span>', title: 'New: statues!',
            text: 'Animals can\'t run through the statues. Mind the art!' },
   };
