@@ -117,6 +117,17 @@ public final class LevelsCli {
         String tip = option(args, "--tip", adding ? "" : old.tip);
         long start = System.currentTimeMillis();
         Recipe recipe = Recipe.forLevel(n);
+        if (Recipe.TRAP_INTRO.containsKey(n)) {   // the mouse-and-cats levels that bring in mousetraps
+            String introTip = option(args, "--tip", adding ? recipe.tip : old.tip);
+            Level level = TrapLab.catsOnly(new java.util.Random(seed), Recipe.TRAP_INTRO.get(n)[0], Recipe.TRAP_INTRO.get(n)[1],
+                    Recipe.TRAP_INTRO.get(n)[2], (int) Math.min(timeout, 60), name, introTip);
+            if (level == null) {
+                System.out.println("No level built. Try another --seed.");
+                System.exit(2);
+            }
+            save(levels, file, args, n, level, start);
+            return;
+        }
         if (recipe != null) {
             buildDesigned(levels, file, args, n, recipe, name, option(args, "--tip", null), seed, threads, timeout, start);
             return;
@@ -152,7 +163,7 @@ public final class LevelsCli {
         List<String> slow = new ArrayList<>();
         for (int n = from; n <= to; n++) {
             Recipe recipe = Recipe.forLevel(n);
-            if (recipe == null) {
+            if (recipe == null || Recipe.TRAP_INTRO.containsKey(n)) {   // the mouse-and-cats levels are quick to make
                 continue;
             }
             long start = System.currentTimeMillis();
@@ -182,11 +193,20 @@ public final class LevelsCli {
             }
         }
         ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout, recent);
+        // a trap level where a trap doesn't matter to the puzzle: try a few more seeds before giving up
+        for (int k = 1; k <= 6 && built != null && !built.level.traps.isEmpty()
+                && !TrapLab.trapsDoTheirJob(built.level, recipe.springTraps); k++) {
+            built = ChainBuilder.find(recipe, name, seed + k * 104729L, threads, want, timeout, recent);
+        }
         if (built == null) {
             System.out.println("No level built in " + timeout + "s. Try another --seed or a longer --timeout.");
             System.exit(2);
         }
         Level level = tipOverride == null ? built.level : built.level.withNameAndTip(name, tipOverride);
+        if (!level.traps.isEmpty() && !TrapLab.trapsDoTheirJob(level, recipe.springTraps)) {   // every trap has to matter
+            System.out.println("Built level " + n + " but a trap doesn't matter to the puzzle. Try another --seed.");
+            System.exit(3);
+        }
         int twin = Duplicates.twin(levels, level, n);
         if (twin > 0) {   // the same puzzle (or its mirror image) as another level: try another seed
             System.out.println("Built level " + n + " but it is the same puzzle as level " + twin + ". Try another --seed.");
@@ -194,6 +214,27 @@ public final class LevelsCli {
         }
         System.out.printf("Built level %d in %.1fs (seed %d): %s%n", n, (System.currentTimeMillis() - start) / 1000.0,
                 built.seed, Interest.breakdown(level));
+        if (contains(args, "--write")) {
+            if (n == levels.size() + 1) {
+                levels.add(level);
+            } else {
+                levels.set(n - 1, level);
+            }
+            Files.write(file, Level.listToJson(levels).getBytes(StandardCharsets.UTF_8));
+            System.out.println("Saved to " + file);
+        } else {
+            System.out.println(io.github.mattyhamps.scareamouse.engine.Json.write(level.toJson()));
+        }
+    }
+
+    /** Saves a level built some other way (the mouse-and-cats trap levels), after the repeat check. */
+    private static void save(List<Level> levels, Path file, String[] args, int n, Level level, long start) throws IOException {
+        int twin = Duplicates.twin(levels, level, n);
+        if (twin > 0) {
+            System.out.println("Built level " + n + " but it is the same puzzle as level " + twin + ". Try another --seed.");
+            System.exit(3);
+        }
+        System.out.printf("Built level %d in %.1fs: %s%n", n, (System.currentTimeMillis() - start) / 1000.0, Interest.breakdown(level));
         if (contains(args, "--write")) {
             if (n == levels.size() + 1) {
                 levels.add(level);
