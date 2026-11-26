@@ -1,5 +1,5 @@
 import json, math, re
-# ================= Royal floor: Royal chambers, Wardrobe, Sitting room, Tower stairs (the Throne room to follow)
+# ================= Royal floor: Royal chambers, Wardrobe, Sitting room, Tower stairs, Throne room
 # Builds on gen24.py's helpers (and so every floor before it), same flat style: the light half of each
 # object on the left, a darker half on the right, one soft shadow under anything that stands on the floor.
 # Run from this folder: python3 gen25.py && python3 export_royal.py
@@ -376,6 +376,80 @@ def stone_block(x,y,s=1):   # the Tower stairs' board wall: a rough block of the
       <path d="M12 18 L16 24 L13 30 M30 20 L27 27" stroke="{STONE[2]}" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M33 16 L36 22" stroke="#4a4452" stroke-width="1.6" stroke-linecap="round"/>
       <circle cx="9" cy="34" r="1.6" fill="{STONE[1]}"/><circle cx="20" cy="15" r="1.2" fill="{STONE[1]}"/></g>'''
 
+# ---------- THRONE ROOM (court day)
+MARBLE=('#f4ecdc','#e2d6bf','#c9b99a')
+def throne(x,y,c,c2,big=1.0):   # a high-backed gold throne with a velvet seat and back, a crown on top
+    return f'''<g transform="translate({x} {y}) scale({big})"><path d="M8 70 L8 14 Q8 0 30 -4 Q52 0 52 14 L52 70 Z" fill="{GOLD[1]}"/><path d="M30 -4 Q52 0 52 14 L52 70 L30 70 Z" fill="{GOLD[2]}"/>
+      <path d="M15 66 L15 18 Q15 8 30 6 Q45 8 45 18 L45 66 Z" fill="{c}"/><path d="M30 6 Q45 8 45 18 L45 66 L30 66 Z" fill="{c2}"/>{"".join(f'<circle cx="{cx}" cy="{cy}" r="1.6" fill="{GOLD[0]}"/>' for cx,cy in ((22,24),(38,24),(30,36),(22,48),(38,48)))}
+      {crown(16,-24,0.88)}<circle cx="8" cy="14" r="4" fill="{GOLD[0]}"/><circle cx="52" cy="14" r="4" fill="{GOLD[1]}"/>
+      <rect x="0" y="58" width="12" height="22" rx="4" fill="{GOLD[1]}"/><rect x="48" y="58" width="12" height="22" rx="4" fill="{GOLD[2]}"/>{two(4,68,52,14,c,c2,5)}<rect x="4" y="80" width="52" height="7" rx="2" fill="{GOLD[2]}"/>
+      <path d="M8 87 Q6 96 10 102 M52 87 Q54 96 50 102" stroke="{GOLD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/></g>'''
+def throne_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="#7a2a34"/>'
+    w+=''.join(f'<g transform="translate({x+(y//32%2)*16} {y})"><path d="M0 -7 Q4 -2 0 7 Q-4 -2 0 -7 Z" fill="#8c3640"/><path d="M-7 0 Q-2 4 7 0 Q-2 -4 -7 0 Z" fill="#8c3640"/><circle cx="0" cy="0" r="1.8" fill="{GOLD[2]}" opacity=".8"/></g>' for x in range(8,400,32) for y in range(12,150,32))
+    w+=f'<rect x="0" y="150" width="390" height="64" fill="{MARBLE[0]}"/>'+''.join(f'<rect x="{x+5}" y="158" width="38" height="48" rx="3" fill="none" stroke="{GOLD[1]}" stroke-width="2"/>' for x in range(0,390,48))+f'<rect x="0" y="146" width="390" height="8" fill="{GOLD[1]}"/><rect x="0" y="150" width="390" height="4" fill="{GOLD[2]}"/>'
+    # stained-glass windows high up at the sides
+    for sx in (30,316):
+        panes=''.join(f'<rect x="{sx+4+(k%3)*14}" y="{30+(k//3)*22}" width="12" height="20" fill="{c}"/>' for k,c in enumerate(("#6fb3b8",CRIM[0],Q["mustard"],CRIM[0],"#6fb3b8",Q["navy"],Q["mustard"],Q["navy"],"#6fb3b8","#6fb3b8",Q["mustard"],CRIM[0])))
+        w+=f'<path d="M{sx} 120 L{sx} 34 Q{sx} 8 {sx+23} 8 Q{sx+46} 8 {sx+46} 34 L{sx+46} 120 Z" fill="{GOLD[2]}"/><clipPath id="sg{sx}"><path d="M{sx+3} 117 L{sx+3} 34 Q{sx+3} 12 {sx+23} 12 Q{sx+43} 12 {sx+43} 34 L{sx+43} 117 Z"/></clipPath><g clip-path="url(#sg{sx})"><rect x="{sx}" y="8" width="46" height="112" fill="#a9cbe0"/>{panes}<circle cx="{sx+23}" cy="24" r="9" fill="{Q["mustard"]}"/></g>'
+    # the canopy over the door, with the royal crest
+    w+=f'<path d="M120 40 L270 40 L262 64 Q248 74 234 64 Q220 74 206 64 Q195 72 184 64 Q170 74 156 64 Q142 74 128 64 Z" fill="{CRIM[1]}"/><rect x="114" y="34" width="162" height="8" rx="3" fill="{GOLD[1]}"/>'
+    w+=f'<path d="M124 42 L140 42 Q130 120 136 214 L118 214 Z" fill="{CRIM[0]}"/><path d="M266 42 L250 42 Q260 120 254 214 L272 214 Z" fill="{CRIM[1]}"/>{tassel(130,120)}{tassel(260,120)}'
+    w+=f'<rect x="146" y="100" width="98" height="114" fill="#5e1f28"/><path d="M146 100 Q195 80 244 100 Z" fill="{GOLD[1]}"/><rect x="146" y="98" width="98" height="6" fill="{GOLD[2]}"/>'+gate_arch(164,62,(CRIM[1],CRIM[2]))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
+    w+=crown(179,12,1.0)
+    # the dais with the king's and queen's thrones, either side of the door
+    w+=f'<rect x="0" y="196" width="390" height="18" fill="{CRIM[1]}"/><rect x="0" y="194" width="390" height="5" fill="{GOLD[1]}"/><rect x="0" y="208" width="390" height="6" fill="{CRIM[2]}"/>'
+    w+=throne(46,96,CRIM[0],CRIM[1],1.0)+throne(288,104,ROSE[0],ROSE[1],0.92)
+    return w
+def throne_pillar(x,y):   # a marble pillar with a gold band, in rows down each side of the room
+    return f'''<g transform="translate({x} {y})">{shadow(22,112,22,5)}<rect x="0" y="100" width="44" height="12" rx="2" fill="{MARBLE[1]}"/><rect x="2" y="96" width="40" height="6" rx="2" fill="{MARBLE[0]}"/>
+      <rect x="6" y="10" width="32" height="88" fill="{MARBLE[0]}"/><rect x="26" y="10" width="12" height="88" fill="{MARBLE[1]}"/>{"".join(f'<rect x="{px}" y="12" width="2" height="84" fill="{MARBLE[2]}" opacity=".5"/>' for px in (12,19,30))}
+      <rect x="4" y="50" width="36" height="6" fill="{GOLD[1]}"/><rect x="26" y="50" width="14" height="6" fill="{GOLD[2]}"/>
+      <rect x="2" y="4" width="40" height="8" rx="2" fill="{MARBLE[0]}"/><rect x="0" y="0" width="44" height="6" rx="2" fill="{GOLD[1]}"/></g>'''
+def lion_plinth(x,y):   # a golden lion statue sitting on a marble plinth
+    return f'''<g transform="translate({x} {y})">{shadow(32,112,32,5)}{two(6,64,52,46,MARBLE[0],MARBLE[1],2)}<rect x="2" y="60" width="60" height="7" rx="2" fill="{MARBLE[2]}"/><rect x="2" y="106" width="60" height="6" rx="2" fill="{MARBLE[2]}"/><rect x="16" y="78" width="32" height="16" rx="2" fill="none" stroke="{GOLD[1]}" stroke-width="2"/>
+      <path d="M14 60 Q12 40 22 30 L44 30 Q54 40 50 60 Z" fill="{GOLD[1]}"/><path d="M34 30 L44 30 Q54 40 50 60 L34 60 Z" fill="{GOLD[2]}"/><path d="M50 52 Q60 50 58 40 Q62 46 56 56" stroke="{GOLD[2]}" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="30" cy="24" r="16" fill="{GOLD[2]}"/><circle cx="30" cy="26" r="10" fill="{GOLD[1]}"/><circle cx="26" cy="24" r="1.6" fill="{DARK}"/><circle cx="34" cy="24" r="1.6" fill="{DARK}"/><path d="M28 30 L32 30 L30 32 Z" fill="{DARK}"/>
+      <rect x="18" y="52" width="9" height="8" rx="3" fill="{GOLD[0]}"/><rect x="33" y="52" width="9" height="8" rx="3" fill="{GOLD[1]}"/></g>'''
+def gold_candelabra(x,y):   # a tall gold floor candelabra with five candles
+    arms=''.join(f'<path d="M30 44 Q{30+dx} 44 {30+dx} {30-abs(dx)//3}" stroke="{GOLD[1]}" stroke-width="3" fill="none"/>' for dx in (-22,-11,11,22))
+    candles=''.join(f'<rect x="{cx-2.5}" y="{cy-12}" width="5" height="12" rx="1" fill="{Q["cream"]}"/><path d="M{cx} {cy-20} C{cx-3} {cy-16} {cx-2} {cy-12} {cx} {cy-12} C{cx+2} {cy-12} {cx+3} {cy-16} {cx} {cy-20} Z" fill="{Q["mustard"]}"/><rect x="{cx-5}" y="{cy}" width="10" height="3" rx="1" fill="{GOLD[2]}"/>' for cx,cy in ((8,23),(19,27),(30,18),(41,27),(52,23)))
+    return f'''<g transform="translate({x} {y})"><circle cx="30" cy="14" r="30" fill="{Q["mustard"]}" opacity=".12"/>{shadow(30,132,18,4)}{arms}<rect x="28" y="18" width="4" height="110" fill="{GOLD[1]}"/><rect x="30" y="18" width="2" height="110" fill="{GOLD[2]}"/>
+      <circle cx="30" cy="70" r="5" fill="{GOLD[1]}"/><circle cx="30" cy="100" r="4" fill="{GOLD[1]}"/><path d="M16 132 L30 120 L44 132" stroke="{GOLD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>{candles}</g>'''
+def trumpet_stand(x,y):   # the heralds' long trumpets, with little banners, on a stand
+    def trumpet(tx,ty,a,c):
+        return f'<g transform="translate({tx} {ty}) rotate({a})"><rect x="-1.6" y="0" width="3.2" height="70" fill="{GOLD[1]}"/><path d="M-1.6 0 L-8 -12 L8 -12 L1.6 0 Z" fill="{GOLD[1]}"/><path d="M0 0 L8 -12 L1.6 0 Z" fill="{GOLD[2]}"/><path d="M1.6 18 L22 18 L22 40 L12 34 L1.6 40 Z" fill="{c}"/>{crown(5,22,0.36)}</g>'
+    return f'''<g transform="translate({x} {y})">{shadow(36,118,30,5)}{trumpet(22,20,-8,CRIM[0])}{trumpet(44,16,8,Q["navy"])}
+      <rect x="6" y="88" width="60" height="7" rx="3" fill="{WOOD[1]}"/><rect x="40" y="88" width="26" height="7" rx="3" fill="{WOOD[2]}"/><path d="M12 95 L8 118 M60 95 L64 118 M36 95 L36 118" stroke="{WOOD[2]}" stroke-width="4" stroke-linecap="round"/></g>'''
+def court_bench(x,y):   # a long gilded bench with a velvet cushion, for the court
+    return f'''<g transform="translate({x} {y})">{shadow(62,52,62,5)}{two(2,14,120,14,CRIM[0],CRIM[1],6)}{"".join(f'<circle cx="{cx}" cy="21" r="1.8" fill="{GOLD[0]}"/>' for cx in (20,44,68,92,108))}
+      <rect x="0" y="26" width="124" height="8" rx="2" fill="{GOLD[1]}"/><rect x="78" y="26" width="46" height="8" rx="2" fill="{GOLD[2]}"/>
+      <path d="M8 34 Q4 44 8 52 M116 34 Q120 44 116 52 M44 34 L44 50 M80 34 L80 50" stroke="{GOLD[2]}" stroke-width="4" fill="none" stroke-linecap="round"/>{tassel(6,26)}{tassel(118,26)}
+      <rect x="-4" y="6" width="12" height="24" rx="5" fill="{GOLD[1]}"/><rect x="116" y="6" width="12" height="24" rx="5" fill="{GOLD[2]}"/><circle cx="2" cy="6" r="5" fill="{GOLD[0]}"/><circle cx="122" cy="6" r="5" fill="{GOLD[1]}"/></g>'''
+def regalia_case(x,y):   # a glass case on a gold stand, with the sceptre and orb on a cushion
+    return f'''<g transform="translate({x} {y})">{shadow(36,114,34,5)}<path d="M10 72 L8 112 M62 72 L64 112" stroke="{GOLD[2]}" stroke-width="5" stroke-linecap="round"/><rect x="12" y="94" width="48" height="4" fill="{GOLD[2]}"/>
+      {two(2,62,68,12,GOLD[1],GOLD[2],2)}<rect x="6" y="8" width="60" height="56" rx="2" fill="#d8ecf0" opacity=".85"/><rect x="44" y="8" width="22" height="56" fill="#c4e0e6" opacity=".85"/>
+      {two(12,48,48,14,CRIM[0],CRIM[1],5)}{tassel(14,56)}{tassel(58,56)}
+      <circle cx="26" cy="38" r="10" fill="{GOLD[1]}"/><path d="M26 28 A10 10 0 0 1 26 48 Z" fill="{GOLD[2]}"/><rect x="16" y="36" width="20" height="3" fill="{GOLD[2]}"/><rect x="24.5" y="22" width="3" height="8" fill="{GOLD[1]}"/><rect x="21" y="24" width="10" height="3" fill="{GOLD[1]}"/><circle cx="26" cy="42" r="2" fill="{CRIM[0]}"/>
+      <g transform="rotate(-28 50 40)"><rect x="48" y="14" width="4" height="40" rx="2" fill="{GOLD[1]}"/><circle cx="50" cy="13" r="5" fill="#6fb3b8"/><path d="M44 18 L56 18 L54 22 L46 22 Z" fill="{GOLD[2]}"/></g>
+      <rect x="4" y="4" width="64" height="6" rx="2" fill="{GOLD[1]}"/><path d="M10 14 L10 58" stroke="#fff" stroke-width="2" opacity=".7"/></g>'''
+def palm_tub(x,y):   # a potted palm in a gold tub
+    fronds=''.join(f'<path d="M30 44 Q{30+dx*0.5:.0f} {44-dy*0.9:.0f} {30+dx} {44-dy}" stroke="{Q["green"] if k%2 else "#4f8a4a"}" stroke-width="8" fill="none" stroke-linecap="round"/>' for k,(dx,dy) in enumerate(((-28,10),(-24,30),(-10,42),(4,46),(18,38),(28,18),(30,4))))
+    return f'''<g transform="translate({x} {y})">{shadow(30,104,24,5)}<rect x="28" y="40" width="4" height="40" fill="{WOOD[2]}"/>{fronds}
+      <path d="M10 76 L50 76 L46 104 L14 104 Z" fill="{GOLD[1]}"/><path d="M30 76 L50 76 L46 104 L30 104 Z" fill="{GOLD[2]}"/><rect x="6" y="72" width="48" height="7" rx="2" fill="{GOLD[1]}"/><rect x="32" y="72" width="22" height="7" rx="2" fill="{GOLD[2]}"/>
+      <path d="M14 88 Q30 82 46 88" stroke="{CRIM[0]}" stroke-width="2.4" fill="none"/></g>'''
+def gift_chest(x,y):   # a big open chest of gifts from a visiting king
+    return f'''<g transform="translate({x} {y})">{shadow(46,82,46,6)}<path d="M4 34 L4 6 Q46 -10 88 6 L88 34 Z" fill="{Q["green2"]}"/><path d="M8 32 L8 9 Q46 -4 84 9 L84 32 Z" fill="#1f4a3a"/>
+      <rect x="16" y="20" width="20" height="18" rx="2" fill="{ROSE[0]}"/><rect x="24" y="20" width="4" height="18" fill="{GOLD[1]}"/><rect x="40" y="16" width="16" height="22" rx="2" fill="#6fb3b8"/><rect x="40" y="25" width="16" height="4" fill="{CRIM[0]}"/>
+      <circle cx="66" cy="28" r="9" fill="{GOLD[1]}"/><circle cx="66" cy="28" r="5" fill="{GOLD[0]}"/><path d="M26 20 Q20 12 26 12 Q30 14 26 20 Q32 12 34 16 Q32 20 26 20 Z" fill="{GOLD[1]}"/>
+      {two(2,34,88,42,Q["green"],Q["green2"],3)}<rect x="0" y="32" width="92" height="6" rx="2" fill="{GOLD[1]}"/><rect x="0" y="72" width="92" height="6" rx="2" fill="{GOLD[2]}"/>
+      <rect x="14" y="38" width="6" height="34" fill="{GOLD[1]}"/><rect x="72" y="38" width="6" height="34" fill="{GOLD[2]}"/><rect x="40" y="44" width="12" height="14" rx="2" fill="{GOLD[1]}"/><circle cx="46" cy="50" r="2" fill="{DARK}"/>
+      <path d="M2 50 Q-6 54 -2 62" stroke="{GOLD[2]}" stroke-width="3" fill="none"/><path d="M90 50 Q98 54 94 62" stroke="{GOLD[2]}" stroke-width="3" fill="none"/></g>'''
+def column_block(x,y,s=1):   # the Throne room's board wall: a short marble column with a gold band
+    return f'''<g transform="translate({x} {y}) scale({s})"><rect x="0" y="34" width="40" height="7" rx="2" fill="{MARBLE[2]}"/><rect x="2" y="30" width="36" height="6" rx="2" fill="{MARBLE[1]}"/>
+      <rect x="6" y="6" width="28" height="25" fill="{MARBLE[0]}"/><rect x="24" y="6" width="10" height="25" fill="{MARBLE[1]}"/><rect x="11" y="8" width="2" height="21" fill="{MARBLE[2]}" opacity=".6"/><rect x="18" y="8" width="2" height="21" fill="{MARBLE[2]}" opacity=".6"/>
+      <rect x="4" y="16" width="32" height="5" fill="{GOLD[1]}"/><rect x="24" y="16" width="12" height="5" fill="{GOLD[2]}"/><rect x="0" y="0" width="40" height="7" rx="2" fill="{GOLD[1]}"/><rect x="26" y="0" width="14" height="7" rx="2" fill="{GOLD[2]}"/></g>'''
+
 H5['Royal chambers']=royal_head()+STEP
 H5['Wardrobe']=wardrobe_head()+STEP
 # props: [box(x,y,w,h) relative to the drawing's origin, svg]
@@ -395,6 +469,10 @@ H5['Tower stairs']=tower_head()+STEP
 add5('hoist',hoist(0,0),(0,0,80,138)); add5('portrait_mouse',portrait(0,0,'mouse',CRIM[0],CRIM[1],'oval'),(0,-4,60,126)); add5('portrait_lion',portrait(0,0,'lion',Q["navy"],Q["navy2"]),(0,-2,60,124))
 add5('portrait_elephant',portrait(0,0,'elephant',Q["green"],Q["green2"],'arch'),(0,-4,60,126)); add5('banner_stand',banner_stand(0,0),(0,-6,44,142))
 add5('landing_bench',landing_bench(0,0),(-2,-6,108,82)); add5('lantern_post',lantern_post(0,0),(0,-8,40,146)); add5('statue_niche',statue_niche(0,0),(-4,-2,80,136),0.9); add5('ivy_pot',ivy_pot(0,0),(0,-8,48,136))
+H5['Throne room']=throne_head()+STEP
+add5('throne_pillar',throne_pillar(0,0),(0,0,44,114)); add5('lion_plinth',lion_plinth(0,0),(0,4,64,110)); add5('gold_candelabra',gold_candelabra(0,0),(0,-6,60,140))
+add5('trumpet_stand',trumpet_stand(0,0),(0,4,70,116)); add5('court_bench',court_bench(0,0),(-4,0,132,56)); add5('regalia_case',regalia_case(0,0),(0,4,72,112))
+add5('palm_tub',palm_tub(0,0),(0,-8,62,114)); add5('gift_chest',gift_chest(0,0),(-6,0,104,84))
 H5={k:re.sub(r'\s+',' ',v).strip() for k,v in H5.items()}
 json.dump({'heads':H5,'props':P5},open('./royal_floor_art.json','w'),separators=(',',':'),ensure_ascii=False)
 print({k:len(v) for k,v in H5.items()}, len(P5))
@@ -402,4 +480,5 @@ print({k:len(v) for k,v in H5.items()}, len(P5))
 FOOTSTOOL_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{footstool(4,8,1)}</svg>'
 CHEST_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{tea_chest(3.5,3,1)}</svg>'
 BLOCK_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{stone_block(3.5,3,1)}</svg>'
-open('./royal_tiles.json','w').write(json.dumps({k:re.sub(r'\s+',' ',v) for k,v in (('footstool',FOOTSTOOL_TILE),('teachest',CHEST_TILE),('stoneblock',BLOCK_TILE))}))
+COLUMN_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{column_block(4,3,1)}</svg>'
+open('./royal_tiles.json','w').write(json.dumps({k:re.sub(r'\s+',' ',v) for k,v in (('footstool',FOOTSTOOL_TILE),('teachest',CHEST_TILE),('stoneblock',BLOCK_TILE),('column',COLUMN_TILE))}))

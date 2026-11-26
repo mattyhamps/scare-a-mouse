@@ -226,7 +226,7 @@ public final class Recipe {
         if (n > 650 && n <= 800) {
             return fourthFloor(n);
         }
-        if (n > 800 && n <= 920) {
+        if (n > 800 && n <= 950) {
             return royalFloor(n);
         }
         switch (n) {
@@ -788,6 +788,8 @@ public final class Recipe {
      * docs/STATUS.md worked in (two blockers and a waiting runner, moving levels with blockers, wrap-around chains
      * with traps, two traps to spring, turn tiles with traps), traps in 6 levels and walls (tea chests, stone
      * blocks) in 6 levels per room, and a few easy dog chains as breathers.
+     * 921-950: the Throne room, the same mix with marble columns for walls. 950 is the floor's boss: like 800,
+     * three animals to place and a couple of walls, plus a trap to spring.
      */
     private static Recipe royalFloor(int n) {
         Trick plain = Trick.PLAIN, free = Trick.FREEZE_RELEASE, wait = Trick.WAITING_RUNNER;
@@ -920,6 +922,38 @@ public final class Recipe {
             case 918: return new Recipe(Animal.LION, 1, false, "", plain).withMoves(Move.SWERVE).withWalls(2, 4);
             case 919: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.CATCH).withTurnTiles(1).withTraps(1, 2);
             case 920: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.SWERVE, Move.CATCH);
+            // the Throne room: traps in 6 levels and walls (marble columns) in 6, counting the boss
+            case 921: return new Recipe(Animal.DOG, 1, false, "", plain);
+            case 922: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.SWERVE);
+            case 923: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(1);
+            case 924: return new Recipe(Animal.ELEPHANT, 2, false, "", wait);
+            case 925: return new Recipe(Animal.LION, 1, false, "", plain).withWalls(1, 3);
+            case 926: return new Recipe(Animal.CAT, 1, true, "", free);
+            case 927: return new Recipe(Animal.LION, 2, false, "", plain).withMoves(Move.CATCH);
+            case 928: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withMoves(Move.STOP).withTraps(1, 2);
+            case 929: return new Recipe(Animal.ELEPHANT, 0, false, "", free).withMoves(Move.SWERVE, Move.STOP);
+            case 930: return new Recipe(Animal.DOG, 0, false, "", plain);
+            case 931: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.STOP).withWalls(1, 3);
+            case 932: return new Recipe(Animal.LION, 2, false, "", free).withBlockers(Animal.CAT, Animal.DOG);
+            case 933: return new Recipe(Animal.CAT, 1, true, "", plain).withTraps(1, 2);
+            case 934: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withCatches(1);
+            case 935: return new Recipe(Animal.LION, 1, false, "", free).withMoves(Move.CATCH);
+            case 936: return new Recipe(Animal.ELEPHANT, 2, false, "", plain).withWalls(1, 3);
+            case 937: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(2);
+            case 938: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.STOP, Move.CATCH);
+            case 939: return new Recipe(Animal.DOG, 1, false, "", plain);
+            case 940: return new Recipe(Animal.ELEPHANT, 2, false, "", wait);
+            case 941: return new Recipe(Animal.LION, 1, false, "", plain).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 942: return new Recipe(Animal.LION, 2, false, "", free).withBlockers(Animal.DOG, Animal.BEAR);
+            case 943: return new Recipe(Animal.CAT, 0, true, "", free).withCatches(1);
+            case 944: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withMoves(Move.STOP);
+            case 945: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(1);
+            case 946: return new Recipe(Animal.LION, 2, false, "", plain).withMoves(Move.CATCH);
+            case 947: return new Recipe(Animal.ELEPHANT, 0, false, "", free).withWalls(1, 3).withSpringTraps(1);
+            case 948: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.SWERVE, Move.STOP);
+            case 949: return new Recipe(Animal.LION, 0, false, "", free).withCatches(1);
+            // the boss: three to place, walls, and a trap to spring first
+            case 950: return new Recipe(Animal.LION, 1, false, "", plain).withWalls(2, 4).withSpringTraps(1);
             default: return null;
         }
     }

@@ -11,7 +11,7 @@ _Last updated: 26 November 2026._
   (651–800: Treasury, Music room, Sewing room, Guest bedrooms, Clock tower), all with drawn rooms, a
   castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
   the mouse travelling between rooms when you clear one.
-- Levels 801–920, the Royal floor's first four rooms, with mousetraps (see below).
+- Levels 801–950, the whole Royal floor (five rooms and its boss), with mousetraps (see below).
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
@@ -91,18 +91,27 @@ _Last updated: 26 November 2026._
   built. A test checks the spacing.
 - The Sitting room's second chess table became a card table with two chairs (`games_table`; the Guard
   room already has a `card_table`). Matt kept the Wardrobe's two folded-clothes stools.
+- The Throne room (921–950), drawn in `gen25.py`: a court day (deep red damask wall with two stained-glass
+  windows, a red canopy with a crown over the door, the king's and queen's thrones on a dais; a lion statue on
+  a plinth, a gold candelabra, the heralds' trumpets, a court bench, the sceptre and orb in a glass case, a
+  palm in a gold tub, a chest of gifts), cream and gold diamond marble floor, and a red carpet with a double
+  gold border that sweeps between two rows of marble pillars, then runs straight up to the thrones
+  (`processional`). Board walls are marble columns. Each piece of furniture appears once (Matt: no repeats,
+  `maxProps` keeps the list from starting over).
+- Its levels (`Recipe.royalFloor`, 921–950): the same mix, traps in 6 levels and walls in 6 (counting the
+  boss). 942 was changed after the dry run (a waiting runner with SWERVE+CATCH was slow). The boss, 950
+  "Crowning Glory", has 3 animals to place, 4 walls and a trap to spring (scores 19, against 14.5 for 800).
+  The Royal floor's flames: 816, 830, 840, 850, 872, 886, 909, 920, 937, 948.
 - The art scripts need Python 3.12 or newer (`python` on Matt's PC is 3.10; use the Python 3.13 install).
 
 ## Next
 
-1. **Royal floor (921–950):** the Throne room (boss at 950): drawings first (show Matt), then levels with
-   fresh recipes, traps in about 1 level in 5. `trap-lab.json` is kept for now (Matt, asked again in this
-   PR). Keep mixing in the new puzzle types below (Matt's call).
-2. **Towers and roof (951–1070):** Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each).
+1. **Towers and roof (951–1070):** Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each).
    New piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other,
    still going the same way. Matt picked a cannon for the Battlements' board walls, a birdcage for the
-   Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying).
-3. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+   Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying). Keep mixing in the new
+   puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
+2. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
 
 ## New puzzle types for 861 on
 
