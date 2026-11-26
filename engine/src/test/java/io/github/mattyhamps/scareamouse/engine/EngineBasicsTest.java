@@ -1,7 +1,9 @@
 package io.github.mattyhamps.scareamouse.engine;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -63,5 +65,28 @@ class EngineBasicsTest {
         assertFalse(r.caught);
         assertTrue(r.snaps.get(1).isEmpty());
         assertEquals(Arrays.asList(1), r.snaps.get(2));
+    }
+
+    @Test
+    void trapdoorsRoundTripAndBlockPlacing() {
+        String text = "{\"name\":\"T\",\"tip\":\"\",\"w\":7,\"h\":7,\"hole\":[-1,3],\"walls\":[],"
+                + "\"fixed\":[{\"t\":\"mouse\",\"x\":3,\"y\":3}],\"inv\":[\"cat\"],\"solution\":[{\"t\":\"cat\",\"x\":4,\"y\":3}],"
+                + "\"trapdoors\":[[1,1],[5,5]]}";
+        Level level = Level.fromJson(Json.parse(text));
+        assertEquals(text, Json.write(level.toJson()));
+        assertTrue(level.isTrapdoor(1, 1));
+        assertFalse(level.isOpen(5, 5));   // nothing can be placed on a trapdoor
+        assertArrayEquals(new int[] {5, 5}, level.trapdoorPartner(1, 1));
+        assertNull(level.trapdoorPartner(2, 2));
+    }
+
+    @Test
+    void dropsSayWhoCameThroughATrapdoorWhen() {
+        // The mouse runs from the cat onto the first trapdoor on its first step and comes out of the second.
+        Level level = BoardPicture.level(Arrays.asList("CMO..O."), null);
+        SimResult r = Simulator.record(level, Collections.<Piece>emptyList());
+        assertEquals(Arrays.asList(0), r.drops.get(1));   // the mouse is listed first, so it is animal 0
+        assertEquals(5, r.frames.get(1).get(0).x);
+        assertTrue(r.drops.get(2).isEmpty());
     }
 }

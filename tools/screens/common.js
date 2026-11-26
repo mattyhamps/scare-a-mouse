@@ -21,17 +21,17 @@ function serve(port) {
 async function browser() { return chromium.launch(process.env.CHROME ? { executablePath: process.env.CHROME } : {}); }
 // The same layout key the game uses for progress (index.html, levelKey).
 const levelKey = l => { const parts = [l.hole, l.walls, l.fixed, l.inv]; if (l.turns && l.turns.length) parts.push(l.turns);
-  if (l.traps && l.traps.length) parts.push(['traps', ...l.traps]); const s = JSON.stringify(parts);
+  if (l.traps && l.traps.length) parts.push(['traps', ...l.traps]); if (l.trapdoors && l.trapdoors.length) parts.push(['trapdoors', ...l.trapdoors]); const s = JSON.stringify(parts);
   let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
 // Pretend every level before n is solved and open level n (1-based). A level's card is closed unless showCards.
 async function openLevel(p, base, n, { showCards = false } = {}) {
   await p.goto(base); await p.waitForTimeout(300);
   await p.evaluate(async ({ n, showCards, src }) => { const levelKey = eval(src); const L = await (await fetch('levels.json')).json(); const solved = {};
-    for (let i = 0; i < n - 1; i++) solved[levelKey(L[i])] = L[i].solution;
+    for (let i = 0; i < Math.min(n - 1, L.length); i++) solved[levelKey(L[i])] = L[i].solution;   // test levels (?lab) can go past the last real one
     localStorage.clear(); localStorage.setItem('cm_solved', JSON.stringify(solved)); localStorage.setItem('cm_intro', 'true');
     localStorage.setItem('cm_level', String(n - 1)); },
     { n, showCards, src: levelKey.toString() });
   await p.goto(base); await p.waitForTimeout(1200);
   if (!showCards && await p.$('#guide.show')) { await p.click('#guideNext'); await p.waitForTimeout(300); }   // levels with something new show a card every time
 }
-module.exports = { serve, browser, openLevel, root };
+module.exports = { serve, browser, openLevel, root, levelKey };

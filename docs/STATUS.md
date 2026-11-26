@@ -116,6 +116,20 @@ _Last updated: 26 November 2026._
   no longer pokes into the page's right margin on small phones (it did from level 20 on). The old 420px rule
   for it never took effect (a later rule overrode it).
 - The art scripts need Python 3.12 or newer (`python` on Matt's PC is 3.10; use the Python 3.13 install).
+- Trapdoors, the piece (no real levels yet), with Matt's choices: one linked pair per board; every animal,
+  the mouse too, drops in one and comes out of the other still heading the same way; if either trapdoor is
+  covered the animal waits (engine rule 9; the engine reports `drops`). The look: an open wooden hatch with
+  stone steps going down, flat on the floor (Matt picked it over a purple swirl, a plain or round wooden
+  hatch, a stone slab, and open hatches with a ladder or a lid). In the game the animal shrinks into the
+  first trapdoor, both flash with a soft "whoop", and it grows out of the other. Card at 951: "New:
+  trapdoors!". The level maker can make trapdoor levels (`Recipe.withTrapdoors(1)`) and throws away any
+  where the trapdoors don't matter. 951 is made by hand like level 1 (Matt): one cat, and the trapdoors take
+  the mouse under a mousetrap (`TrapdoorLab.intro`, `LevelsCli make 951`); the checker skips its clutter
+  rule there only, since the trap is there to show the idea (Matt). Eleven test levels at
+  `?lab=trapdoor-lab` (951–961, `TrapdoorLab`): 951, then chains through a trapdoor started by a dog, bear,
+  lion and elephant, a second animal to place, then trapdoors with tricks and with a mousetrap.
+- Dragging an animal onto the board no longer drops it on a turn tile, mousetrap or trapdoor (tapping
+  already didn't).
 
 ## Next
 
@@ -124,6 +138,10 @@ _Last updated: 26 November 2026._
    still going the same way. Matt picked a cannon for the Battlements' board walls, a birdcage for the
    Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying). Keep mixing in the new
    puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
+   Trapdoors are built (the piece, the card, the level maker, test levels). Next PR: the Battlements and
+   Aviary (951–998) with their levels. 951 is `LevelsCli make 951` (hand-made); then a handful of easy
+   trapdoor levels to onboard the piece (like the ramp in `trapdoor-lab.json`), and after that trapdoors only
+   now and then, sparse like turn tiles and traps (Matt).
 2. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
 3. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
    without scrolling: the level screen, the map, the cards and pop-ups), at a few phone sizes, with and without
@@ -175,7 +193,8 @@ Notes from Matt's legal and App Store checklist (a separate document):
 - Pieces you step on stay flat on the floor. The turn tile is a flat blue painted space with a plain
   outline and three chevrons. Raised or blocky versions (tokens, slabs, a bevelled edge) looked like walls
   that would block the animal instead of something it runs onto. Keep this in mind for how mousetraps
-  and trapdoors look, and show Matt a few options before choosing.
+  and trapdoors look, and show Matt a few options before choosing. (Trapdoors: an open hatch with stone steps,
+  flat in the floor, so it reads as a hole to go down rather than a block.)
 - Never show the total number of levels (no "Level 47 of 500" or "out of 500"). Show just the level
   number.
 - Ideas considered but not chosen: sticky squares (an animal stops on it), hiding spots (an animal on it

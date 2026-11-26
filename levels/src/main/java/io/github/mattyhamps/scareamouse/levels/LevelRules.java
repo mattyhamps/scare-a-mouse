@@ -36,6 +36,8 @@ public final class LevelRules {
     public final int minDepth;
     /** In every solution, at least this many animals move (0 = no rule). */
     public final int minMoved;
+    /** Every piece on the board must change the puzzle (false only for hand-made teaching levels, see {@link #teaching}). */
+    public final boolean clutterCheck;
 
     private LevelRules(int pieces, int fixedMin, int fixedMax, int wallsMin, int wallsMax, List<Animal> types,
                        List<Animal> handTypes, List<Animal> ensure, Animal mustPlace, Animal mustMove,
@@ -66,6 +68,32 @@ public final class LevelRules {
         this.maxSolutions = maxSolutions;
         this.minDepth = minDepth;
         this.minMoved = minMoved;
+        this.clutterCheck = true;
+    }
+
+    private LevelRules(LevelRules r, boolean clutterCheck) {
+        this.pieces = r.pieces;
+        this.fixedMin = r.fixedMin;
+        this.fixedMax = r.fixedMax;
+        this.wallsMin = r.wallsMin;
+        this.wallsMax = r.wallsMax;
+        this.types = r.types;
+        this.handTypes = r.handTypes;
+        this.ensure = r.ensure;
+        this.mustPlace = r.mustPlace;
+        this.mustMove = r.mustMove;
+        this.maxSolutions = r.maxSolutions;
+        this.minDepth = r.minDepth;
+        this.minMoved = r.minMoved;
+        this.clutterCheck = clutterCheck;
+    }
+
+    /**
+     * The same rules for a hand-made teaching level, whose pieces are there to show something rather than to close
+     * off other solutions (951: the trapdoors carry the mouse past a mousetrap, so the trap never changes the puzzle).
+     */
+    public LevelRules teaching() {
+        return new LevelRules(this, false);
     }
 
     private static LevelRules of(int pieces, int fMin, int fMax, int wMin, int wMax, List<Animal> types,
@@ -78,6 +106,9 @@ public final class LevelRules {
     public static LevelRules forLevel(int n) {
         if (n <= 3) {
             throw new IllegalArgumentException("Levels 1-3 are hand-made tutorials");
+        }
+        if (n == Recipe.TRAPDOOR_INTRO) {   // hand-made: one cat, and the trapdoors take the mouse under a mousetrap
+            return forBuilt(1, 0, 0).teaching();
         }
         Recipe recipe = Recipe.forLevel(n);
         if (recipe != null) {

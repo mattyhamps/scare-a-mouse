@@ -59,6 +59,7 @@ public final class ChainBuilder {
         int holeY = -1;
         final List<int[]> walls = new ArrayList<>();
         final List<int[]> turns = new ArrayList<>();      // turn tiles {x, y, dir}
+        final List<int[]> doors = new ArrayList<>();      // trapdoors {x, y}: none or one pair
         boolean moving;                                  // the starter is on the board: no "still" check
         int tx;                                          // where the starter is
         int ty;
@@ -69,7 +70,7 @@ public final class ChainBuilder {
 
         Level level() {
             return new Level("", "", n, n, holeX, holeY, walls, fixed,
-                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), turns);
+                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), turns, Collections.<int[]>emptyList(), doors);
         }
 
         boolean free(int x, int y) {
@@ -82,6 +83,11 @@ public final class ChainBuilder {
                 }
             }
             for (int[] t : turns) {
+                if (t[0] == x && t[1] == y) {
+                    return false;
+                }
+            }
+            for (int[] t : doors) {
                 if (t[0] == x && t[1] == y) {
                     return false;
                 }
@@ -157,6 +163,24 @@ public final class ChainBuilder {
             }
             turnAt[rng.pick(free)] = true;
         }
+        // Where the trapdoor pair goes: the runner before that link (or before the mouse, at plan.size())
+        // drops through, and the link's animal (or the mouse) waits along the stretch after the second trapdoor.
+        int doorAt = -1;
+        if (recipe.trapdoors > 0) {
+            List<Integer> free = new ArrayList<>();
+            for (int k = 1; k < plan.size(); k++) {
+                if (!swerveAt[k] && !turnAt[k]) {
+                    free.add(k);
+                }
+            }
+            if (!wrap) {
+                free.add(plan.size());
+            }
+            if (free.isEmpty()) {
+                return null;
+            }
+            doorAt = rng.pick(free);
+        }
 
         // First link: your first animal right behind the first chain animal.
         boolean placedFirst = false;
@@ -187,13 +211,14 @@ public final class ChainBuilder {
         }
 
         for (int s = 1; s < plan.size(); s++) {
-            boolean ok = turnAt[s] ? turnThenStep(d, plan.get(s), rng, wrap && s == plan.size() - 1)
+            boolean ok = s == doorAt ? dropThenStep(d, plan.get(s), rng, wrap && s == plan.size() - 1, false)
+                    : turnAt[s] ? turnThenStep(d, plan.get(s), rng, wrap && s == plan.size() - 1)
                     : applyStep(d, plan.get(s), rng, wrap && s == plan.size() - 1, swerveAt[s]);
             if (!ok) {
                 return null;
             }
         }
-        if (!wrap && !placeMouseAndHole(d, rng)) {
+        if (!wrap && (doorAt == plan.size() ? !dropThenStep(d, null, rng, false, true) : !placeMouseAndHole(d, rng, 0))) {
             return null;
         }
         if (wrap && d.holeX == -1) {
@@ -223,7 +248,13 @@ public final class ChainBuilder {
         for (int k = 0; k < stopWalls; k++) {
             addStop(d, rng, true);
         }
-        return assemble(d, recipe, name);
+        Level built = assemble(d, recipe, name);
+        // the trapdoors have to matter: without them, the intended solution must fail
+        if (built != null && !built.trapdoors.isEmpty()
+                && Simulator.run(built.withTrapdoors(Collections.<int[]>emptyList()), built.solution).win) {
+            return null;
+        }
+        return built;
     }
 
     /** Turns the recipe into steps: which chain animals appear and where the tricks go. */
@@ -399,6 +430,53 @@ public final class ChainBuilder {
         return false;
     }
 
+    /**
+     * Puts a trapdoor on the runner's path and its partner somewhere with room to run on, then places the
+     * step's animal (or, with mouseNext, the mouse and the hole) along the stretch after the partner.
+     */
+    private static boolean dropThenStep(Draft d, Step step, LevelGenerator.Rng rng, boolean wrapFinal, boolean mouseNext) {
+        int runner = d.chain.get(d.chain.size() - 1);
+        List<int[]> path = path(d, runner);
+        if (path == null || path.size() < 2 || !d.doors.isEmpty()) {
+            return false;
+        }
+        List<int[]> options = new ArrayList<>(); // {ax, ay, bx, by}
+        for (int k = 1; k < path.size(); k++) {
+            int[] a = path.get(k);
+            int mx = a[0] - path.get(k - 1)[0];
+            int my = a[1] - path.get(k - 1)[1];
+            if (!d.free(a[0], a[1])) {
+                continue;
+            }
+            for (int by = 0; by < d.n; by++) {
+                for (int bx = 0; bx < d.n; bx++) {
+                    if (Math.abs(bx - a[0]) + Math.abs(by - a[1]) > 2 && d.free(bx, by)
+                            && d.free(bx + mx, by + my) && d.free(bx + 2 * mx, by + 2 * my)) {
+                        options.add(new int[] {a[0], a[1], bx, by});
+                    }
+                }
+            }
+        }
+        Collections.shuffle(options, new java.util.Random((long) (rng.next() * Long.MAX_VALUE)));
+        int tries = 0;
+        for (int[] o : options) {
+            if (tries++ >= TRIES_PER_STEP / 2) {
+                break;
+            }
+            d.doors.add(new int[] {o[0], o[1]});
+            d.doors.add(new int[] {o[2], o[3]});
+            if (valid(d)) {
+                List<int[]> dropped = path(d, runner);
+                int from = dropped == null ? -1 : indexOf(dropped, o[2], o[3]);
+                if (from > 0 && (mouseNext ? placeMouseAndHole(d, rng, from) : placeStep(d, step, rng, wrapFinal, from))) {
+                    return true;
+                }
+            }
+            d.doors.clear();
+        }
+        return false;
+    }
+
     private static int indexOf(List<int[]> path, int x, int y) {
         for (int i = 0; i < path.size(); i++) {
             if (path.get(i)[0] == x && path.get(i)[1] == y) {
@@ -538,12 +616,13 @@ public final class ChainBuilder {
     }
 
     /** Ends a normal chain: the mouse goes beside the last runner's path, the hole straight ahead of it. */
-    private static boolean placeMouseAndHole(Draft d, LevelGenerator.Rng rng) {
+    private static boolean placeMouseAndHole(Draft d, LevelGenerator.Rng rng, int from) {
         int runner = d.chain.get(d.chain.size() - 1);
         List<int[]> path = path(d, runner);
         if (path == null) {
             return false;
         }
+        path = path.subList(Math.min(from, path.size()), path.size());   // from the second trapdoor on, after a drop
         List<int[]> options = new ArrayList<>();
         for (int[] p : path) {
             for (int[] s : DIRS) {
@@ -900,7 +979,7 @@ public final class ChainBuilder {
             List<Piece> fixed = new ArrayList<>(d.fixed);
             fixed.remove(idx);
             Level without = new Level("", "", d.n, d.n, d.holeX, d.holeY, d.walls, fixed,
-                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), d.turns);
+                    Collections.<Animal>emptyList(), Collections.<Piece>emptyList(), d.turns, Collections.<int[]>emptyList(), d.doors);
             List<Piece> placed = new ArrayList<>(d.placed);
             if (Simulator.run(without, placed).win) {
                 continue; // the chain doesn't need it
@@ -941,7 +1020,7 @@ public final class ChainBuilder {
         }
         hand.sort((a, b) -> a.id().compareTo(b.id()));
         return new Level(name, recipe.tip, d.n, d.n, d.holeX, d.holeY, d.walls, d.fixed, hand,
-                new ArrayList<>(d.placed), d.turns);
+                new ArrayList<>(d.placed), d.turns, Collections.<int[]>emptyList(), d.doors);
     }
 
     /** A finished, checked level and how interesting it scored. */
@@ -1082,7 +1161,7 @@ public final class ChainBuilder {
                 List<int[]> walls = new ArrayList<>(level.walls);
                 walls.add(new int[] {Integer.parseInt(xy[0]), Integer.parseInt(xy[1])});
                 Level tryLevel = new Level(level.name, level.tip, level.w, level.h, level.holeX, level.holeY, walls,
-                        level.fixed, level.inventory, level.solution, level.turns, level.traps);
+                        level.fixed, level.inventory, level.solution, level.turns, level.traps, level.trapdoors);
                 if (Simulator.run(tryLevel, tryLevel.solution).win) {
                     next = tryLevel;
                     break;
@@ -1138,7 +1217,7 @@ public final class ChainBuilder {
                     hand.add(kind);
                     hand.sort((x, y) -> x.id().compareTo(y.id()));
                     return new Level(level.name, level.tip, level.w, level.h, level.holeX, level.holeY, level.walls,
-                            level.fixed, hand, sol, level.turns, traps);
+                            level.fixed, hand, sol, level.turns, traps, level.trapdoors);
                 }
             }
         }
