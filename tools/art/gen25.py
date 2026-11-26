@@ -1,5 +1,5 @@
 import json, math, re
-# ================= Royal floor: Royal chambers, Wardrobe (more rooms of this floor to follow)
+# ================= Royal floor: Royal chambers, Wardrobe, Sitting room, Tower stairs (the Throne room to follow)
 # Builds on gen24.py's helpers (and so every floor before it), same flat style: the light half of each
 # object on the left, a darker half on the right, one soft shadow under anything that stands on the floor.
 # Run from this folder: python3 gen25.py && python3 export_royal.py
@@ -174,12 +174,190 @@ def cobbler_bench(x,y):
       <rect x="22" y="14" width="6" height="16" fill="{IRON[1]}"/><path d="M14 0 L28 0 L28 14 L40 16 Q42 22 36 22 L14 22 Z" fill="{CRIM[0]}"/><path d="M22 0 L28 0 L28 14 L40 16 Q42 22 36 22 L22 22 Z" fill="{CRIM[1]}"/>
       <g transform="rotate(-18 62 22)"><rect x="50" y="20" width="24" height="4" rx="2" fill="{WOOD[2]}"/><rect x="70" y="14" width="7" height="14" rx="1" fill="{IRON[0]}"/></g>
       <rect x="48" y="22" width="10" height="6" rx="1" fill="{Q["cream2"]}"/>{"".join(f'<circle cx="{82+k*4}" cy="25" r="1.4" fill="{IRON[2]}"/>' for k in range(2))}</g>'''
-def shoes_s(x,y): return f'<g transform="translate({x} {y})">{shadow(16,20,16,3)}{shoe(0,4,CRIM[0],CRIM[1])}{shoe(12,6,CRIM[0],CRIM[1])}</g>'
 def folded_s(x,y): return f'<g transform="translate({x} {y})">{shadow(16,40,16,3)}<rect x="4" y="22" width="4" height="18" fill="{WOOD[2]}"/><rect x="24" y="22" width="4" height="18" fill="{WOOD[2]}"/>{two(0,18,32,6,WOOD[1],WOOD[2],2)}{folded(3,11,[PAIRS[1],PAIRS[3],PAIRS[0]])}</g>'
-def parasol_stand(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(14,50,13,3)}<path d="M6 4 L10 30 M20 0 L16 30 M14 -6 L13 30" stroke="{WOOD[2]}" stroke-width="2"/>
-      <path d="M2 4 Q6 -2 10 4 L8 22 Z" fill="{Q["pink"]}"/><path d="M16 0 Q22 -6 26 0 L18 20 Z" fill="{LILAC[0]}"/><path d="M10 -6 Q14 -12 18 -6 L14 16 Z" fill="#a9cbe0"/>
-      <path d="M4 26 L24 26 L22 50 L6 50 Z" fill="{Q["navy"]}"/><path d="M14 26 L24 26 L22 50 L14 50 Z" fill="{Q["navy2"]}"/><rect x="3" y="24" width="22" height="4" rx="2" fill="{GOLD[1]}"/></g>'''
+# bigger pieces in place of the little slippers and the parasol pot (Matt's review of #59)
+def hat_boxes(x,y):
+    def box(bx,by,w,h,c,c2,stripe):
+        st=''.join(f'<rect x="{bx+4+k*9}" y="{by+4}" width="4" height="{h-4}" fill="{stripe}" opacity=".7"/>' for k in range(int((w-6)//9)))
+        return f'<rect x="{bx}" y="{by}" width="{w}" height="{h}" rx="3" fill="{c}"/>{st}<rect x="{bx+w*0.62:.1f}" y="{by}" width="{w*0.38:.1f}" height="{h}" rx="3" fill="{c2}" opacity=".55"/><rect x="{bx-3}" y="{by-4}" width="{w+6}" height="7" rx="3" fill="{c2}"/>'
+    return f'''<g transform="translate({x} {y})">{shadow(36,96,36,5)}{box(4,64,64,32,Q["cream"],Q["cream2"],ROSE[0])}{box(10,36,52,26,"#a9cbe0","#7fa9c2","#fff")}{box(16,12,40,22,ROSE[0],ROSE[1],Q["cream"])}
+      <rect x="34" y="8" width="4" height="88" fill="{CRIM[0]}"/><rect x="36" y="8" width="2" height="88" fill="{CRIM[1]}"/>
+      <path d="M36 8 Q24 -4 22 4 Q24 10 36 8 Q48 -4 50 4 Q48 10 36 8 Z" fill="{CRIM[0]}"/><path d="M36 8 Q48 -4 50 4 Q48 10 36 8 Z" fill="{CRIM[1]}"/><circle cx="36" cy="7" r="3" fill="{CRIM[2]}"/>
+      <path d="M33 9 L28 20 M39 9 L44 20" stroke="{CRIM[0]}" stroke-width="3" stroke-linecap="round"/></g>'''
+def travel_trunk(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(48,74,48,6)}<path d="M4 26 Q4 2 48 2 Q92 2 92 26 Z" fill="{Q["navy"]}"/><path d="M48 2 Q92 2 92 26 L48 26 Z" fill="{Q["navy2"]}"/>
+      {two(2,24,92,48,Q["navy"],Q["navy2"],3)}<rect x="0" y="24" width="96" height="6" rx="2" fill="{WOOD[1]}"/><rect x="0" y="66" width="96" height="6" rx="2" fill="{WOOD[2]}"/>
+      <rect x="22" y="4" width="8" height="68" fill="{Q["brown"]}"/><rect x="66" y="4" width="8" height="68" fill="{Q["brown2"]}"/><rect x="22" y="44" width="8" height="5" fill="{GOLD[1]}"/><rect x="66" y="44" width="8" height="5" fill="{GOLD[2]}"/>
+      <rect x="42" y="30" width="12" height="14" rx="2" fill="{GOLD[1]}"/><circle cx="48" cy="36" r="2" fill="{DARK}"/>
+      <rect x="2" y="24" width="8" height="10" fill="{GOLD[1]}"/><rect x="86" y="24" width="8" height="10" fill="{GOLD[2]}"/><rect x="2" y="62" width="8" height="10" fill="{GOLD[1]}"/><rect x="86" y="62" width="8" height="10" fill="{GOLD[2]}"/>
+      <circle cx="12" cy="50" r="7" fill="{Q["mustard"]}"/><circle cx="12" cy="50" r="4" fill="none" stroke="{CRIM[0]}" stroke-width="1.6"/><rect x="34" y="52" width="16" height="10" rx="2" fill="{ROSE[0]}" transform="rotate(-8 42 57)"/><rect x="78" y="34" width="10" height="14" rx="2" fill="{Q["cream"]}" transform="rotate(6 83 41)"/>
+      <path d="M40 2 Q48 -8 56 2" stroke="{WOOD[2]}" stroke-width="3" fill="none"/></g>'''
+
+# ---------- SITTING ROOM (tea and games)
+SAGE=('#a9c4b0','#8fae98','#6f8f7a')
+ANIMALS=json.load(open('./animals.json',encoding='utf-8'))
+def head(name,x,y,s): return f'<g transform="translate({x} {y}) scale({s})">{ANIMALS[name]}</g>'   # a 100x100 animal face
+def sitting_window(x,y):
+    return f'''<g transform="translate({x} {y})"><rect x="-6" y="-6" width="112" height="116" rx="50" fill="{Q["cream"]}"/><rect x="0" y="0" width="100" height="104" rx="46" fill="#a9cbe0"/>
+      <path d="M50 0 A46 46 0 0 1 100 46 L100 104 L70 104 L70 4 Z" fill="#8fb6d0"/><path d="M0 80 Q20 64 40 74 Q60 58 100 72 L100 104 L0 104 Z" fill="{Q["olive"]}" opacity=".85"/><circle cx="26" cy="66" r="10" fill="{Q["green"]}"/><circle cx="80" cy="60" r="8" fill="{Q["green"]}"/>
+      <rect x="31" y="0" width="3" height="104" fill="{Q["cream"]}"/><rect x="66" y="0" width="3" height="104" fill="{Q["cream"]}"/><rect x="0" y="48" width="100" height="3" fill="{Q["cream"]}"/>
+      <path d="M-12 -8 L8 -8 Q14 50 4 112 L-12 112 Z" fill="{SAGE[1]}"/><path d="M112 -8 L92 -8 Q86 50 96 112 L112 112 Z" fill="{SAGE[2]}"/><rect x="-14" y="-12" width="128" height="6" rx="3" fill="{GOLD[1]}"/>
+      <path d="M-14 104 L114 104 L114 128 L-14 128 Z" fill="{WOOD[1]}"/><path d="M60 104 L114 104 L114 128 L60 128 Z" fill="{WOOD[2]}"/>{two(-12,92,124,14,ROSE[0],ROSE[1],6)}
+      {pillow(-6,80,Q["mustard"],Q["mustard2"],26)}{pillow(82,80,SAGE[0],SAGE[2],26)}</g>'''
+def plate_shelf(x,y):
+    def plate(px,py,c): return f'<circle cx="{px}" cy="{py}" r="11" fill="#f1ede4"/><circle cx="{px}" cy="{py}" r="7.5" fill="none" stroke="{c}" stroke-width="2.4"/><circle cx="{px}" cy="{py}" r="3" fill="{c}"/>'
+    teapot=f'<path d="M0 14 Q0 0 12 0 Q24 0 24 14 Z" fill="#f1ede4"/><path d="M12 0 Q24 0 24 14 L12 14 Z" fill="#d8d2c4"/><path d="M24 6 Q31 4 31 -2" stroke="#d8d2c4" stroke-width="2.4" fill="none"/><path d="M0 4 q-5 1 -4 7" stroke="#d8d2c4" stroke-width="2.4" fill="none"/><circle cx="12" cy="-1" r="2" fill="{SAGE[2]}"/><path d="M4 8 q8 -4 16 0" stroke="{SAGE[2]}" stroke-width="2" fill="none"/>'
+    cup=lambda cx,cy:f'<path d="M{cx} {cy} L{cx+10} {cy} L{cx+8} {cy+8} L{cx+2} {cy+8} Z" fill="#f1ede4"/><path d="M{cx+10} {cy+2} q3 0 2 4" stroke="#d8d2c4" stroke-width="1.6" fill="none"/><rect x="{cx-2}" y="{cy+8}" width="14" height="2" rx="1" fill="#d8d2c4"/>'
+    return f'''<g transform="translate({x} {y})">{two(0,0,112,8,WOOD[1],WOOD[2],2)}{two(0,52,112,8,WOOD[1],WOOD[2],2)}<path d="M6 8 L14 18 M106 8 L98 18 M6 60 L14 70 M106 60 L98 70" stroke="{WOOD[2]}" stroke-width="3"/>
+      {plate(18,-11,SAGE[2])}{plate(44,-11,ROSE[1])}{plate(70,-11,Q["navy"])}{plate(96,-11,SAGE[2])}
+      <g transform="translate(12 38)">{teapot}</g>{cup(48,44)}{cup(66,44)}{cup(84,44)}</g>'''
+def sitting_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="{SAGE[1]}"/>'
+    w+=''.join(f'<path d="M{x} {y-14} L{x+14} {y} L{x} {y+14} L{x-14} {y} Z" fill="none" stroke="{SAGE[0]}" stroke-width="1.6"/><circle cx="{x}" cy="{y}" r="2" fill="{Q["cream"]}" opacity=".7"/>' for x in range(0,404,28) for y in range(14,146,28))
+    w+=f'<rect x="0" y="146" width="390" height="68" fill="{Q["cream"]}"/>'+''.join(f'<rect x="{x+5}" y="154" width="38" height="52" rx="3" fill="none" stroke="{SAGE[1]}" stroke-width="2"/>' for x in range(0,390,48))+f'<rect x="0" y="142" width="390" height="8" fill="{GOLD[1]}"/><rect x="0" y="146" width="390" height="4" fill="{GOLD[2]}"/>'
+    w+=sitting_window(22,26)
+    w+=plate_shelf(262,58)+sconce_r(318,30)
+    w+=f'<rect x="146" y="100" width="98" height="114" fill="{SAGE[2]}"/><path d="M146 100 Q195 78 244 100 Z" fill="{GOLD[1]}"/><rect x="146" y="98" width="98" height="6" fill="{GOLD[2]}"/>'+gate_arch(164,62,(SAGE[2],'#4f6f5c'))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
+    w+=f'''<g transform="translate(195 46)"><ellipse cx="0" cy="0" rx="34" ry="26" fill="{GOLD[1]}"/><ellipse cx="0" cy="0" rx="28" ry="20" fill="#cfe3ea"/><path d="M-28 6 Q-12 -6 0 4 Q12 -8 28 2 L28 6 Q20 20 0 20 Q-20 20 -28 6 Z" fill="{Q["olive"]}"/>
+      <path d="M-6 4 L4 -12 L14 4 Z" fill="{Q["cream"]}"/><path d="M4 -12 L14 4 L4 4 Z" fill="{Q["cream2"]}"/><circle cx="-14" cy="-8" r="5" fill="{Q["mustard"]}"/></g>'''
+    return w
+def sofa(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(66,74,66,7)}<path d="M8 40 Q6 8 34 10 Q50 0 66 8 Q82 0 98 10 Q126 8 124 40 Z" fill="{SAGE[0]}"/><path d="M66 8 Q82 0 98 10 Q126 8 124 40 L66 40 Z" fill="{SAGE[1]}"/>
+      <path d="M8 38 Q6 8 34 10 Q50 0 66 8 Q82 0 98 10 Q126 8 124 38" stroke="{GOLD[1]}" stroke-width="3" fill="none"/>{"".join(f'<circle cx="{cx}" cy="26" r="1.8" fill="{SAGE[2]}"/>' for cx in (30,48,66,84,102))}
+      {pillow(20,30,ROSE[0],ROSE[1],30)}{pillow(84,30,Q["mustard"],Q["mustard2"],30)}
+      {two(12,40,108,18,SAGE[0],SAGE[1],6)}<path d="M66 40 L66 58" stroke="{SAGE[2]}" stroke-width="1.6"/>
+      <path d="M0 34 Q0 26 8 26 Q16 26 16 34 L16 60 L0 60 Z" fill="{SAGE[0]}"/><path d="M116 34 Q116 26 124 26 Q132 26 132 34 L132 60 L116 60 Z" fill="{SAGE[1]}"/><circle cx="8" cy="32" r="4" fill="{SAGE[1]}"/><circle cx="124" cy="32" r="4" fill="{SAGE[2]}"/>
+      <rect x="2" y="58" width="128" height="6" rx="2" fill="{GOLD[2]}"/><path d="M8 64 L6 72 M124 64 L126 72 M50 64 L50 70 M82 64 L82 70" stroke="{GOLD[2]}" stroke-width="4" stroke-linecap="round"/>{tassel(8,46)}{tassel(124,46)}</g>'''
+def tea_table(x,y):
+    cake=lambda cx,cy,c: f'<path d="M{cx-5} {cy} L{cx+5} {cy} L{cx+4} {cy-6} L{cx-4} {cy-6} Z" fill="{Q["tan"]}"/><path d="M{cx-4.5} {cy-6} Q{cx} {cy-11} {cx+4.5} {cy-6} Z" fill="{c}"/><circle cx="{cx}" cy="{cy-10}" r="1.6" fill="{CRIM[0]}"/>'
+    tiers=''.join(f'<ellipse cx="40" cy="{yy}" rx="{rx}" ry="3" fill="#f1ede4"/><path d="M{40} {yy} m{-rx} 0 a{rx} 3 0 0 0 {2*rx} 0" fill="#d8d2c4"/>'+''.join(cake(40+dx,yy-1,c) for dx,c in cs) for yy,rx,cs in ((44,26,((-16,ROSE[0]),(0,"#f6f1e6"),(16,Q["mustard"]))),(28,19,((-9,"#f6f1e6"),(9,ROSE[0]))),(12,12,((0,ROSE[1]),))))
+    return f'''<g transform="translate({x} {y})">{shadow(40,90,34,5)}<rect x="37" y="54" width="6" height="30" fill="{WOOD[1]}"/><path d="M22 90 Q40 76 58 90" stroke="{WOOD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="40" cy="52" rx="40" ry="8" fill="{WOOD[1]}"/><path d="M40 44 A40 8 0 0 1 80 52 A40 8 0 0 1 40 60 Z" fill="{WOOD[2]}"/><ellipse cx="40" cy="50" rx="36" ry="6" fill="#f6f1e6"/><path d="M4 52 q4 4 8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0" stroke="#f6f1e6" stroke-width="2.4" fill="none"/>
+      <rect x="39" y="4" width="2" height="42" fill="{GOLD[2]}"/><circle cx="40" cy="3" r="3" fill="{GOLD[1]}"/>{tiers}
+      <g transform="translate(64 34)"><path d="M0 12 Q0 0 8 0 Q16 0 16 12 Z" fill="#f1ede4"/><path d="M8 0 Q16 0 16 12 L8 12 Z" fill="#d8d2c4"/><path d="M0 4 q-6 0 -6 -6" stroke="#d8d2c4" stroke-width="2" fill="none"/><circle cx="8" cy="-1" r="1.6" fill="{SAGE[2]}"/></g>
+      <g transform="translate(2 42)"><path d="M0 0 L10 0 L8 7 L2 7 Z" fill="#f1ede4"/><path d="M10 2 q3 0 2 4" stroke="#d8d2c4" stroke-width="1.6" fill="none"/></g></g>'''
+def chess_table(x,y):
+    sq=''
+    for r in range(4):
+        y0=12+r*5; y1=y0+5; xl0=10-r*3; xr0=90+r*3; xl1=xl0-3; xr1=xr0+3
+        for c in range(8):
+            a0=xl0+(xr0-xl0)*c/8; b0=xl0+(xr0-xl0)*(c+1)/8; a1=xl1+(xr1-xl1)*c/8; b1=xl1+(xr1-xl1)*(c+1)/8
+            sq+=f'<path d="M{a0:.1f} {y0} L{b0:.1f} {y0} L{b1:.1f} {y1} L{a1:.1f} {y1} Z" fill="{"#f1e3c2" if (r+c)%2 else WOOD[2]}"/>'
+    def piece(px,py,kind,c,c2):
+        base=f'<path d="M-9 0 L9 0 L7 -5 L-7 -5 Z" fill="{c}"/><path d="M0 -5 L7 -5 L9 0 L0 0 Z" fill="{c2}"/>'
+        if kind=='pawn': top=f'<path d="M-4 -5 L4 -5 L3 -16 L-3 -16 Z" fill="{c}"/><path d="M0 -5 L4 -5 L3 -16 L0 -16 Z" fill="{c2}"/><rect x="-6" y="-18" width="12" height="3" rx="1.5" fill="{c}"/><circle cx="0" cy="-23" r="6" fill="{c}"/><path d="M0 -29 A6 6 0 0 1 0 -17 Z" fill="{c2}"/>'
+        elif kind=='king': top=f'<path d="M-5 -5 L5 -5 L3 -26 L-3 -26 Z" fill="{c}"/><path d="M0 -5 L5 -5 L3 -26 L0 -26 Z" fill="{c2}"/><rect x="-7" y="-28" width="14" height="3" rx="1.5" fill="{c}"/><path d="M-6 -28 Q-8 -36 0 -37 Q8 -36 6 -28 Z" fill="{c}"/><path d="M0 -37 Q8 -36 6 -28 L0 -28 Z" fill="{c2}"/><rect x="-1.2" y="-46" width="2.4" height="10" fill="{c}"/><rect x="-4" y="-43" width="8" height="2.4" fill="{c}"/>'
+        else: top=f'<path d="M-5 -5 L5 -5 L3 -24 L-3 -24 Z" fill="{c}"/><path d="M0 -5 L5 -5 L3 -24 L0 -24 Z" fill="{c2}"/><rect x="-7" y="-26" width="14" height="3" rx="1.5" fill="{c}"/><path d="M-7 -26 L-8 -35 L-4 -31 L0 -37 L4 -31 L8 -35 L7 -26 Z" fill="{c}"/><path d="M0 -37 L4 -31 L8 -35 L7 -26 L0 -26 Z" fill="{c2}"/><circle cx="0" cy="-39" r="2.4" fill="{c}"/>'
+        return f'<g transform="translate({px} {py})">{base}{top}</g>'
+    return f'''<g transform="translate({x} {y})">{shadow(50,82,46,5)}<rect x="10" y="38" width="6" height="44" fill="{WOOD[1]}"/><rect x="84" y="38" width="6" height="44" fill="{WOOD[2]}"/><rect x="14" y="66" width="72" height="4" fill="{WOOD[2]}"/>
+      <path d="M6 10 L94 10 L102 34 L-2 34 Z" fill="{WOOD[1]}"/>{sq}<path d="M-2 34 L102 34 L102 40 L-2 40 Z" fill="{WOOD[1]}"/><path d="M60 34 L102 34 L102 40 L60 40 Z" fill="{WOOD[2]}"/>
+      {piece(22,22,"pawn","#f1e3c2",Q["cream2"])}{piece(40,16,"queen","#f1e3c2",Q["cream2"])}{piece(62,18,"king",Q["ink"],"#1a100a")}{piece(80,26,"pawn",Q["ink"],"#1a100a")}</g>'''
+def rocking_chair(x,y):
+    yarn=lambda cx,cy,c,c2: f'<circle cx="{cx}" cy="{cy}" r="7" fill="{c}"/><path d="M{cx-5} {cy-3} q5 3 10 0 M{cx-6} {cy+2} q6 3 12 0" stroke="{c2}" stroke-width="1.4" fill="none"/>'
+    return f'''<g transform="translate({x} {y})">{shadow(40,94,42,5)}<path d="M2 88 Q36 100 70 84" stroke="{WOOD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M12 56 L10 88 M56 56 L58 86" stroke="{WOOD[2]}" stroke-width="4"/><path d="M14 4 L20 0 L46 0 L52 4 L50 56 L16 56 Z" fill="{WOOD[1]}"/><path d="M33 0 L46 0 L52 4 L50 56 L33 56 Z" fill="{WOOD[2]}"/>
+      {"".join(f'<rect x="{x0}" y="8" width="4" height="40" rx="1" fill="{WOOD[0]}" opacity=".6"/>' for x0 in (22,30,38,44))}
+      <path d="M18 14 L48 14 L46 50 L20 54 Z" fill="{ROSE[0]}"/><path d="M33 14 L48 14 L46 50 L33 52 Z" fill="{ROSE[1]}"/><path d="M18 22 L48 22 M19 32 L47 32 M19 42 L47 42" stroke="#fff" stroke-width="1.4" opacity=".6"/>
+      {two(6,52,56,8,WOOD[1],WOOD[2],3)}<rect x="2" y="36" width="10" height="4" rx="2" fill="{WOOD[1]}"/><rect x="56" y="36" width="10" height="4" rx="2" fill="{WOOD[2]}"/><path d="M6 40 L8 54 M62 40 L60 54" stroke="{WOOD[2]}" stroke-width="3"/>
+      <g transform="translate(58 66)"><path d="M0 8 L26 8 L23 28 L3 28 Z" fill="{Q["tan"]}"/><path d="M13 8 L26 8 L23 28 L13 28 Z" fill="{Q["tan2"]}"/><path d="M1 14 L25 14 M2 20 L24 20" stroke="{Q["brown"]}" stroke-width="1.4"/>
+        {yarn(8,6,CRIM[0],CRIM[1])}{yarn(19,4,SAGE[0],SAGE[2])}<path d="M12 4 L26 -10 M16 4 L30 -8" stroke="{GOLD[2]}" stroke-width="1.8" stroke-linecap="round"/><circle cx="26" cy="-10" r="1.6" fill="{GOLD[1]}"/><circle cx="30" cy="-8" r="1.6" fill="{GOLD[1]}"/></g></g>'''
+def fish_tank(x,y):
+    fish=lambda fx,fy,c,d=1: f'<g transform="translate({fx} {fy}) scale({d} 1)"><ellipse cx="0" cy="0" rx="7" ry="4.4" fill="{c}"/><path d="M6 0 L12 -5 L12 5 Z" fill="{c}"/><circle cx="-3.5" cy="-1" r="1.2" fill="{DARK}"/></g>'
+    return f'''<g transform="translate({x} {y})">{shadow(42,100,42,5)}<rect x="6" y="64" width="6" height="36" fill="{WOOD[1]}"/><rect x="72" y="64" width="6" height="36" fill="{WOOD[2]}"/><rect x="10" y="86" width="64" height="4" fill="{WOOD[2]}"/>
+      {two(0,58,84,8,WOOD[1],WOOD[2],2)}<rect x="2" y="4" width="80" height="54" rx="3" fill="{GOLD[2]}"/><rect x="5" y="6" width="74" height="50" fill="#bfe0ea"/><rect x="5" y="14" width="74" height="42" fill="#7fb8cc"/><rect x="50" y="14" width="29" height="42" fill="#6aa6bc"/>
+      <path d="M5 56 Q20 48 40 54 Q60 48 79 56 Z" fill="{Q["tan"]}"/><path d="M16 54 Q12 40 18 30 Q20 42 22 54 Z M62 54 Q66 36 60 24 Q58 40 58 54 Z" fill="{Q["green"]}"/><path d="M24 54 Q26 44 22 38" stroke="{Q["olive"]}" stroke-width="3" fill="none"/>
+      {fish(34,28,Q["orange"])}{fish(56,40,Q["mustard"],-1)}{fish(28,44,Q["coral"])}{"".join(f'<circle cx="{bx}" cy="{by}" r="{br}" fill="none" stroke="#fff" stroke-width="1.2"/>' for bx,by,br in ((24,22,2),(26,16,1.4),(48,30,1.6),(50,22,2)))}
+      <rect x="0" y="0" width="84" height="6" rx="2" fill="{WOOD[1]}"/><rect x="52" y="0" width="32" height="6" rx="2" fill="{WOOD[2]}"/><path d="M8 12 L8 50" stroke="#fff" stroke-width="2.4" opacity=".6"/></g>'''
+def curio_cabinet(x,y):
+    plate=lambda px,py,c: f'<circle cx="{px}" cy="{py}" r="8" fill="#f1ede4"/><circle cx="{px}" cy="{py}" r="5" fill="none" stroke="{c}" stroke-width="2"/>'
+    return f'''<g transform="translate({x} {y})">{shadow(32,124,34,5)}<path d="M4 12 Q32 -6 60 12 Z" fill="{WOOD[1]}"/><path d="M32 3 Q46 4 60 12 L32 12 Z" fill="{WOOD[2]}"/>{two(2,10,60,108,WOOD[1],WOOD[2],3)}<rect x="8" y="16" width="48" height="96" fill="#d8ecf0"/><rect x="34" y="16" width="22" height="96" fill="#c4e0e6"/>
+      {"".join(f'<rect x="8" y="{yy}" width="48" height="3" fill="{WOOD[1]}"/>' for yy in (44,76))}
+      {plate(20,34,SAGE[2])}{plate(42,34,ROSE[1])}<path d="M14 72 Q12 60 18 56 L26 56 Q32 60 30 72 Z" fill="{Q["navy"]}"/><path d="M22 56 L26 56 Q32 60 30 72 L22 72 Z" fill="{Q["navy2"]}"/><rect x="16" y="52" width="12" height="4" rx="1" fill="{Q["navy"]}"/>
+      <path d="M36 70 L52 70 Q54 64 50 58 L38 58 Q34 64 36 70 Z" fill="#f1ede4" opacity=".9"/><path d="M40 68 L44 60 L48 68 Z" fill="#fff"/><path d="M38 68 L50 68" stroke="{WOOD[2]}" stroke-width="2"/><rect x="42" y="54" width="4" height="4" fill="{WOOD[2]}"/>
+      <path d="M14 108 L14 96 L24 96 L24 108 Z" fill="{GOLD[1]}"/><path d="M12 96 Q19 88 26 96 Z" fill="{GOLD[1]}"/><circle cx="44" cy="100" r="8" fill="#f1ede4"/><path d="M40 100 q4 -4 8 0" stroke="{CRIM[0]}" stroke-width="2" fill="none"/>
+      <rect x="31" y="16" width="2" height="96" fill="{WOOD[1]}"/><path d="M12 22 L12 104" stroke="#fff" stroke-width="2" opacity=".6"/><circle cx="28" cy="66" r="1.8" fill="{GOLD[1]}"/><circle cx="36" cy="66" r="1.8" fill="{GOLD[1]}"/>
+      <rect x="0" y="116" width="64" height="6" rx="2" fill="{WOOD[2]}"/><path d="M6 122 L4 128 M58 122 L60 128" stroke="{WOOD[2]}" stroke-width="4" stroke-linecap="round"/></g>'''
+def fern_stand(x,y):
+    leaf=lambda a,l: f'<path d="M24 34 Q{24+l*0.5*math.cos(math.radians(a))-4:.1f} {34-l*0.8*math.sin(math.radians(a)):.1f} {24+l*math.cos(math.radians(a)):.1f} {34-l*math.sin(math.radians(a)):.1f}" stroke="{Q["green"]}" stroke-width="7" fill="none" stroke-linecap="round"/>'
+    return f'''<g transform="translate({x} {y})">{shadow(24,82,16,4)}{"".join(leaf(a,l) for a,l in ((160,24),(130,28),(100,30),(75,30),(50,28),(20,24)))}
+      <path d="M10 32 L38 32 L34 50 L14 50 Z" fill="{Q["cream"]}"/><path d="M24 32 L38 32 L34 50 L24 50 Z" fill="{Q["cream2"]}"/><rect x="8" y="30" width="32" height="5" rx="2" fill="{SAGE[2]}"/>
+      <path d="M16 50 L12 80 M32 50 L36 80 M24 50 L24 80" stroke="{WOOD[2]}" stroke-width="3" stroke-linecap="round"/><path d="M14 66 L34 66" stroke="{WOOD[2]}" stroke-width="2"/></g>'''
+def lamp_table(x,y):
+    return f'''<g transform="translate({x} {y})"><circle cx="20" cy="10" r="20" fill="{Q["mustard"]}" opacity=".14"/>{shadow(20,66,18,4)}<path d="M8 34 L6 66 M32 34 L34 66" stroke="{WOOD[2]}" stroke-width="3" stroke-linecap="round"/><path d="M8 54 L32 54" stroke="{WOOD[2]}" stroke-width="2"/>
+      <ellipse cx="20" cy="34" rx="18" ry="4" fill="{WOOD[1]}"/><path d="M20 30 A18 4 0 0 1 38 34 A18 4 0 0 1 20 38 Z" fill="{WOOD[2]}"/>
+      <path d="M14 30 Q12 22 20 20 Q28 22 26 30 Z" fill="{SAGE[1]}"/><rect x="18" y="8" width="4" height="12" fill="{GOLD[1]}"/><path d="M8 10 L32 10 L26 -4 L14 -4 Z" fill="{ROSE[0]}"/><path d="M20 -4 L26 -4 L32 10 L20 10 Z" fill="{ROSE[1]}"/><path d="M8 10 q3 3 6 0 t6 0 t6 0 t6 0" stroke="{GOLD[1]}" stroke-width="1.6" fill="none"/></g>'''
+
+# ---------- TOWER STAIRS (hoist and portraits)
+STONE=('#8a8392','#746d7c','#5e5866')
+def tower_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="{STONE[1]}"/>'
+    w+=''.join(''.join(f'<rect x="{(r%2)*24+k*48-22}" y="{6+r*24}" width="44" height="20" rx="3" fill="{STONE[0] if (r*3+k)%4 else "#7e7787"}" opacity=".7"/>' for k in range(10)) for r in range(9))
+    for sx in (40,350):
+        w+=f'<g transform="translate({sx} 30)"><rect x="-16" y="-6" width="32" height="96" rx="16" fill="{STONE[2]}"/><rect x="-6" y="4" width="12" height="80" rx="6" fill="#cfe3ea"/><rect x="-6" y="40" width="12" height="44" fill="#a9cbe0"/></g>'
+    for bx,c,c2 in ((84,CRIM[0],CRIM[1]),(306,Q["navy"],Q["navy2"])):
+        w+=f'''<g transform="translate({bx} 14)"><rect x="-26" y="0" width="52" height="5" rx="2" fill="{GOLD[1]}"/><circle cx="-26" cy="2.5" r="4" fill="{GOLD[0]}"/><circle cx="26" cy="2.5" r="4" fill="{GOLD[1]}"/>
+          <path d="M-20 4 L20 4 L20 112 L0 98 L-20 112 Z" fill="{c}"/><path d="M4 4 L20 4 L20 112 L4 100 Z" fill="{c2}"/><path d="M-20 12 L20 12 M-20 92 L0 80 L20 92" stroke="{GOLD[1]}" stroke-width="2.4" fill="none"/>{crown(-12,38,0.75)}</g>'''
+    w+=sconce_r(126,92)+sconce_r(264,92)
+    # the last few steps up to the door
+    w+=f'<rect x="146" y="100" width="98" height="114" fill="{STONE[2]}"/><path d="M146 100 Q195 76 244 100 Z" fill="{STONE[0]}"/>'+gate_arch(164,62,(WOOD[2],'#5a3a24'))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
+    w+=f'<g transform="translate(195 46)"><circle cx="0" cy="0" r="26" fill="{STONE[0]}"/><circle cx="0" cy="0" r="20" fill="#a9cbe0"/>'+''.join(f'<path d="M0 0 L{20*math.cos(math.radians(a)):.1f} {20*math.sin(math.radians(a)):.1f}" stroke="{STONE[0]}" stroke-width="2.4"/>' for a in range(0,360,45))+f'<circle cx="0" cy="0" r="6" fill="{CRIM[0]}"/><circle cx="0" cy="0" r="6" fill="none" stroke="{STONE[0]}" stroke-width="2"/></g>'
+    w+=f'<rect x="0" y="196" width="390" height="18" fill="{STONE[2]}"/>'+''.join(f'<rect x="{x}" y="198" width="46" height="14" rx="2" fill="{STONE[1]}"/>' for x in range(2,390,48))
+    return w
+def hoist(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(40,132,42,6)}<rect x="8" y="10" width="8" height="122" fill="{WOOD[1]}"/><rect x="64" y="10" width="8" height="122" fill="{WOOD[2]}"/>{two(2,6,76,9,WOOD[1],WOOD[2],2)}<path d="M16 24 L30 12 M64 24 L50 12" stroke="{WOOD[2]}" stroke-width="4"/>
+      <circle cx="40" cy="22" r="11" fill="{IRON[1]}"/><circle cx="40" cy="22" r="7" fill="{IRON[0]}"/><circle cx="40" cy="22" r="2.4" fill="{IRON[2]}"/><rect x="38" y="10" width="4" height="8" fill="{IRON[2]}"/>
+      <path d="M29 22 L29 128 M51 22 L51 70" stroke="{Q["tan"]}" stroke-width="2.6"/><path d="M29 114 Q20 118 22 124 Q28 128 32 122" stroke="{Q["tan"]}" stroke-width="2.6" fill="none"/>{"".join(f'<path d="M29 {yy} l2 3" stroke="{Q["tan2"]}" stroke-width="1"/>' for yy in range(30,110,8))}
+      <path d="M51 70 L40 78 M51 70 L62 78" stroke="{Q["tan"]}" stroke-width="2"/><path d="M36 78 L66 78 L62 102 L40 102 Z" fill="{Q["tan"]}"/><path d="M51 78 L66 78 L62 102 L51 102 Z" fill="{Q["tan2"]}"/>
+      <path d="M37 84 L65 84 M38 90 L64 90 M39 96 L63 96" stroke="{Q["brown"]}" stroke-width="1.4"/><rect x="40" y="72" width="22" height="7" rx="3" fill="{WOOD[2]}" transform="rotate(-10 51 75)"/><rect x="42" y="70" width="20" height="7" rx="3" fill="{WOOD[1]}" transform="rotate(14 52 73)"/>
+      <path d="M0 132 L24 132 M56 132 L80 132" stroke="{WOOD[2]}" stroke-width="5" stroke-linecap="round"/></g>'''
+def portrait(x,y,animal,bg,bg2,frame='rect'):
+    if frame=='oval': fr=f'<ellipse cx="30" cy="34" rx="30" ry="36" fill="{GOLD[1]}"/><ellipse cx="30" cy="34" rx="24" ry="30" fill="{bg}"/><path d="M30 4 A24 30 0 0 1 30 64 Z" fill="{bg2}"/>'
+    elif frame=='arch': fr=f'<path d="M0 70 L0 26 Q0 -4 30 -4 Q60 -4 60 26 L60 70 Z" fill="{GOLD[1]}"/><path d="M6 64 L6 26 Q6 2 30 2 Q54 2 54 26 L54 64 Z" fill="{bg}"/><path d="M30 2 Q54 2 54 26 L54 64 L30 64 Z" fill="{bg2}"/>'
+    else: fr=f'<rect x="0" y="-2" width="60" height="72" rx="3" fill="{GOLD[1]}"/><rect x="6" y="4" width="48" height="60" fill="{bg}"/><rect x="30" y="4" width="24" height="60" fill="{bg2}"/>'
+    return f'''<g transform="translate({x} {y})">{shadow(30,118,24,5)}<path d="M30 60 L30 116 M14 116 L24 70 M46 116 L36 70" stroke="{WOOD[2]}" stroke-width="4" stroke-linecap="round"/><rect x="4" y="68" width="52" height="5" rx="2" fill="{WOOD[1]}"/>
+      {fr}<path d="M10 64 Q30 46 50 64 Z" fill="{CRIM[0]}"/>{ermine(13,56,34,7)}{head(animal,13,24,0.34)}{crown(20,10,0.62)}<path d="M0 0" /></g>'''
+def banner_stand(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(22,132,18,4)}<rect x="19" y="4" width="5" height="128" rx="2" fill="{WOOD[2]}"/><path d="M8 132 L22 124 L36 132" stroke="{WOOD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M21.5 -6 L25 2 L18 2 Z" fill="{GOLD[1]}"/>
+      <rect x="4" y="8" width="36" height="4" rx="2" fill="{GOLD[1]}"/><path d="M6 12 L38 12 L38 78 L22 66 L6 78 Z" fill="{Q["green"]}"/><path d="M22 12 L38 12 L38 78 L22 66 Z" fill="{Q["green2"]}"/>
+      <path d="M6 18 L38 18 M6 64 L22 54 L38 64" stroke="{GOLD[1]}" stroke-width="2" fill="none"/><path d="M22 26 L30 36 L22 46 L14 36 Z" fill="{GOLD[1]}"/><circle cx="22" cy="36" r="3" fill="{CRIM[0]}"/></g>'''
+def landing_bench(x,y):   # a high-backed wooden settle with a long cushion, for a rest on the way up
+    return f'''<g transform="translate({x} {y})">{shadow(52,74,52,5)}{two(6,0,92,44,WOOD[1],WOOD[2],3)}<path d="M6 4 Q52 -10 98 4 L98 8 L6 8 Z" fill="{WOOD[1]}"/>
+      {"".join(f'<path d="M{px} 40 L{px} 20 Q{px} 10 {px+12} 10 Q{px+24} 10 {px+24} 20 L{px+24} 40 Z" fill="{WOOD[2]}" opacity=".55"/>' for px in (14,40,66))}
+      {two(0,44,104,10,WOOD[1],WOOD[2],3)}{two(4,36,96,10,CRIM[0],CRIM[1],5)}{"".join(f'<circle cx="{cx}" cy="41" r="1.8" fill="{GOLD[0]}"/>' for cx in (20,40,60,80))}{pillow(10,26,Q["mustard"],Q["mustard2"],26)}{pillow(68,26,Q["navy"],Q["navy2"],26)}
+      <rect x="-2" y="30" width="10" height="26" rx="3" fill="{WOOD[1]}"/><rect x="96" y="30" width="10" height="26" rx="3" fill="{WOOD[2]}"/>
+      <rect x="2" y="54" width="100" height="12" fill="{WOOD[2]}"/><path d="M6 66 L6 74 M98 66 L98 74" stroke="{WOOD[2]}" stroke-width="5" stroke-linecap="round"/>{"".join(f'<rect x="{px}" y="57" width="18" height="6" rx="2" fill="{WOOD[1]}" opacity=".7"/>' for px in (14,44,72))}</g>'''
+def lantern(x,y,s=1):
+    return f'''<g transform="translate({x} {y}) scale({s})"><circle cx="20" cy="26" r="20" fill="{Q["mustard"]}" opacity=".18"/><path d="M14 4 Q20 -4 26 4" stroke="{IRON[2]}" stroke-width="2.4" fill="none"/>
+      <path d="M8 12 L20 4 L32 12 Z" fill="{IRON[1]}"/><path d="M20 4 L32 12 L20 12 Z" fill="{IRON[2]}"/><rect x="8" y="12" width="24" height="3" fill="{IRON[2]}"/>
+      <path d="M10 15 L30 15 L28 38 L12 38 Z" fill="#f6dc8c"/><path d="M20 15 L30 15 L28 38 L20 38 Z" fill="#ecc463"/><rect x="18" y="26" width="4" height="10" rx="1" fill="{Q["cream"]}"/><path d="M20 18 C17 22 18 26 20 26 C22 26 23 22 20 18 Z" fill="{Q["orange"]}"/>
+      <path d="M10 15 L12 38 M30 15 L28 38 M20 15 L20 20" stroke="{IRON[2]}" stroke-width="2"/><rect x="9" y="38" width="22" height="4" rx="1" fill="{IRON[1]}"/><rect x="14" y="42" width="12" height="3" fill="{IRON[2]}"/></g>'''
+def lantern_post(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(20,134,14,4)}<rect x="17" y="40" width="6" height="94" rx="2" fill="{IRON[1]}"/><rect x="20" y="40" width="3" height="94" fill="{IRON[2]}"/><path d="M8 134 L20 126 L32 134" stroke="{IRON[2]}" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M12 60 Q20 54 28 60" stroke="{IRON[1]}" stroke-width="2.4" fill="none"/>{lantern(0,-4,1)}</g>'''
+def statue_niche(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(36,130,38,5)}<path d="M0 130 L0 28 Q0 -2 36 -2 Q72 -2 72 28 L72 130 Z" fill="{STONE[0]}"/><path d="M36 -2 Q72 -2 72 28 L72 130 L36 130 Z" fill="{STONE[1]}"/><path d="M10 118 L10 32 Q10 8 36 8 Q62 8 62 32 L62 118 Z" fill="#4a4452"/>
+      <rect x="18" y="104" width="36" height="14" fill="#b9b3be"/><rect x="36" y="104" width="18" height="14" fill="#a39cab"/>
+      <path d="M26 104 L28 70 L44 70 L46 104 Z" fill="#c9c3cd"/><path d="M36 70 L44 70 L46 104 L36 104 Z" fill="#b2acb6"/><path d="M24 44 Q36 34 48 44 L46 72 L26 72 Z" fill="#c9c3cd"/><path d="M36 38 Q44 40 48 44 L46 72 L36 72 Z" fill="#b2acb6"/>
+      <path d="M26 30 Q26 16 36 16 Q46 16 46 30 L46 40 L26 40 Z" fill="#c9c3cd"/><path d="M36 16 Q46 16 46 30 L46 40 L36 40 Z" fill="#b2acb6"/><rect x="28" y="28" width="16" height="3" fill="#6e6876"/><path d="M36 16 Q40 6 46 6" stroke="#c9c3cd" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M16 48 L32 48 L32 64 Q24 72 16 64 Z" fill="#d6d0da"/><path d="M24 48 L32 48 L32 64 Q28 68 24 69 Z" fill="#c0bac4"/><path d="M24 52 L24 64 M19 57 L29 57" stroke="#9a94a0" stroke-width="2"/>
+      <rect x="50" y="34" width="3" height="56" fill="#d6d0da"/><rect x="45" y="52" width="13" height="3" fill="#c0bac4"/>
+      <rect x="-4" y="126" width="80" height="6" rx="2" fill="{STONE[2]}"/></g>'''
+def ivy_pot(x,y):
+    leaves=''.join(f'<path d="M{lx} {ly} q-5 -5 0 -9 q5 4 0 9 Z" fill="{Q["green"] if k%2 else "#4f8a4a"}" transform="rotate({(k*47)%80-40} {lx} {ly})"/>' for k,(lx,ly) in enumerate(((10,12),(20,6),(30,14),(38,4),(8,30),(28,32),(40,26),(14,48),(34,50),(22,64),(6,70),(40,72),(16,86),(32,90))))
+    return f'''<g transform="translate({x} {y})">{shadow(24,124,20,5)}<path d="M4 100 L4 0 M24 100 L24 -6 M44 100 L44 0 M4 20 L44 60 M44 20 L4 60 M4 60 L44 100 M44 60 L4 100" stroke="{WOOD[1]}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M24 96 Q12 70 22 50 Q32 30 18 8" stroke="{Q["green2"]}" stroke-width="2" fill="none"/>{leaves}
+      <path d="M2 94 L46 94 L40 124 L8 124 Z" fill="{Q["orange"]}"/><path d="M24 94 L46 94 L40 124 L24 124 Z" fill="{Q["orange2"]}"/><rect x="0" y="90" width="48" height="7" rx="2" fill="{Q["orange"]}"/><rect x="28" y="90" width="20" height="7" rx="2" fill="{Q["orange2"]}"/></g>'''
+def tea_chest(x,y,s=1):   # the Sitting room's board wall
+    return f'''<g transform="translate({x} {y}) scale({s})"><rect x="0" y="6" width="40" height="34" rx="2" fill="{WOOD[1]}"/><rect x="25" y="6" width="15" height="34" rx="2" fill="{WOOD[2]}"/>
+      <rect x="-1" y="2" width="42" height="7" rx="2" fill="{WOOD[0]}"/><rect x="25" y="2" width="16" height="7" rx="2" fill="{WOOD[1]}"/>
+      <path d="M0 2 L7 2 L7 6 L4 6 L4 12 L0 12 Z M41 2 L34 2 L34 6 L37 6 L37 12 L41 12 Z M0 40 L7 40 L7 36 L4 36 L4 30 L0 30 Z M41 40 L34 40 L34 36 L37 36 L37 30 L41 30 Z" fill="{GOLD[1]}"/>
+      <rect x="9" y="15" width="22" height="16" rx="2" fill="{Q["cream"]}"/><rect x="9" y="15" width="22" height="16" rx="2" fill="none" stroke="{SAGE[2]}" stroke-width="1.4"/>
+      <path d="M20 28 Q13 23 20 18 Q27 23 20 28 Z" fill="{SAGE[2]}"/><path d="M20 28 L20 18" stroke="{Q["cream"]}" stroke-width="1"/></g>'''
+def stone_block(x,y,s=1):   # the Tower stairs' board wall: a rough block of the tower's stone
+    return f'''<g transform="translate({x} {y}) scale({s})"><path d="M3 10 L10 3 L32 2 L39 8 L40 34 L34 40 L6 40 L1 33 Z" fill="{STONE[0]}"/><path d="M24 2 L32 2 L39 8 L40 34 L34 40 L24 40 Z" fill="{STONE[2]}"/>
+      <path d="M3 10 L10 3 L32 2 L39 8 L30 11 L9 12 Z" fill="#a39cab"/><path d="M24 2 L32 2 L39 8 L30 11 L24 11.5 Z" fill="{STONE[0]}"/>
+      <path d="M12 18 L16 24 L13 30 M30 20 L27 27" stroke="{STONE[2]}" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M33 16 L36 22" stroke="#4a4452" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="9" cy="34" r="1.6" fill="{STONE[1]}"/><circle cx="20" cy="15" r="1.2" fill="{STONE[1]}"/></g>'''
 
 H5['Royal chambers']=royal_head()+STEP
 H5['Wardrobe']=wardrobe_head()+STEP
@@ -191,10 +369,20 @@ add5('footstool_s',footstool_s(0,0),(0,0,40,34)); add5('tea_stand',tea_stand(0,0
 add5('gown_stand',gown_stand(0,0),(0,-4,64,118)); add5('robe_rail',robe_rail(0,0),(-4,0,132,104),0.78); add5('hat_stand',hat_stand(0,0),(0,-18,54,132))
 add5('shoe_shelf',shoe_shelf(0,0),(0,0,86,90)); add5('cheval_mirror',cheval_mirror(0,0),(-4,0,68,112)); add5('open_closet',open_closet(0,0),(0,0,96,114))
 add5('cobbler_bench',cobbler_bench(0,0),(0,0,92,68))
-add5('shoes_s',shoes_s(0,0),(0,0,34,22)); add5('folded_s',folded_s(0,0),(0,-6,32,46)); add5('parasol_stand',parasol_stand(0,0),(0,-12,28,64))
+add5('folded_s',folded_s(0,0),(0,-6,32,46)); add5('hat_boxes',hat_boxes(0,0),(0,-4,72,104),0.9); add5('travel_trunk',travel_trunk(0,0),(0,-8,96,86),0.9)
+H5['Sitting room']=sitting_head()+STEP
+add5('sofa',sofa(0,0),(0,0,132,78)); add5('tea_table',tea_table(0,0),(0,0,80,96)); add5('chess_table',chess_table(0,0),(-4,-24,108,110))
+add5('rocking_chair',rocking_chair(0,0),(0,-10,88,108)); add5('fish_tank',fish_tank(0,0),(0,0,84,104)); add5('curio_cabinet',curio_cabinet(0,0),(0,-4,64,132))
+add5('fern_stand',fern_stand(0,0),(0,0,48,86)); add5('lamp_table',lamp_table(0,0),(0,-10,40,80))
+H5['Tower stairs']=tower_head()+STEP
+add5('hoist',hoist(0,0),(0,0,80,138)); add5('portrait_mouse',portrait(0,0,'mouse',CRIM[0],CRIM[1],'oval'),(0,-4,60,126)); add5('portrait_lion',portrait(0,0,'lion',Q["navy"],Q["navy2"]),(0,-2,60,124))
+add5('portrait_elephant',portrait(0,0,'elephant',Q["green"],Q["green2"],'arch'),(0,-4,60,126)); add5('banner_stand',banner_stand(0,0),(0,-6,44,142))
+add5('landing_bench',landing_bench(0,0),(-2,-6,108,82)); add5('lantern_post',lantern_post(0,0),(0,-8,40,146)); add5('statue_niche',statue_niche(0,0),(-4,-2,80,136),0.9); add5('ivy_pot',ivy_pot(0,0),(0,-8,48,136))
 H5={k:re.sub(r'\s+',' ',v).strip() for k,v in H5.items()}
 json.dump({'heads':H5,'props':P5},open('./royal_floor_art.json','w'),separators=(',',':'),ensure_ascii=False)
 print({k:len(v) for k,v in H5.items()}, len(P5))
 # Board walls (48x48) for the game's CSS: printed for index.html
 FOOTSTOOL_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{footstool(4,8,1)}</svg>'
-open('./royal_tiles.json','w').write(json.dumps({'footstool':re.sub(r'\s+',' ',FOOTSTOOL_TILE)}))
+CHEST_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{tea_chest(3.5,3,1)}</svg>'
+BLOCK_TILE=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">{stone_block(3.5,3,1)}</svg>'
+open('./royal_tiles.json','w').write(json.dumps({k:re.sub(r'\s+',' ',v) for k,v in (('footstool',FOOTSTOOL_TILE),('teachest',CHEST_TILE),('stoneblock',BLOCK_TILE))}))

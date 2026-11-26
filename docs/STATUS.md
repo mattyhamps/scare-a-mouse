@@ -11,7 +11,7 @@ _Last updated: 26 November 2026._
   (651–800: Treasury, Music room, Sewing room, Guest bedrooms, Clock tower), all with drawn rooms, a
   castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
   the mouse travelling between rooms when you clear one.
-- Levels 801–860, the Royal floor's first two rooms, with mousetraps (see below).
+- Levels 801–920, the Royal floor's first four rooms, with mousetraps (see below).
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
@@ -65,13 +65,34 @@ _Last updated: 26 November 2026._
   card at 808 with easy spring levels (808–811), then a mix of easy and hard with traps in about 1 level
   in 5 and footstools in about 1 in 5 in the Royal chambers. `LevelsCli make` now refuses a trap level
   where a trap doesn't matter (`TrapLab.trapsDoTheirJob`).
+- Wardrobe fix (Matt's review of #59): the two little red slippers on the floor and the parasol pot are
+  gone; a stack of hat boxes and a domed travel trunk took their place, and the folded-clothes stool shows
+  up less often. Levels 836 and 848 were renamed to match ("Steamer Trunk", "Hat Box Tower").
+- The Sitting room (861–890) and Tower stairs (891–920), drawn in `gen25.py`:
+  The Sitting room is the royal family's tea-and-games room (sage wallpaper, a window seat, a landscape
+  painting, a shelf of plates and a tea set; a sofa, a tea table with a cake stand, chess tables with
+  plain pieces, a rocking chair with a knitting basket, a fish tank, a curio cabinet, a fern and a lamp
+  table), sage and cream checked tiles with a cream runner whose path climbs in L-shaped knight's moves.
+  Board walls are tea chests.
+  The Tower stairs is a stone stairwell (arrow slits, banners, a round window; a rope hoist with a basket,
+  portraits of a mouse queen, a lion king and an elephant on easels, a banner stand, a high-backed bench,
+  a knight statue in a niche, a lantern post, climbing ivy), grey stone floor with a red stair carpet with
+  brass rods, running up the walls with a stone landing at each turn (`shape.landings`). Board walls are
+  stone blocks. (Matt turned down a chess rook and an iron lantern for the board walls, and animal-headed
+  chess pieces.)
+- Their levels (`Recipe.royalFloor`, 861–920) mix the new puzzle types below in with the familiar ones,
+  with traps in 6 levels and walls in 6 levels per room, and a few easy dog chains as breathers. They
+  score about as hard as 801–860. Flames are shared across the whole Royal floor (about 1 in 15 of
+  801–950), so for now only 870–872 of the new levels have one; they will shift when the Throne room is
+  built. 882 and 890 were changed after the dry run (a walled STOP+CATCH moving level and a frozen
+  SWERVE+CATCH one were slow).
+- The art scripts need Python 3.12 or newer (`python` on Matt's PC is 3.10; use the Python 3.13 install).
 
 ## Next
 
-1. **Royal floor (861–950):** the Sitting room, Tower stairs and Throne room (boss at 950): drawings
-   first (show Matt), then levels with fresh recipes, traps in about 1 level in 5. `trap-lab.json` is
-   kept for now.
-   Mix in the new puzzle types below from here on (Matt's call).
+1. **Royal floor (921–950):** the Throne room (boss at 950): drawings first (show Matt), then levels with
+   fresh recipes, traps in about 1 level in 5. `trap-lab.json` is kept for now (Matt, asked again in this
+   PR). Keep mixing in the new puzzle types below (Matt's call).
 2. **Towers and roof (951–1070):** Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each).
    New piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other,
    still going the same way. Matt picked a cannon for the Battlements' board walls, a birdcage for the

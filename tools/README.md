@@ -9,10 +9,12 @@ the right, one soft shadow under anything that stands on the floor.
 
 - `gen22.py`, `gen23.py`: the Third floor (Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room).
   `python3 gen22.py && python3 gen23.py && python3 export_third.py` rebuilds those rooms in room-art.json.
-- `gen25.py`: the Royal floor so far (Royal chambers, Wardrobe). `python3 gen25.py && python3 export_royal.py`
-  rebuilds them; it also writes `royal_tiles.json`, the footstool board wall used in index.html's CSS.
+- `gen25.py`: the Royal floor so far (Royal chambers, Wardrobe, Sitting room, Tower stairs).
+  `python3 gen25.py && python3 export_royal.py` rebuilds them; it also writes `royal_tiles.json`, the board
+  walls used in index.html's CSS (footstool, tea chest, stone block).
 - `export_outside.py`, `export_cellars.py`, `export_upper.py`: the earlier floors.
-- Run them from this folder (`cd tools/art`). Python 3, no extra packages.
+- Run them from this folder (`cd tools/art`). Python 3.12 or newer (the scripts use f-strings that older
+  versions can't read; on Matt's PC plain `python` is 3.10, so use the Python 3.13 install), no extra packages.
 - For a new floor, start a `gen24.py` that runs `gen23.py`'s helpers the same way, add the new rooms'
   walls and pieces, and write an `export_*.py` for it.
 
