@@ -30,7 +30,7 @@ They serve the built game from `web/target/site` (build it with `mvn -q package 
   mouse escapes; saves a screenshot.
 - `node tools/screens/room.js 501`: a tall screenshot of the room map that level 501 is in.
 - `node tools/screens/spots.js`: measures the level spots on every room map and lists any two closer than 48 room units.
-- `node tools/screens/names.js`: puts every level's name, its label (boss, flame, "solved") and a 4-digit cheese
+- `node tools/screens/names.js`: puts every level's name with its crown or flame and solved tick, and a 4-digit cheese
   count into the real header at 360px and 390px wide, and lists any name that doesn't fit on one line (exits with 1).
 - `node tools/screens/card.js 501`: the level with its how-to card, then the board.
 

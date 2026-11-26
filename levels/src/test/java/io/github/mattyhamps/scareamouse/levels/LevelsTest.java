@@ -89,15 +89,15 @@ class LevelsTest {
     }
 
     /**
-     * A level's name must fit on one line in the header above the board on a small phone (360px wide). The
-     * longest names that fit are 26 characters ("The Mouse Queen's Portrait"); tools/screens/names.js measures
-     * the real header, and this keeps CI from letting a longer name in.
+     * A level's name must fit on one line in the header above the board on a small phone (360px wide), next to
+     * the cheese count, with a crown or flame before it and the solved tick after it: 20 characters at most.
+     * tools/screens/names.js measures the real header; this keeps CI from letting a longer name in.
      */
     @Test
     void levelNamesAreShortEnoughForAPhone() {
         for (int n = 1; n <= levels.size(); n++) {
             String name = levels.get(n - 1).name;
-            assertTrue(name.length() <= 26, "level " + n + "'s name is too long for a phone's header (26 characters at most): " + name);
+            assertTrue(name.length() <= 20, "level " + n + "'s name is too long for a phone's header (20 characters at most): " + name);
         }
     }
 
