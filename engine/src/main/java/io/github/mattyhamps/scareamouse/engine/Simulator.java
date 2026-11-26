@@ -65,11 +65,13 @@ public final class Simulator {
         for (int[] t : level.turns) {
             turn[t[1] * w + t[0]] = t[2];
         }
-        final int[] trap = new int[w * h];   // index into level.traps, or -1
-        java.util.Arrays.fill(trap, -1);
-        for (int k = 0; k < level.traps.size(); k++) {
-            int[] t = level.traps.get(k);
-            trap[t[1] * w + t[0]] = k;
+        final int[] trap = level.traps.isEmpty() ? null : new int[w * h];   // index into level.traps, or -1
+        if (trap != null) {
+            java.util.Arrays.fill(trap, -1);
+            for (int k = 0; k < level.traps.size(); k++) {
+                int[] t = level.traps.get(k);
+                trap[t[1] * w + t[0]] = k;
+            }
         }
         final boolean[] sprung = new boolean[level.traps.size()];
         int sprungCount = 0;
@@ -142,7 +144,10 @@ public final class Simulator {
             }
 
             // Loop detection: the same positions and directions as before means it would repeat forever.
-            StringBuilder key = new StringBuilder().append(sprungCount).append('|');   // traps only ever go from set to sprung
+            StringBuilder key = new StringBuilder();
+            if (trap != null) {
+                key.append(sprungCount).append('|');   // traps only ever go from set to sprung
+            }
             for (int i = 0; i < n; i++) {
                 if (i > 0) {
                     key.append(';');
@@ -213,7 +218,7 @@ public final class Simulator {
                         x[i] = nx;
                         y[i] = ny;
                         grid[ny * w + nx] = i;
-                        int k = trap[ny * w + nx];
+                        int k = trap == null ? -1 : trap[ny * w + nx];
                         if (k >= 0 && !sprung[k]) {   // rule 8: a set trap snaps
                             sprung[k] = true;
                             sprungCount++;

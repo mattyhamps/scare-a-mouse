@@ -23,7 +23,8 @@ class ChainBuilderTest {
      * Rare recipes and a seed that is known to build them (found by searching offline), tried first so the
      * test stays quick. If a change to the rules or the builder stops it working, the normal search runs.
      */
-    private static final java.util.Map<Integer, Long> KNOWN_SEEDS = java.util.Map.of(291, 349_538L, 305, 2_266_370L);
+    private static final java.util.Map<Integer, Long> KNOWN_SEEDS = java.util.Map.of(291, 349_538L, 305, 2_266_370L,
+            306, 120_352L, 350, 18_769L);
 
     /**
      * The first level made with each distinct recipe. Many levels share a recipe (with different layouts),
