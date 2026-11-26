@@ -32,6 +32,9 @@ _Last updated: 25 November 2026._
 - Tester link: https://mattyhamps.github.io/scare-a-mouse/?demo plays only the Meadow (levels 1–20) with
   its own saved progress, no developer mode and no feedback button. The rest of the castle says "Coming
   soon", and clearing level 20 opens the door and then shows a thank-you screen with "Play again".
+- A level with a pop-up card (a new animal or board piece) shows it every time you open that level, not
+  just the first time, so a player who skipped it or comes back later can read it again. (Not when the
+  map is about to open over the level, after "All levels" or "Open the door" on the win card.)
 - Mousetraps, the piece (no real levels yet): engine rule 8, the drawing (classic snap trap with a big
   wedge of cheese; sprung = faded, no cheese), the snap with stars and a "Snap!" sound, a caught mouse with
   the bar on its tail and "The mouse got caught!", and two cards (801: mousetraps catch the mouse but
@@ -66,6 +69,7 @@ Notes from Matt's legal and App Store checklist (a separate document):
 
 ## Decisions to remember
 
+- A level's pop-up card shows every time the level is opened (Matt: so it can be read again).
 - Boards stay 10×10 from the Second floor on.
 - Each floor is about as hard as the one before, with a mix of easier and harder levels; the toughest
   get a flame. Rooms of about 30 levels.
