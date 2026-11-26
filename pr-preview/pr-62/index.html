@@ -35,11 +35,14 @@
   .dot{width:34px;height:34px;border-radius:10px;border:2px solid #4a4155;background:var(--bg2);color:var(--muted);font:600 15px Fredoka,system-ui;display:grid;place-items:center;cursor:pointer}
   .dot.cur{border-color:var(--gold);color:var(--ink)}
   .dot.done{background:#3c5a3b;border-color:#5f8f5d;color:#e6ffe4}
-  /* the level's name gets the whole first line (it wraps rather than being cut off); the label ("Boss ·
-     Level N · solved") and the cheese count share the line under it. tools/screens/names.js checks every name fits. */
-  .title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px}
-  .title h2{margin:0;font-size:20px;font-weight:600;flex-basis:100%;min-width:0;line-height:1.15;overflow-wrap:anywhere}
-  .title .sub{color:var(--muted);font-size:14px;display:flex;flex:1;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap}
+  /* the level's name and the cheese count share one line; a long name wraps onto a second line rather than
+     being cut off. The crown (boss) or flame sits before the name and the solved tick after it.
+     tools/screens/names.js checks every name. */
+  .title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .title h2{margin:0;font-size:20px;font-weight:600;flex:1 1 auto;min-width:0;line-height:1.15;overflow-wrap:anywhere}
+  .title .cheese{flex:none;margin-top:2px}
+  .title h2 svg{vertical-align:-1px;margin-right:6px}
+  .title h2 .tick{font:600 16px var(--font-body);color:var(--muted);margin-left:6px;white-space:nowrap}
   .cheese{font:600 14px Fredoka,system-ui;color:#3a2f22;background:linear-gradient(180deg,#ffe7a8,#f2c95b);border-radius:999px;padding:2px 9px}
   .cheese.bump{animation:cheeseBump .6s ease-out}
   @keyframes cheeseBump{40%{transform:scale(1.35)}}
@@ -418,10 +421,10 @@
   }
   html,body{background:var(--bg);color:var(--ink);font-family:var(--font-body)}
   .brand{font-family:var(--font-title);font-size:23px;letter-spacing:0;color:var(--paper)}
+  @media (max-width:380px){ .brand{font-size:20px} }   /* so the Level button ("Level 950") fits on small phones */
   .brand .crest{filter:none}
   .title h2,.card h3,.pick-head h3{font-family:var(--font-title);font-weight:700;color:inherit}
   .title h2{font-size:22px;color:var(--paper)}
-  .title .sub{color:var(--muted)}
   /* pills and buttons: a flat face over a darker lip */
   .lvlbtn{font:600 15px var(--font-body);color:var(--paper-ink);background:var(--gold);border:0;border-radius:12px;box-shadow:0 4px 0 var(--gold-d)}
   .soundbtn{background:var(--paper);border:0;border-radius:12px;box-shadow:0 4px 0 var(--paper-d)}
@@ -595,7 +598,7 @@
     <div class="hdr-right"><button class="soundbtn" id="soundBtn" aria-label="Sound on"></button>
     <button class="lvlbtn" id="lvlBtn"></button></div>
   </header>
-  <div class="title"><h2 id="lvlName"></h2><span class="sub"><span id="lvlSub"></span><span class="cheese" id="cheese"></span></span></div>
+  <div class="title"><h2 id="lvlName"></h2><span class="cheese" id="cheese"></span></div>
   <div class="tip" id="tip"></div>
   <div class="chain" id="chain"></div>
   <div class="board-wrap"><div class="board" id="board"></div><div class="toast" id="toast"></div>
@@ -1735,15 +1738,19 @@ Promise.all([
     if (NEW_CARDS[i]) showGuide([NEW_CARDS[i]]);
   }
 
+  // The level's name above the board: the crown on a boss or the flame on an extra-hard level before it, a tick after it once solved.
+  function levelTitle() {
+    const h = $('lvlName'); h.innerHTML = (isBoss(li) ? icon('crown', 20) : isHard(li) ? icon('flame', 20) : '') + '<span></span>' + (isDone(li) ? '<span class="tick">✓</span>' : '');
+    h.querySelector('span').textContent = L.name;
+  }
   function load(i, quiet){   // quiet: don't show the level's card (the map is about to open over it)
     if(!isOpen(i)) i=unlockedUpTo();
     clearTimeout(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
     const saved = solved[levelKey(L)];
     placed = Array.isArray(saved) ? saved.map(p=>({...p})) : []; selected=0; mode='edit'; hintPlan=null; selPlaced=null; hints = hintBook[levelKey(L)] || { h: L.solution.map(() => 0), c: L.solution.map(() => false) }; hintShown = hints.h.some(n => n > 0) || hints.c.some(Boolean);
-    $('lvlName').textContent = L.name;
+    levelTitle();
     const boss = isBoss(li);
-    $('lvlSub').innerHTML = (boss ? `${icon('crown', 16)} Boss · ` : isHard(li) ? `${icon('flame', 16)} ` : '') + (isDone(li) ? `Level ${li+1} · solved ✓` : `Level ${li+1}`);
     const areaName = AREAS[areaOf(li)].name;
     $('tip').textContent = L.tip || (isHard(li) ? `Extra hard: one of the toughest puzzles ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}. Solve it without hints for 2 cheese.` : boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
@@ -1960,7 +1967,7 @@ Promise.all([
     if(res.win){
       mode='won';
       const rIdx = roomIndexOf(li), wasCleared = roomCleared(rIdx), first = !isDone(li);
-      solved[levelKey(L)] = placed.map(p=>({t:p.t,x:p.x,y:p.y})); store.set('cm_solved',solved);
+      solved[levelKey(L)] = placed.map(p=>({t:p.t,x:p.x,y:p.y})); store.set('cm_solved',solved); levelTitle();
       renderDots();
       const last = li===LEVELS.length-1, cleared = !wasCleared && roomCleared(rIdx);
       // Cheese for a first solve: 1 with no hints (3 on a boss level), none with; +2 for clearing a room.
