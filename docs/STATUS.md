@@ -71,11 +71,34 @@ _Last updated: 26 November 2026._
 1. **Royal floor (861–950):** the Sitting room, Tower stairs and Throne room (boss at 950): drawings
    first (show Matt), then levels with fresh recipes, traps in about 1 level in 5. `trap-lab.json` is
    kept for now.
+   Mix in the new puzzle types below from here on (Matt's call).
 2. **Towers and roof (951–1070):** Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each).
    New piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other,
    still going the same way. Matt picked a cannon for the Battlements' board walls, a birdcage for the
    Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying).
 3. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+
+## New puzzle types for 861 on
+
+Matt wants the rest of the castle to switch it up instead of reusing the same 15 or so recipe types
+(levels 351–860 mostly used those). A dry run (one build each, 30 s) found these new types build quickly:
+
+- `Recipe(ELEPHANT, 2, WAITING_RUNNER)`: two blockers and a waiting runner (hard, 3 to place)
+- `Recipe(LION, 2, PLAIN).withMoves(CATCH)`: already moving with two blockers and one catch (hard)
+- `Recipe(ELEPHANT, 1, FREEZE_RELEASE).withMoves(SWERVE)`: already moving with a blocker
+- `Recipe(ELEPHANT, 0, FREEZE_RELEASE).withMoves(SWERVE, STOP)`
+- `Recipe(ELEPHANT, 1, WAITING_RUNNER).withMoves(STOP).withTraps(1, 2)`
+- `Recipe(CAT, 1, wrap, PLAIN).withTraps(1, 2)` and `Recipe(CAT, 0, wrap, PLAIN).withSpringTraps(1)`: wrap-around chains with traps
+- `Recipe(LION, 0, PLAIN).withSpringTraps(2)`: two traps to spring (3 to place)
+- `Recipe(ELEPHANT, 0, FREEZE_RELEASE).withWalls(1, 3).withSpringTraps(1)`: walls and a trap
+- `Recipe(LION, 0, PLAIN).withTurnTiles(1).withSpringTraps(1)` and
+  `Recipe(ELEPHANT, 0, PLAIN).withMoves(CATCH).withTurnTiles(1).withTraps(1, 2)`: turn tiles and traps together
+- `Recipe(DOG, 1, PLAIN)` (fairly easy) and `Recipe(DOG, 0, PLAIN)` (very easy, a breather)
+
+These found nothing in 30 s, so don't rely on them: a frozen animal and a waiting runner in one chain; three
+moves, or two catches, in a moving level; a lion chain with two missing links; bear-started chains with a
+frozen animal; a wrap-around chain that's already moving; walls plus steering round traps. Lane-blocker
+levels with steer-around traps (`Recipe(BEAR, 1).withTraps`) kept leaving a trap that didn't matter.
 
 ## Before release
 
@@ -118,6 +141,7 @@ Notes from Matt's legal and App Store checklist (a separate document):
   mouse travels there.
 - New wall drawings normally get no tip, but round ones that could be mistaken for animals get a
   "New: ..." tip the first time they appear (drums at 683, gears at 771). No card for them.
+- From level 861 on, mix the new puzzle types above in with the familiar ones (Matt).
 - From the Royal floor on, work a couple of rooms at a time (drawings, then levels, one pull
   request), not a whole floor at once.
 - Big jobs like building hundreds of levels are much faster in Claude Code on Matt's own computer than in
