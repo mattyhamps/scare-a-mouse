@@ -838,13 +838,13 @@ Promise.all([
     {end:890, area:6, name:'Sitting room',   bg:'#3f5a52', plan:[54,34,40,30]},
     {end:920, area:6, name:'Tower stairs',   bg:'#454049', plan:[6,30,22,30]},
     {end:950, area:6, name:'Throne room',    bg:'#5e2f35', plan:[24,2,52,24]},
-    // 951-1070: the towers and the roof (trapdoors come in at 951), five rooms of 24 levels
-    {end:974, area:7, name:'Battlements',    bg:'#4e5866', out:1, plan:[6,62,88,24]},
-    {end:998, area:7, name:'Aviary',         bg:'#4a5a48', plan:[6,30,40,26]},
-    {end:1022,area:7, name:'Watchtower',     bg:'#4a5060', plan:[54,30,40,26]},
-    {end:1046,area:7, name:'Belfry',         bg:'#4a4440', plan:[6,2,40,22]},
-    {end:1070,area:7, name:'Crown vault',    bg:'#5a4a25', plan:[54,2,40,22]},
-    // 1071-1100: the top of the tower, the finale
+    // 951-1075: the towers and the roof (trapdoors come in at 951), five rooms of 25 levels
+    {end:975, area:7, name:'Battlements',    bg:'#4e5866', out:1, plan:[6,62,88,24]},
+    {end:1000,area:7, name:'Aviary',         bg:'#4a5a48', plan:[6,30,40,26]},
+    {end:1025,area:7, name:'Watchtower',     bg:'#4a5060', plan:[54,30,40,26]},
+    {end:1050,area:7, name:'Belfry',         bg:'#4a4440', plan:[6,2,40,22]},
+    {end:1075,area:7, name:'Crown vault',    bg:'#5a4a25', plan:[54,2,40,22]},
+    // 1076-1100: the top of the tower, the finale
     {end:1100,area:8, name:'Tower top',      bg:'#2e3557', out:1, night:1, plan:[25,25,50,50]},
   ];
   // Each room's board: floor tiles, castle-wall stone and the look of walls. Kept close to the
@@ -874,6 +874,7 @@ Promise.all([
     'Dungeon':        ['#d6d2cc','#c8c3bb','#817f87','#6c6a72','#504f55'],
     'Trophy room':    ['#ede0c8','#e0d0b2','#aa9a80','#93836a','#726552', 'stand'],
     'Battlements':    ['#e2e2df','#d3d4d0','#a5abb3','#8f959d','#70757c'],
+    'Aviary':         ['#e4ecd8','#d5e0c6','#a3b096','#8d9a80','#6c7962'],
     'Watchtower':     ['#e0e2e6','#d0d3d9','#9fa4ae','#898e98','#6b6f78'],
     'Royal chambers': ['#f0e0e2','#e5cfd3','#ad979b','#968084','#756367', 'footstool'],
     'Wardrobe':       ['#efe9f3','#e2d8ea','#a59bb0','#8f859a','#6f6679'],
@@ -1012,6 +1013,8 @@ Promise.all([
     'Sitting room': '<path d="M4 9 L17 9 L16 16 Q15 19 12 19 L9 19 Q6 19 5 16 Z" fill="#f1e3c2"/><path d="M11 9 L17 9 L16 16 Q15 19 12 19 L11 19 Z" fill="#e0cb9c"/><path d="M17 11 Q21 11 20 14 Q19 16 16.5 15.5" stroke="#f1e3c2" stroke-width="2" fill="none"/><rect x="2" y="19" width="18" height="2.4" rx="1.2" fill="#d9a43a"/><path d="M8 7 Q7 5 8.5 3.5 M12 7 Q11 5 12.5 3.5" stroke="#f1e3c2" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
     'Tower stairs': '<path d="M2 21 L2 17 L7 17 L7 13 L12 13 L12 9 L17 9 L17 5 L22 5 L22 21 Z" fill="#e0cb9c"/><path d="M2 17 L7 17 M7 13 L12 13 M12 9 L17 9 M17 5 L22 5" stroke="#f1e3c2" stroke-width="2"/>',
     'Throne room': '<path d="M6 14 L6 5 Q6 2 12 1.5 Q18 2 18 5 L18 14 Z" fill="#d9a43a"/><path d="M8.5 13 L8.5 6 Q8.5 4 12 3.8 Q15.5 4 15.5 6 L15.5 13 Z" fill="#a8353a"/><rect x="3" y="12" width="4" height="6" rx="1.5" fill="#d9a43a"/><rect x="17" y="12" width="4" height="6" rx="1.5" fill="#d9a43a"/><rect x="5" y="14" width="14" height="4" rx="1.5" fill="#a8353a"/><path d="M6 18 L5 22 M18 18 L19 22" stroke="#d9a43a" stroke-width="2" stroke-linecap="round"/>',
+    'Battlements': '<path d="M2 21 L2 8 L6 8 L6 11 L10 11 L10 8 L14 8 L14 11 L18 11 L18 8 L22 8 L22 21 Z" fill="#f1e3c2"/><rect x="14" y="8" width="8" height="13" fill="#e0cb9c"/><rect x="11" y="2" width="1.6" height="9" fill="#e0cb9c"/><path d="M12.6 2 L19 4 L12.6 6 Z" fill="#d9a43a"/>',
+    'Aviary': '<path d="M18 7 L23 5.5 L22 9 Z" fill="#e0cb9c"/><ellipse cx="12" cy="13" rx="8" ry="6.5" fill="#f1e3c2"/><circle cx="6.5" cy="8" r="4.5" fill="#f1e3c2"/><path d="M10 11 Q16 9 19 14 Q15 18 10 16 Z" fill="#e0cb9c"/><path d="M2.6 8 L-0.5 9.2 L2.8 10 Z" fill="#d9a43a"/><circle cx="5.4" cy="7.4" r="1.1" fill="#2b1d14"/><path d="M10 19.5 L9.5 22 M13 19.5 L13.5 22" stroke="#d9a43a" stroke-width="1.4"/>',
     'Armory': '<path d="M4 2 L6 2 L20 16 L18 18 Z" fill="#f1e3c2"/><path d="M20 2 L18 2 L4 16 L6 18 Z" fill="#e0cb9c"/><path d="M14 18 L20 12 M10 18 L4 12" stroke="#d9a43a" stroke-width="2.4"/><circle cx="21" cy="21" r="2" fill="#d9a43a"/><circle cx="3" cy="21" r="2" fill="#d9a43a"/>',
     _: '<path d="M12 2 L14.6 8.6 L22 9 L16.2 13.6 L18.2 21 L12 16.8 L5.8 21 L7.8 13.6 L2 9 L9.4 8.6 Z" fill="#f1e3c2"/>',
     cheese: '<path d="M2 19 L2 11 L19 4 L22 9 L22 19 Z" fill="#d9a43a"/><path d="M2 11 L19 4 L22 9 L5 15 Z" fill="#f0d07a"/><path d="M15 19 L22 19 L22 9 L15 12 Z" fill="#b8862a"/><circle cx="8" cy="16" r="1.6" fill="#b8862a"/><circle cx="12" cy="14.5" r="1.2" fill="#b8862a"/>',
@@ -1187,6 +1190,8 @@ Promise.all([
     'Sitting room': { ground:'sagetiles', side:'#3f5a52', shape:'knight', path:'sagerunner', propsEvery:120, decoEvery:420, props:['sofa','tea_table','chess_table','rocking_chair','fish_tank','games_table','curio_cabinet','sofa','fish_tank'], deco:['fern_stand','lamp_table'] },
     'Tower stairs': { ground:'towerstone', side:'#454049', shape:'stairwell', path:'staircarpet', propsEvery:120, props:['hoist','portrait_mouse','banner_stand','landing_bench','portrait_lion','statue_niche','portrait_elephant','lantern_post','ivy_pot'], deco:[] },
     'Throne room': { ground:'goldmarble', side:'#5e2f35', shape:'processional', path:'throne', columns:[['throne_pillar', 14, 230], ['throne_pillar', 332, 230]], propsEvery:150, maxProps:7, props:['lion_plinth','gold_candelabra','court_bench','regalia_case','trumpet_stand','palm_tub','gift_chest'], deco:[] },
+    'Battlements': { ground:'wallwalk', side:'#85827c', parapet:1, shape:'turrets', path:'planks', propsEvery:130, maxProps:8, props:['cannon','catapult','sentry_box','signal_fire','quiver_rack','lookout_scope','cannonballs','flag_pole'], deco:[] },
+    'Aviary':      { ground:'clovergrass', side:'#4a5a48', shape:'flight', path:'gravel', propsEvery:130, maxProps:7, props:['tall_birdcage','parrot_perch','bird_bath','nest_post','feeder_table','bird_tree','hook_cage'], deco:[], fly:['bird_fly_blue','bird_fly_red'], flyClear:[40,48] },
     'Kitchens':    { ground:'terracotta', side:'#857e72', shape:'waves', wave:130, path:'cream', props:['kitchen_table','barrel_k','cat_bed','tub','crate_cabbage','logs','keg','crate_carrot','sack','kitchen_table'], deco:['stool','sack_gold','flour_spill','bucket','barrel_k'], sconces:1 },
   };
   const DEFAULT_ROOM = { ground:'stone', side:'#857e72', shape:'waves', path:'sand', props:[], deco:[] };
@@ -1341,6 +1346,16 @@ Promise.all([
     processional(V, yt, H) { const m = Math.max(2, Math.round((V - 120) / 190)), pts = [[195, H + 30], [195, yt + V]];
       for (let k = 1; k <= m; k++) pts.push([k % 2 ? 300 : 90, yt + V - (V - 120) * (k - 0.5) / m]);
       return { kind:'curve', pts: [...pts, [195, yt + 100], [195, yt + 20], [195, WALL + 22], [195, WALL - 18]] }; },
+    // the wall-walk: up one side of the wall, across, up the other side, swinging round a round turret platform at each corner
+    turrets(V, yt, H) { const rows = Math.max(2, Math.round(V / 200)), gap = V / rows, yb = yt + V, pts = [[300, H + 30], [300, yb]], landings = []; let side = 300;
+      for (let k = 1; k <= rows; k++) { const y = yb - gap * k; pts.push([side, y]); landings.push([side, y]); if (k < rows) { side = side === 300 ? 90 : 300; pts.push([side, y]); landings.push([side, y]); } }
+      return { kind:'poly', r: 34, pts: [...pts, [196, yt], [196, WALL - 18]], landings, round: 1 }; },
+    // a bird's flight: long gliding swoops from side to side up the room (it never crosses itself)
+    flight(V, yt, H) { const U = 520, units = Math.max(1, Math.round(V / U)), u = V / units, pts = [[195, H + 30]]; let y0 = yt + V;
+      const unit = [[195,0],[290,70],[322,150],[270,230],[150,300],[78,370],[85,450],[195,520]];
+      for (let k = 0; k < units; k++) { const f = u / U, flip = k % 2;
+        pts.push(...unit.slice(k ? 1 : 0).map(([x, dy]) => [flip ? 390 - x : x, y0 - dy * f])); y0 -= u; }
+      return { kind:'curve', pts: [...pts, [196, WALL + 30], [195, WALL - 18]] }; },
     // knight's moves, like the knight on the chess table: two across and one up, then two up and one across, twice
     knight(V, yt, H) { const n = Math.max(1, Math.round(V / 560)), u = V / (5 * n), pts = [[64, H + 30], [64, yt + V]]; let y = yt + V;
       for (let k = 0; k < n; k++) { pts.push([326, y]); y -= u; pts.push([326, y], [195, y]); y -= 2 * u; pts.push([195, y], [64, y]); y -= 2 * u; pts.push([64, y]); }
@@ -1409,6 +1424,7 @@ Promise.all([
     satin: d => carpetLook(d, '#3a2650', '#b9a0cf', '#d9a43a', '#7a5f98'),
     // the processional carpet: deep red with a double gold border and a row of gold studs down the middle
     throne: d => ['#1a0c06|46|.2|translate(0 4)', '#4a1020|44', '#d9a43a|38', '#a8353a|32', '#f0d07a|22', '#a8353a|18'].map(t => { const [c, w, o, tr] = t.split('|'); return `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}"${o ? ` stroke-opacity="${o}"` : ''}${tr ? ` transform="${tr}"` : ''} stroke-linejoin="round"/>`; }).join('') + `<path d="${d}" fill="none" stroke="#f0d07a" stroke-width="5" stroke-dasharray="0.1 22" stroke-linecap="round"/>`,
+    gravel: d => `<path d="${d}" fill="none" stroke="#6f7d5a" stroke-opacity=".45" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 3)"/><path d="${d}" fill="none" stroke="#d9d2bf" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#b9b09a" stroke-width="30" stroke-dasharray="1.5 7" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#efe9da" stroke-width="14" stroke-dasharray="1 9" stroke-linecap="round"/>`,
     sagerunner: d => carpetLook(d, '#2f4a40', '#f6ecd4', '#8fae98', '#8fae98', 'butt'),
     // a red stair carpet with a brass rod across each step, over pale stone steps
     staircarpet: d => `<path d="${d}" fill="none" stroke="#1a1620" stroke-opacity=".35" stroke-width="48" transform="translate(0 5)"/><path d="${d}" fill="none" stroke="#5e5866" stroke-width="48"/><path d="${d}" fill="none" stroke="#b9b3be" stroke-width="44"/><path d="${d}" fill="none" stroke="#8a8392" stroke-width="44" stroke-dasharray="3 19"/><path d="${d}" fill="none" stroke="#6a1e2e" stroke-width="32"/><path d="${d}" fill="none" stroke="#b0405a" stroke-width="28"/><path d="${d}" fill="none" stroke="#d9a43a" stroke-width="36" stroke-dasharray="3 19"/>`,
@@ -1432,7 +1448,7 @@ Promise.all([
       dark: ['#2e2a36', '#3e3a48', '#403c4a', '#3c3846'], terracotta: ['#a85e36', '#b2673d', '#ad633a', '#b2673d'],
       library: ['#3e4a46', '#4f5d58', '#52605b', '#4c5a55'], hall: ['#85786e', '#9c8f84', '#a39589', '#978a7f'],
       chapel: ['#ada6b5', '#c9c2d0', '#c4bdcb', '#cdc6d4'], armory: ['#767b83', '#8f949c', '#94999f', '#8a8f97'],
-      towerstone: ['#5e5866', '#746d7c', '#787181', '#6f6878'] }[kind];
+      towerstone: ['#5e5866', '#746d7c', '#787181', '#6f6878'], wallwalk: ['#8e8a84', '#a7a39b', '#aba79f', '#a39f97'] }[kind];
     const PARQUET = { greyparquet: ['#b3ada2', '#aaa499'], honeyparquet: ['#d1ad7c', '#c8a272'], redparquet: ['#a8613f', '#9a5536'] }[kind];
     if (kind === 'boards') { let g = `<rect x="0" y="${top}" width="${RW}" height="${h}" fill="#8f6240"/>`;
       for (let y = top, r = 0; y < top + h; y += 24, r++) { g += `<rect x="0" y="${y + 1}" width="${RW}" height="22" fill="${r % 2 ? '#a3714b' : '#9c6b46'}"/>`;
@@ -1472,6 +1488,8 @@ Promise.all([
       for (let x = -h; x < RW + h; x += 44) g += `<path d="M${x} ${top} l${h} ${h} M${x + h} ${top} l${-h} ${h}" stroke="#d1abb2" stroke-width="2"/>`;
       for (let y = top + 22, r = 0; y < top + h; y += 22, r++) for (let x = (r % 2) * 22; x < RW; x += 44) g += `<circle cx="${x}" cy="${y}" r="2.4" fill="#ddb98a" opacity=".8"/>`;
       return g; }
+    if (kind === 'clovergrass') return `<rect x="0" y="${top}" width="${RW}" height="${h}" fill="#8fb36a"/>` + patches('#9cbf76', .6, n, 40, 74)
+      + Array.from({ length: n * 3 }, () => { const x = rnd() * RW, y = top + 16 + rnd() * (h - 30); return `<g fill="#b6d58e"><circle cx="${(x - 2.6).toFixed(0)}" cy="${y.toFixed(0)}" r="2.6"/><circle cx="${(x + 2.6).toFixed(0)}" cy="${y.toFixed(0)}" r="2.6"/><circle cx="${x.toFixed(0)}" cy="${(y - 3.6).toFixed(0)}" r="2.6"/></g>`; }).join('');
     if (kind === 'goldmarble') { let g = `<rect x="0" y="${top}" width="${RW}" height="${h}" fill="#efe3c4"/>`;
       for (let y = top - 24, r = 0; y < top + h; y += 24, r++) for (let x = (r % 2) * 24 - 24; x < RW + 24; x += 48) g += `<path d="M${x} ${y + 24} l24 -24 l24 24 l-24 24 Z" fill="${r % 4 < 2 ? '#e6d3a6' : '#f4ecdc'}" stroke="#d9a43a" stroke-width="1" stroke-opacity=".6"/>`;
       return g; }
@@ -1580,10 +1598,12 @@ Promise.all([
         } }
       under += geo.dense.filter((_, i) => i % 40 === 20).map(([px, py]) => py > WALL + 20 ? `<rect x="${px - 24}" y="${py + 12}" width="6" height="14" fill="#7d5030"/><rect x="${px + 18}" y="${py + 12}" width="6" height="14" fill="#7d5030"/>` : '').join('');
     }
-    for (const [lx, ly] of shape.landings || []) under += `<rect x="${lx - 34}" y="${ly - 30}" width="68" height="68" rx="4" fill="#3a3540" opacity=".5"/><rect x="${lx - 34}" y="${ly - 34}" width="68" height="68" rx="4" fill="#5e5866"/><rect x="${lx - 30}" y="${ly - 30}" width="60" height="60" rx="3" fill="#a39cab"/>`;
+    if (shape.round) for (const [lx, ly] of shape.landings || []) under += `<circle cx="${lx}" cy="${ly + 4}" r="46" fill="#2a2630" opacity=".22"/><circle cx="${lx}" cy="${ly}" r="46" fill="#85827c"/><circle cx="${lx}" cy="${ly}" r="40" fill="#b9b6b0"/>` + Array.from({ length: 8 }, (_, k) => { const a = k * Math.PI / 4; return `<rect x="${(lx + 43 * Math.cos(a) - 5).toFixed(1)}" y="${(ly + 43 * Math.sin(a) - 5).toFixed(1)}" width="10" height="10" rx="2" fill="#a09d97"/>`; }).join('');
+    else for (const [lx, ly] of shape.landings || []) under += `<rect x="${lx - 34}" y="${ly - 30}" width="68" height="68" rx="4" fill="#3a3540" opacity=".5"/><rect x="${lx - 34}" y="${ly - 34}" width="68" height="68" rx="4" fill="#5e5866"/><rect x="${lx - 30}" y="${ly - 30}" width="60" height="60" rx="3" fill="#a39cab"/>`;
     if (sc.moss) under += Array.from({ length: Math.round((H - WALL) / 110) }, () => `<path d="M${(14 + rnd() * 350).toFixed(0)} ${(WALL + 30 + rnd() * (H - WALL - 60)).toFixed(0)} q6 -6 12 0 q6 -4 10 2" fill="#2f5530" opacity=".8"/>`).join('');
     let sides = '';
     if (sc.side) { sides = `<rect x="0" y="${WALL}" width="10" height="${H - WALL}" fill="${sc.side}"/><rect x="${RW - 10}" y="${WALL}" width="10" height="${H - WALL}" fill="${sc.side}"/>`;
+      if (sc.parapet) for (let y = WALL + 8; y < H - 10; y += 30) sides += `<rect x="8" y="${y}" width="10" height="16" rx="1" fill="${sc.side}"/><rect x="${RW - 18}" y="${y}" width="10" height="16" rx="1" fill="${sc.side}"/>`;
       if (sc.sconces) for (let y = WALL + 120, k = 0; y < H - 80; y += 210, k++) sides += `<g transform="translate(${k % 2 ? RW - 12 : 0} ${y})">${ROOM_ART.props.sconce[1]}</g>`; }
     let fixed = [];
     for (const [name, x, step] of sc.columns || []) { const art = ROOM_ART.props[name]; if (!art) continue; const [bx, by, bw, bh] = art[0];
@@ -1592,7 +1612,8 @@ Promise.all([
       taken.push([x + bx, y + by, x + bx + bw, y + by + bh]); fixed.push({ y: y + by + bh, svg: `<g transform="translate(${x} ${y})">${art[1]}</g>` }); }
     const props = placeProps(sc.props, Math.min(sc.maxProps ?? 99, Math.round((H - WALL) / (sc.propsEvery || 150))), geo, nodes, taken, H, rnd);
     const deco = placeProps(sc.deco, Math.round((H - WALL) / (sc.decoEvery || 70)), geo, nodes, taken, H, rnd, { clearRoad: 16, clearNode: 22 });
-    const fly = sc.fly ? placeProps(sc.fly, 2, geo, nodes, taken, H, rnd, { clearRoad: 6, clearNode: 20 }) : [];
+    const [flyRoad, flyNode] = sc.flyClear || [6, 20];   // the Aviary's birds keep to open grass, clear of the path and the levels
+    const fly = sc.fly ? placeProps(sc.fly, 2, geo, nodes, taken, H, rnd, { clearRoad: flyRoad, clearNode: flyNode }) : [];
     const items = [...fixed, ...props, ...deco].sort((a, b) => a.y - b.y).map(p => p.svg).join('') + fly.map(p => p.svg).join('');
     const pos = ([x, y]) => `left:${(x / RW * 100).toFixed(3)}%;top:${(y / H * 100).toFixed(3)}%`;
     let nodeHtml = '';

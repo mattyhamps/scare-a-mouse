@@ -193,9 +193,9 @@ public final class Recipe {
      * crown on the map. 25, 70, 170 and 260 were bosses when every room had one; they keep their
      * tougher recipes.
      */
-    public static final int[] BOSSES = {100, 200, 350, 500, 650, 800, 950, 1070, 1100};
+    public static final int[] BOSSES = {100, 200, 350, 500, 650, 800, 950, 1075, 1100};
     // New board pieces: turn tiles on the Third floor (501), mousetraps on the Royal floor (801),
-    // trapdoors on the towers and roof (951), and all of them together at the Tower top (1071-1100).
+    // trapdoors on the towers and roof (951), and all of them together at the Tower top (1076-1100).
 
     /**
      * Board size for level n: the boards grow as you go. Levels 1-100 are 7x7, 101-200 are 8x8,
@@ -238,6 +238,9 @@ public final class Recipe {
         }
         if (n > 800 && n <= 950) {
             return royalFloor(n);
+        }
+        if (n > 950 && n <= 1000) {
+            return towersFloor(n);
         }
         switch (n) {
             // Boss levels: the last level of each castle area is the hardest there (see BOSSES).
@@ -967,6 +970,72 @@ public final class Recipe {
             case 949: return new Recipe(Animal.LION, 0, false, "", free).withCatches(1);
             // the boss: three to place, walls, and a trap to spring first
             case 950: return new Recipe(Animal.LION, 1, false, "", plain).withWalls(2, 4).withSpringTraps(1);
+            default: return null;
+        }
+    }
+
+    /**
+     * 951-1000: the Towers and roof's first two rooms, the Battlements (951-975) and the Aviary (976-1000), 10x10.
+     * The floor's rooms have 25 levels each so every room ends on a 5 or a 0 (Matt).
+     * Trapdoors come in at 951 (made by hand, TrapdoorLab.intro: no recipe here), then five easy levels to learn
+     * them (952-956), then trapdoors only now and then, about 1 level in 7 (Matt). Mousetraps carry on at about
+     * 1 level in 7 and a turn tile turns up now and then. No walls on this floor (Matt).
+     */
+    private static Recipe towersFloor(int n) {
+        Trick plain = Trick.PLAIN, free = Trick.FREEZE_RELEASE, wait = Trick.WAITING_RUNNER;
+        switch (n) {
+            // learning trapdoors: a chain through a trapdoor, slowly longer, then a second animal to place
+            case 952: return new Recipe(Animal.DOG, 0, false, "", plain).withTrapdoors(1);
+            case 953: return new Recipe(Animal.BEAR, 0, false, "", plain).withTrapdoors(1);
+            case 954: return new Recipe(Animal.LION, 0, false, "", plain).withTrapdoors(1);
+            case 955: return new Recipe(Animal.BEAR, 0, false, "", plain).withCatches(1).withTrapdoors(1);
+            case 956: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withTrapdoors(1);
+            // the rest of the Battlements: a mix, trapdoors now and then
+            case 957: return new Recipe(Animal.LION, 0, false, "", free).withCatches(1);
+            case 958: return new Recipe(Animal.ELEPHANT, 2, false, "", wait);
+            case 959: return new Recipe(Animal.CAT, 1, true, "", plain);
+            case 960: return new Recipe(Animal.ELEPHANT, 0, false, "", free).withMoves(Move.SWERVE, Move.STOP);
+            case 961: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(1);
+            case 962: return new Recipe(Animal.LION, 0, false, "", free).withTrapdoors(1);
+            case 963: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.SWERVE);
+            case 964: return new Recipe(Animal.DOG, 1, false, "", plain);
+            case 965: return new Recipe(Animal.LION, 2, false, "", plain).withMoves(Move.CATCH);
+            case 966: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withCatches(1);
+            case 967: return new Recipe(Animal.CAT, 1, true, "", plain).withTraps(1, 2);
+            case 968: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.STOP, Move.CATCH);
+            case 969: return new Recipe(Animal.ELEPHANT, 0, false, "", wait).withTrapdoors(1);
+            case 970: return new Recipe(Animal.LION, 2, false, "", free).withBlockers(Animal.CAT, Animal.DOG);
+            case 971: return new Recipe(Animal.LION, 0, false, "", plain).withTurnTiles(1).withSpringTraps(1);
+            case 972: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(1);
+            case 973: return new Recipe(Animal.DOG, 0, false, "", plain);
+            case 974: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withMoves(Move.STOP);
+            case 975: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.CATCH).withTrapdoors(1);
+            // the Aviary: the same mix
+            case 976: return new Recipe(Animal.LION, 1, false, "", free).withMoves(Move.CATCH);
+            case 977: return new Recipe(Animal.ELEPHANT, 2, false, "", wait);
+            case 978: return new Recipe(Animal.CAT, 0, true, "", free).withCatches(1);
+            case 979: return new Recipe(Animal.DOG, 1, false, "", plain);
+            case 980: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withMoves(Move.STOP).withTraps(1, 2);
+            case 981: return new Recipe(Animal.LION, 2, false, "", plain).withMoves(Move.CATCH);
+            case 982: return new Recipe(Animal.LION, 1, false, "", plain).withTrapdoors(1);
+            case 983: return new Recipe(Animal.ELEPHANT, 0, false, "", free).withMoves(Move.SWERVE, Move.STOP);
+            case 984: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.SWERVE);
+            case 985: return new Recipe(Animal.CAT, 1, true, "", free);
+            case 986: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(2);
+            case 987: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.STOP, Move.CATCH);
+            case 988: return new Recipe(Animal.LION, 0, false, "", free).withCatches(1);
+            case 989: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(1).withTrapdoors(1);
+            case 990: return new Recipe(Animal.ELEPHANT, 2, false, "", wait);
+            case 991: return new Recipe(Animal.DOG, 0, false, "", plain);
+            case 992: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withCatches(1);
+            case 993: return new Recipe(Animal.LION, 2, false, "", free).withBlockers(Animal.DOG, Animal.BEAR);
+            case 994: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.CATCH).withTurnTiles(1).withTraps(1, 2);
+            case 995: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(1);
+            case 996: return new Recipe(Animal.ELEPHANT, 0, false, "", free).withTrapdoors(1);
+            case 997: return new Recipe(Animal.LION, 1, false, "", plain).withMoves(Move.SWERVE);
+            case 998: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.STOP);
+            case 999: return new Recipe(Animal.LION, 1, false, "", free).withMoves(Move.STOP);
+            case 1000: return new Recipe(Animal.LION, 1, false, "", plain).withSpringTraps(1);
             default: return null;
         }
     }

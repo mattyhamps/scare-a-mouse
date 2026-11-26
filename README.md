@@ -174,8 +174,8 @@ of easier and harder levels, flames on the toughest and a boss at the end):
 | Third floor | 501–650 | Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room | Turn tiles (501), then about 1 level in 6 or 7 |
 | Fourth floor | 651–800 | Treasury, Music room, Sewing room, Guest bedrooms, Clock tower | None; turn tiles in about 1 level in 6 or 7 |
 | Royal floor | 801–950 | Royal chambers, Wardrobe, Sitting room, Tower stairs, Throne room | Mousetraps (801): the mouse is caught if it runs onto one; any other animal springs it safely |
-| Towers and roof | 951–1070 | Battlements, Aviary, Watchtower, Belfry, Crown vault (24 levels each) | Trapdoors (951): run into one, come out of its partner |
-| Tower top | 1071–1100 | Tower top | Everything together, the finale |
+| Towers and roof | 951–1075 | Battlements, Aviary, Watchtower, Belfry, Crown vault (25 levels each, so every room ends on a 5 or a 0) | Trapdoors (951): run into one, come out of its partner |
+| Tower top | 1076–1100 | Tower top | Everything together, the finale |
 
 Past 1100 the castle grows an east wing: a mix of everything, moving the story along. Each new piece
 comes in at the start of a room, with a card and a few easy levels, then shows up more rarely.

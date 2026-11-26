@@ -31,9 +31,12 @@ class LevelsTest {
         return Level.listFromJson(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
     }
 
+    /** Levels are added in batches of ten, or a whole room at a time (the Towers and roof's rooms have 25 levels). */
     @Test
     void levelsComeInBatchesOfTen() {
-        assertEquals(0, levels.size() % 10, "level count " + levels.size());
+        int n = levels.size();
+        boolean endsTowerRoom = n > 950 && n <= 1075 && (n - 950) % 25 == 0;
+        assertTrue(n % 10 == 0 || endsTowerRoom, "level count " + n);
     }
 
     @ParameterizedTest(name = "tutorial level {0}")
