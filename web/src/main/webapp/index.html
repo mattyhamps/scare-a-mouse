@@ -477,7 +477,7 @@
   .animal span{filter:drop-shadow(0 3px 0 rgba(43,29,20,.22))}
   .ghost svg.art{filter:drop-shadow(0 8px 10px rgba(0,0,0,.35))}
   .piece.used svg.art{opacity:.6}
-  #winBig{display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:72px}
+  #winBig,#demoArt{display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:72px}
   .hint-ring b{background:var(--paper);border-radius:50%;padding:2px}
   .hint-ring.confirmed{border-color:#3f6b3a;animation:none}
   .animal.placed.sel::before{background:rgba(217,164,58,.45);border:3px solid var(--gold)}
@@ -601,6 +601,10 @@
   <!-- Developer mode only (see DEV_HASH) -->
   <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
 </div></div>
+<div class="overlay" id="demoEnd"><div class="card">
+  <div class="big" id="demoArt"></div><h3>You cleared the Meadow!</h3><p>Thanks for testing Scare-a-Mouse. More rooms are on the way.</p>
+  <button class="btn go" id="demoAgain">Play again</button>
+</div></div>
 <div class="overlay" id="win"><div class="card">
   <div class="big" id="winBig"></div><h3 id="winTitle">Mouse escaped!</h3><p id="winText"></p>
   <button class="btn go" id="nextBtn">Next level</button>
@@ -625,6 +629,10 @@ Promise.all([
   new URLSearchParams(location.search).has('lab') ? fetch('turn-lab.json').then(r => r.ok ? r.json() : []).catch(() => []) : []
 ]).then(([LEVELS, LEGACY, HARD_LIST, LAB]) => { (function(){
   for (const t of LAB) { const n = +String(t.name).split(' ')[1]; if (n > 0 && n <= LEVELS.length) LEVELS[n - 1] = t; }
+  // The tester link: ?demo plays only the first room (the Meadow, levels 1-20), with its own saved progress,
+  // no developer mode, and a thank-you screen once the Meadow is cleared. The rest of the castle shows as coming soon.
+  const DEMO = new URLSearchParams(location.search).has('demo'), DEMO_LEVELS = 20;
+  if (DEMO) LEVELS.length = Math.min(LEVELS.length, DEMO_LEVELS);
   const ORDER = ['mouse','cat','dog','bear','lion','elephant'];
   // All game physics happen in the Java engine; the page only draws and animates the frames it returns.
   const simulate = (level, placed) => JSON.parse(scareSimulate(JSON.stringify(level), JSON.stringify(placed)));
@@ -645,7 +653,7 @@ Promise.all([
   // Pull request previews live at /pr-preview/pr-N/ on the same site: keep their progress separate
   // so testing never marks levels solved in the real game.
   const PREVIEW = /\/pr-preview\/pr-(\d+)\//.exec(location.pathname);
-  const KEY = PREVIEW ? `preview${PREVIEW[1]}_` : '';
+  const KEY = (DEMO ? 'demo_' : '') + (PREVIEW ? `preview${PREVIEW[1]}_` : '');
   const store = { get(k,d){ try{ const v=localStorage.getItem(KEY+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
                   set(k,v){ try{ localStorage.setItem(KEY+k,JSON.stringify(v)); }catch(e){} } };
 
@@ -712,7 +720,7 @@ Promise.all([
   const DEV_HASH = '3ccd5f1d0d17131c97a09a91fdf8531b445c627418158b77d65afb954bfb25af';
   const devFlag = { get(){ try{ return localStorage.getItem('sam_dev')==='1'; }catch(e){ return false; } },
                     set(on){ try{ on ? localStorage.setItem('sam_dev','1') : localStorage.removeItem('sam_dev'); }catch(e){} } };
-  let DEV = devFlag.get();
+  let DEV = !DEMO && devFlag.get();   // the tester link never opens every level
   const unlockedUpTo = () => {
     if(DEV) return LEVELS.length-1;
     let hi=-1; LEVELS.forEach((_,i)=>{ if(isDone(i)) hi=i; });
@@ -903,7 +911,7 @@ Promise.all([
 
   const solvedIn = r => { const rm=room(r); let n=0; for (let i=rm.start; i<Math.min(rm.end, LEVELS.length); i++) if (isDone(i)) n++; return n; };
   const areaSolved = a => roomsOf(a).reduce((n,r)=>n+solvedIn(r),0);
-  const areaSize = a => roomsOf(a).reduce((n,r)=>n+room(r).end-room(r).start,0);
+  const areaSize = a => roomsOf(a).reduce((n,r)=>n+Math.max(0, Math.min(room(r).end, LEVELS.length)-room(r).start),0);   // levels that exist (the tester link has only the Meadow)
 
   // Small flat icons (24×24) for rooms and buttons, drawn in paper colours to sit on a coloured block.
   // icon(key, px) gives an <svg>; room icons are keyed by the room's name.
@@ -1832,7 +1840,7 @@ Promise.all([
       if (cleared) {
         const next = room(rIdx+1);
         $('winTitle').textContent = isBoss(li) ? `Boss beaten! ${room(rIdx).name} cleared!` : `${room(rIdx).name} cleared!`;
-        $('winText').textContent = `The door to the ${next.name} is open.` + cheeseLine + (last ? ' More puzzles are on the way.' : '');
+        $('winText').textContent = (DEMO && last ? 'The door is open.' : `The door to the ${next.name} is open.`) + cheeseLine + (last && !DEMO ? ' More puzzles are on the way.' : '');
         confetti(); Sound.cheer();
       } else {
         Sound.win();
@@ -2078,6 +2086,7 @@ Promise.all([
     if (dw) { centerOn('.doorway'); at(500, () => openDoor(dw)); }
     if (!roomExists(next)) {   // no next room yet: just the floor's map, as before
       at(1900, () => { view = { kind:'area', a: from.area }; renderDots(); store.set('cm_map_at', LEVELS.length - 1); });
+      if (DEMO) at(3000, () => { endTrip(); $('picker').classList.remove('show'); $('demoEnd').classList.add('show'); Sound.cheer(); });
       return;
     }
     const to = room(next), newFloor = to.area !== from.area;
@@ -2136,6 +2145,11 @@ Promise.all([
   document.addEventListener('pointerdown', () => Sound.unlock(), { once: true });
   $('lvlBtn').onclick=()=>{ if(mode!=='running' && mode!=='replay') openPicker(); };
   $('replayBtn').onclick=replay;
+  // The tester link's thank-you screen: Play again wipes the tester progress and starts over at level 1.
+  if (DEMO) {
+    $('demoArt').innerHTML = icon('door', 72) + art('mouse', 64) + icon('sparkle', 30);
+    $('demoAgain').onclick = () => { try { Object.keys(localStorage).filter(k => k.startsWith(KEY)).forEach(k => localStorage.removeItem(k)); } catch(e) {} location.reload(); };
+  }
   $('replayDone').onclick=endReplay;
   $('playBtn').onclick=rpPlay;
   $('speed1').onclick=()=>{ rp.slow=false; rpShow(); };
@@ -2161,6 +2175,7 @@ Promise.all([
     const m=/^#dev=(.+)$/.exec(location.hash);
     if(!m) return;
     history.replaceState(null,'',location.pathname+location.search); // don't leave the passphrase in the address bar
+    if(DEMO) return;   // no developer mode on the tester link
     const code=decodeURIComponent(m[1]);
     if(code==='off'){ devFlag.set(false); DEV=false; load(Math.min(li,unlockedUpTo())); toast('Developer mode off.'); return; }
     try{
