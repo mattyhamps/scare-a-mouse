@@ -53,7 +53,7 @@ public final class TrapLab {
             new Recipe(Animal.LION, 0, false, "", plain).withMoves(catchIt).withTraps(1, 2),
             new Recipe(Animal.BEAR, 1, false, "", plain).withTraps(1, 2),
             new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(stop).withTraps(1, 2),
-            new Recipe(Animal.BEAR, 0, false, "New: springing traps!", plain).withSpringTraps(1),
+            new Recipe(Animal.BEAR, 0, false, "", plain).withSpringTraps(1),
             new Recipe(Animal.ELEPHANT, 0, false, "", plain).withSpringTraps(1),
             new Recipe(Animal.LION, 0, false, "", Recipe.Trick.FREEZE_RELEASE).withSpringTraps(1),
             new Recipe(Animal.BEAR, 0, false, "", plain).withMoves(catchIt).withSpringTraps(1).withTraps(0, 1),
