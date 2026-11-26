@@ -29,6 +29,9 @@ _Last updated: 25 November 2026._
   runs it first, then builds in order and stops after two failed tries on a level.
 - Claude Code is set up on Matt's Windows PC (JDK 21, Maven, Node 22, Playwright, Python 3.13 for the
   art scripts, and the GitHub CLI signed in as mattyhamps).
+- Tester link: https://mattyhamps.github.io/scare-a-mouse/?demo plays only the Meadow (levels 1–20) with
+  its own saved progress, no developer mode and no feedback button. The rest of the castle says "Coming
+  soon", and clearing level 20 opens the door and then shows a thank-you screen with "Play again".
 
 ## Next
 
