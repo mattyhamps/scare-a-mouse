@@ -34,19 +34,23 @@ _Last updated: 25 November 2026._
   soon", and clearing level 20 opens the door and then shows a thank-you screen with "Play again".
 - Mousetraps, the piece (no real levels yet): engine rule 8, the drawing (classic snap trap with a big
   wedge of cheese; sprung = faded, no cheese), the snap with stars and a "Snap!" sound, a caught mouse with
-  the bar on its tail and "The mouse got caught!", and two cards (801: mousetraps; 806: springing traps).
+  the bar on its tail and "The mouse got caught!", and two cards (801: mousetraps catch the mouse but
+  other animals run over them safely; 808: a trap another animal sprung is safe for the mouse).
   The level maker can make trap levels: `Recipe.withTraps(min, max)` (steer around) and
   `withSpringTraps(n)` (a trap on the mouse's way plus one more animal to send over it first). Steer-around
   traps need a recipe with a few other solutions to close off: moving levels with one CATCH or STOP, or a
-  lane blocker, work; plain one-animal levels don't (they only ever have one solution). Ten test levels:
-  `?lab=trap-lab` (801–810, made by `TrapLab`).
+  lane blocker, work; plain one-animal levels don't (they only ever have one solution). Twelve test levels:
+  `?lab=trap-lab` (801–812, made by `TrapLab`). 801–802 have only the mouse and cats: the hole is straight
+  ahead of the mouse with a trap in between, so cats have to turn it the long way round (sending it
+  straight gets it caught, so you can try that and see). Matt wants one or two of these, not more.
 
 ## Next
 
 1. **Towers and roof (801–920):** Battlements, Aviary, Watchtower, Belfry. New piece: **mousetraps**
    (the piece is done; see above). Next: Matt tries the test levels, then the Battlements and Aviary
    drawings (show Matt first), then their levels with fresh recipes: 801–805 steer around traps and get
-   harder, the second card at 806 with easy spring levels, both mixed from about 811, then traps in about
+   harder (start with one or two mouse-and-cats levels like the test ones), the second card with easy spring
+   levels, both mixed after that, then traps in about
    1 level in 5. Work two rooms at a time.
 2. **Royal floor (921–1070):** Royal chambers, Wardrobe, Crown vault, Tower stairs, Throne room. New
    piece: **trapdoors**, two linked squares: an animal that runs into one comes out of the other, still

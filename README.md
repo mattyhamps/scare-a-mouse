@@ -149,7 +149,7 @@ one CATCH or STOP, or a lane blocker). `withSpringTraps(n)`: a trap goes on the 
 you get one more animal, which has to go where the chain scares it across the trap first. On the board a
 trap is a snap trap with a big wedge of cheese; when it springs it snaps with stars, and a sprung one is
 faded with no cheese. A caught mouse gets the bar on its tail and "The mouse got caught!". `TrapLab`
-builds ten test levels (801–810) into `web/src/main/webapp/trap-lab.json`; add `?lab=trap-lab` to the
+builds twelve test levels (801–812: two with only the mouse and cats, then steer-around, then spring) into `web/src/main/webapp/trap-lab.json`; add `?lab=trap-lab` to the
 address to play them.
 
 **The plan for the rest of the castle** (all 10×10, each floor about as hard as the one before, with a mix
