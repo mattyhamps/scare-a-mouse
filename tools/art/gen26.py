@@ -195,9 +195,9 @@ def log_desk(x,y):
       <path d="M10 33 L26 30 M10 36 L24 34 M34 30 L50 28 M34 33 L48 31" stroke="{Q["brown"]}" stroke-width="1"/>
       <g transform="translate(36 -6)"><rect x="0" y="0" width="16" height="3" fill="{WOOD[2]}"/><rect x="0" y="22" width="16" height="3" fill="{WOOD[2]}"/><path d="M2 3 L14 3 L8 12.5 L14 22 L2 22 L8 12.5 Z" fill="#cfe7ee"/><path d="M5 18 L11 18 L13 22 L3 22 Z M6 8 L10 8 L8 11 Z" fill="{Q["tan"]}"/></g></g>'''
 def weathervane(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(36,132,16,4)}<rect x="34" y="20" width="4" height="112" fill="{IRON[1]}"/><path d="M26 132 L46 132" stroke="{IRON[2]}" stroke-width="6" stroke-linecap="round"/>
-      <path d="M8 64 L64 64 M36 52 L36 76" stroke="{IRON[2]}" stroke-width="2.4"/><path d="M2 60 L5 68 L7 63 L9 68 L12 60" stroke="{IRON[2]}" stroke-width="1.8" fill="none"/><path d="M70 60 L64 60 L64 68 L70 68 M64 64 L69 64" stroke="{IRON[2]}" stroke-width="1.8" fill="none"/>
-      <path d="M14 18 L58 18" stroke="{IRON[2]}" stroke-width="2.4"/><path d="M58 18 L66 12 L66 24 Z" fill="{IRON[2]}"/><path d="M14 18 L8 12 L4 12 L8 18 L4 24 L8 24 Z" fill="{IRON[2]}"/>
+    return f'''<g transform="translate({x} {y})">{shadow(36,132,16,4)}<rect x="34" y="20" width="4" height="112" fill="{GOLD[1]}"/><path d="M26 132 L46 132" stroke="{Q["cream"]}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M8 64 L64 64 M36 52 L36 76" stroke="{Q["cream"]}" stroke-width="2.4"/><path d="M2 60 L5 68 L7 63 L9 68 L12 60" stroke="{Q["cream"]}" stroke-width="1.8" fill="none"/><path d="M70 60 L64 60 L64 68 L70 68 M64 64 L69 64" stroke="{Q["cream"]}" stroke-width="1.8" fill="none"/>
+      <path d="M14 18 L58 18" stroke="{Q["cream"]}" stroke-width="2.4"/><path d="M58 18 L66 12 L66 24 Z" fill="{Q["cream"]}"/><path d="M14 18 L8 12 L4 12 L8 18 L4 24 L8 24 Z" fill="{Q["cream"]}"/>
       <path d="M22 16 Q20 0 34 2 Q38 -6 42 0 Q44 6 40 8 Q52 6 54 16 Z" fill="{GOLD[1]}"/><path d="M38 2 Q46 4 48 8 L52 6 Q54 12 54 16 L40 16 Z" fill="{GOLD[2]}"/><path d="M34 -2 l2 -6 l3 5 l2 -5 l1 6 Z" fill="{CRIM[0]}"/><circle cx="37" cy="3" r="1.2" fill="{DARK}"/><circle cx="36" cy="18" r="3" fill="{GOLD[1]}"/></g>'''
 def watch_bench(x,y):
     return f'''<g transform="translate({x} {y})">{shadow(46,60,44,5)}<path d="M10 34 L8 60 M82 34 L84 60 M20 34 L20 56 M72 34 L72 56" stroke="{WOOD[2]}" stroke-width="5"/>{two(0,26,92,10,WOOD[1],WOOD[2],2)}
@@ -233,24 +233,24 @@ def belfry_head():
     w+=f'<rect x="146" y="100" width="98" height="114" fill="{OAK[1]}"/>'+gate_arch(164,62,(WOOD[1],WOOD[2]))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
     return w
 def old_bell(x,y):
-    return f'<g transform="translate({x} {y})">{shadow(40,78,40,6)}{bell(40,6,76,66,True)}<path d="M6 78 L74 78" stroke="{OAK[1]}" stroke-width="5" stroke-linecap="round"/></g>'
+    return f'<g transform="translate({x} {y})">{shadow(40,78,40,6)}{bell(40,6,76,66,True)}<path d="M6 78 L74 78" stroke="{WOOD[1]}" stroke-width="5" stroke-linecap="round"/></g>'
 def bell_frame(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(36,102,34,5)}<path d="M8 102 L22 10 M64 102 L50 10" stroke="{OAK[0]}" stroke-width="7" stroke-linecap="round"/><path d="M50 10 L64 102" stroke="{OAK[1]}" stroke-width="7" stroke-linecap="round"/>
-      <rect x="14" y="4" width="44" height="9" rx="2" fill="{OAK[0]}"/><path d="M36 13 L36 22" stroke="{IRON[2]}" stroke-width="3"/>{bell(36,22,34,34)}<path d="M14 90 L58 90" stroke="{OAK[1]}" stroke-width="5"/>
+    return f'''<g transform="translate({x} {y})">{shadow(36,102,34,5)}<path d="M8 102 L22 10 M64 102 L50 10" stroke="{WOOD[0]}" stroke-width="7" stroke-linecap="round"/><path d="M50 10 L64 102" stroke="{WOOD[1]}" stroke-width="7" stroke-linecap="round"/>
+      <rect x="14" y="4" width="44" height="9" rx="2" fill="{WOOD[0]}"/><path d="M36 13 L36 22" stroke="{IRON[2]}" stroke-width="3"/>{bell(36,22,34,34)}<path d="M14 90 L58 90" stroke="{WOOD[1]}" stroke-width="5"/>
       <path d="M50 46 Q58 70 54 92" stroke="{Q["tan"]}" stroke-width="2.4" fill="none"/></g>'''
 def loft_ladder(x,y):
     rungs=''.join(f'<rect x="4" y="{yy}" width="24" height="5" rx="1" fill="{OAK[0]}"/>' for yy in range(10,122,16))
     return f'<g transform="translate({x} {y})">{shadow(20,130,22,5)}<g transform="rotate(8 16 130)"><rect x="0" y="0" width="6" height="130" rx="2" fill="{WOOD[0]}"/><rect x="26" y="0" width="6" height="130" rx="2" fill="{WOOD[1]}"/>{rungs}</g></g>'
 def rope_coil(x,y):
-    rings=''.join(f'<ellipse cx="36" cy="{30-k*5}" rx="{32-k*3}" ry="{11-k*0.8:.1f}" fill="none" stroke="{Q["tan"] if k%2 else Q["tan2"]}" stroke-width="6"/>' for k in range(4))
-    return f'<g transform="translate({x} {y})">{shadow(36,40,34,5)}{rings}<path d="M64 32 Q76 36 80 30" stroke="{Q["tan2"]}" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="36" cy="14" rx="14" ry="4" fill="{OAK[2]}" opacity=".7"/></g>'
+    rings=''.join(f'<ellipse cx="36" cy="{30-k*5}" rx="{32-k*3}" ry="{11-k*0.8:.1f}" fill="none" stroke="{"#f3dcaa" if k%2 else "#d8b47a"}" stroke-width="6"/>' for k in range(4))
+    return f'<g transform="translate({x} {y})">{shadow(36,40,34,5)}{rings}<path d="M64 32 Q76 36 80 30" stroke="{Q["tan2"]}" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="36" cy="14" rx="14" ry="4" fill="#2a1d14" opacity=".8"/></g>'
 def bat_post(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(36,122,18,4)}<rect x="32" y="8" width="9" height="114" fill="{OAK[0]}"/><rect x="37" y="8" width="4" height="114" fill="{OAK[1]}"/><rect x="2" y="6" width="70" height="9" rx="2" fill="{OAK[0]}"/>
-      <path d="M22 122 L50 122" stroke="{OAK[1]}" stroke-width="6" stroke-linecap="round"/>{bat(14,15)}{bat(60,15,0.85)}</g>'''
+    return f'''<g transform="translate({x} {y})">{shadow(36,122,18,4)}<rect x="32" y="8" width="9" height="114" fill="{WOOD[0]}"/><rect x="37" y="8" width="4" height="114" fill="{WOOD[1]}"/><rect x="2" y="6" width="70" height="9" rx="2" fill="{WOOD[0]}"/>
+      <path d="M22 122 L50 122" stroke="{WOOD[1]}" stroke-width="6" stroke-linecap="round"/>{bat(14,15)}{bat(60,15,0.85)}</g>'''
 def handbell(hx,hy,s,c):
     return f'<g transform="translate({hx} {hy}) scale({s})"><rect x="-3" y="-20" width="6" height="12" rx="2" fill="{c}"/><path d="M-6 -8 Q-7 4 -11 10 L11 10 Q7 4 6 -8 Q0 -12 -6 -8 Z" fill="{BRONZE[0]}"/><path d="M1 -10 Q7 -8 6 -8 Q7 4 11 10 L2 10 Z" fill="{BRONZE[1]}"/><rect x="-12" y="9" width="24" height="3" rx="1" fill="{BRONZE[2]}"/></g>'
 def handbell_table(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(46,72,44,5)}<path d="M10 40 L10 72 M82 40 L82 72" stroke="{OAK[1]}" stroke-width="6"/>{two(0,32,92,10,CRIM[0],CRIM[1],2)}<path d="M2 42 L90 42" stroke="{GOLD[1]}" stroke-width="2"/>
+    return f'''<g transform="translate({x} {y})">{shadow(46,72,44,5)}<path d="M10 40 L10 72 M82 40 L82 72" stroke="{WOOD[1]}" stroke-width="6"/>{two(0,32,92,10,CRIM[0],CRIM[1],2)}<path d="M2 42 L90 42" stroke="{GOLD[1]}" stroke-width="2"/>
       {handbell(16,22,1.15,CRIM[0])}{handbell(38,23,1,BLUE[0])}{handbell(58,24,0.85,Q["green"])}{handbell(76,25,0.7,Q["mustard"])}</g>'''
 def clapper_crate(x,y):
     return f'''<g transform="translate({x} {y})">{shadow(34,62,34,5)}{two(2,24,64,38,WOOD[1],WOOD[2],2)}<path d="M2 36 L66 36 M2 50 L66 50 M6 24 L62 62" stroke="{WOOD[2]}" stroke-width="2.4"/>
@@ -297,16 +297,16 @@ def orb_sceptre(x,y):
       <circle cx="24" cy="32" r="14" fill="{GOLD[1]}"/><path d="M24 18 A14 14 0 0 1 24 46 Z" fill="{GOLD[2]}"/><path d="M10 32 L38 32 M24 18 L24 46" stroke="{Q["cream"]}" stroke-width="2"/><path d="M24 18 L24 8 M19 12 L29 12" stroke="{GOLD[1]}" stroke-width="3"/><circle cx="24" cy="32" r="3" fill="{CRIM[0]}"/>
       <g transform="rotate(28 52 30)"><rect x="49" y="4" width="6" height="44" rx="2" fill="{GOLD[1]}"/><circle cx="52" cy="2" r="6" fill="{BLUE[0]}"/><path d="M46 8 L58 8" stroke="{GOLD[2]}" stroke-width="3"/></g></g>'''
 def sword_case(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(52,72,50,5)}<path d="M10 40 L8 72 M94 40 L96 72" stroke="{GOLD[2]}" stroke-width="5"/>{two(0,34,104,9,WOOD[1],WOOD[2],2)}
-      <rect x="2" y="6" width="100" height="30" rx="3" fill="#cfe7ee" opacity=".55"/><rect x="2" y="6" width="100" height="30" rx="3" fill="none" stroke="{GOLD[1]}" stroke-width="2.4"/><rect x="4" y="26" width="96" height="9" fill="{CRIM[1]}"/>
+    return f'''<g transform="translate({x} {y})">{shadow(52,72,50,5)}<path d="M10 40 L8 72 M94 40 L96 72" stroke="{GOLD[2]}" stroke-width="5"/>{two(0,34,104,9,GOLD[1],GOLD[2],2)}
+      <rect x="2" y="6" width="100" height="30" rx="3" fill="#cfe7ee" opacity=".75"/><rect x="2" y="6" width="100" height="30" rx="3" fill="none" stroke="{GOLD[1]}" stroke-width="2.4"/><rect x="4" y="26" width="96" height="9" fill="{CRIM[1]}"/>
       <path d="M14 22 L72 22 L80 25 L72 28 L14 28 Z" fill="{STEEL[0]}"/><path d="M14 25 L80 25 L72 28 L14 28 Z" fill="{STEEL[1]}"/><rect x="72" y="16" width="5" height="18" rx="2" fill="{GOLD[1]}"/><rect x="77" y="22" width="16" height="6" rx="2" fill="{GOLD[2]}"/><circle cx="95" cy="25" r="4" fill="{CRIM[0]}"/><circle cx="74.5" cy="25" r="2" fill="{BLUE[0]}"/>
       <path d="M10 10 L26 10" stroke="#fff" stroke-width="2" opacity=".7"/></g>'''
 def tiara(tx,ty,c): return f'<path d="M{tx-12} {ty} Q{tx} {ty-14} {tx+12} {ty}" stroke="{GOLD[1]}" stroke-width="3" fill="none"/><path d="M{tx-6} {ty-5} L{tx} {ty-14} L{tx+6} {ty-5}" fill="{GOLD[1]}"/><circle cx="{tx}" cy="{ty-8}" r="2.6" fill="{c}"/>'
 def tiara_cabinet(x,y):
-    return f'''<g transform="translate({x} {y})">{shadow(32,124,30,5)}{two(2,4,60,116,WOOD[1],WOOD[2],3)}<rect x="8" y="12" width="48" height="98" rx="2" fill="{CRIM[2]}"/><rect x="8" y="12" width="48" height="98" rx="2" fill="#cfe7ee" opacity=".22"/>
+    return f'''<g transform="translate({x} {y})">{shadow(32,124,30,5)}{two(2,4,60,116,GOLD[1],GOLD[2],3)}<rect x="8" y="12" width="48" height="98" rx="2" fill="{CRIM[1]}"/><rect x="8" y="12" width="48" height="98" rx="2" fill="#cfe7ee" opacity=".22"/>
       {"".join(f'<rect x="8" y="{yy}" width="48" height="3" fill="{GOLD[2]}"/>' for yy in (42,74,106))}{tiara(32,40,BLUE[0])}{tiara(32,72,CRIM[0])}
       <path d="M16 90 Q32 106 48 90" stroke="{GOLD[1]}" stroke-width="2" fill="none"/>{"".join(f'<circle cx="{px}" cy="{py}" r="2.4" fill="{c}"/>' for px,py,c in ((22,97,Q["green"]),(32,101,CRIM[0]),(42,97,Q["green"])))}
-      <path d="M14 18 L22 18" stroke="#fff" stroke-width="2" opacity=".7"/><rect x="0" y="118" width="64" height="6" rx="2" fill="{WOOD[2]}"/><circle cx="52" cy="62" r="2" fill="{GOLD[1]}"/></g>'''
+      <path d="M14 18 L22 18" stroke="#fff" stroke-width="2" opacity=".7"/><rect x="0" y="118" width="64" height="6" rx="2" fill="{GOLD[2]}"/><circle cx="52" cy="62" r="2" fill="{GOLD[0]}"/></g>'''
 def ring_tray(x,y):
     return f'''<g transform="translate({x} {y})">{glow(32,24,22)}{shadow(32,72,26,5)}<rect x="28" y="34" width="8" height="38" fill="{GOLD[2]}"/><path d="M16 72 L32 64 L48 72" stroke="{GOLD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
       <ellipse cx="32" cy="32" rx="30" ry="8" fill="{GOLD[1]}"/><ellipse cx="32" cy="30" rx="26" ry="6" fill="{CRIM[1]}"/>
