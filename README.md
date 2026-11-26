@@ -172,7 +172,8 @@ comes in at the start of a room, with a card and a few easy levels, then shows u
 **Extra-hard levels.** About 1 level in 15 on each floor is marked with a flame (on the map, by the level
 number and in its tip) and pays 2 cheese. `Difficulty` scores how hard a level is to solve: more animals
 to place, placements that touch nothing on the board, tricks, a long chain, walls, turn tiles and traps. The
-hardest of each floor, not counting the boss, get the flame. `LevelsCli hard --write` saves the list to
+hardest of each floor, not counting the boss, get the flame; from 801 on, no two flames sit within 4 levels of
+each other (the next hardest is taken instead). `LevelsCli hard --write` saves the list to
 `data/hard-levels.json`, and `LevelsTest` fails if the list is out of date, so run it after changing levels.
 
 **Hints and cheese.** Tap one of your animals (in the tray or on the board), then press Hint. Its first

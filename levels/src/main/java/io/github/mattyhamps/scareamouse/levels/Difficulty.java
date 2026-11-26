@@ -13,6 +13,8 @@ import java.util.List;
  */
 public final class Difficulty {
     private static final int[][] DIRS = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
+    /** Flames from this level on are kept at least SPREAD + 1 levels apart (see {@link #hardest}). */
+    static final int SPREAD_FROM = 801, SPREAD = 4;
 
     private Difficulty() {
     }
@@ -59,9 +61,19 @@ public final class Difficulty {
         }
         scored.sort((a, b) -> a[1] != b[1] ? Double.compare(b[1], a[1]) : Double.compare(a[0], b[0]));
         int want = Math.round((to - from + 1) / 15f);
+        // From the Royal floor on, flames are spread out: a level within SPREAD of one already picked is
+        // skipped for the next hardest, so a room doesn't get three flames in a row. Earlier floors keep
+        // their flames (and the cheese already earned on them).
+        int spread = from >= SPREAD_FROM ? SPREAD : 0;
         List<Integer> out = new ArrayList<>();
-        for (int k = 0; k < want && k < scored.size(); k++) {
-            out.add((int) scored.get(k)[0]);
+        for (double[] c : scored) {
+            if (out.size() >= want) {
+                break;
+            }
+            int n = (int) c[0];
+            if (out.stream().noneMatch(p -> Math.abs(p - n) <= spread)) {
+                out.add(n);
+            }
         }
         out.sort(null);
         return out;

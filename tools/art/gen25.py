@@ -277,6 +277,23 @@ def curio_cabinet(x,y):
       <path d="M14 108 L14 96 L24 96 L24 108 Z" fill="{GOLD[1]}"/><path d="M12 96 Q19 88 26 96 Z" fill="{GOLD[1]}"/><circle cx="44" cy="100" r="8" fill="#f1ede4"/><path d="M40 100 q4 -4 8 0" stroke="{CRIM[0]}" stroke-width="2" fill="none"/>
       <rect x="31" y="16" width="2" height="96" fill="{WOOD[1]}"/><path d="M12 22 L12 104" stroke="#fff" stroke-width="2" opacity=".6"/><circle cx="28" cy="66" r="1.8" fill="{GOLD[1]}"/><circle cx="36" cy="66" r="1.8" fill="{GOLD[1]}"/>
       <rect x="0" y="116" width="64" height="6" rx="2" fill="{WOOD[2]}"/><path d="M6 122 L4 128 M58 122 L60 128" stroke="{WOOD[2]}" stroke-width="4" stroke-linecap="round"/></g>'''
+def games_table(x,y):   # a round card table with a green cloth, a fan of cards in hand and two little chairs
+    def card(cx,cy,a,red,pip):
+        c=CRIM[0] if red else Q["ink"]
+        mark={'heart':f'<path d="M0 3 L-4 -1 Q-4 -4 -2 -4 Q0 -4 0 -2 Q0 -4 2 -4 Q4 -4 4 -1 Z" fill="{c}"/>',
+              'diamond':f'<path d="M0 -4.5 L3.4 0 L0 4.5 L-3.4 0 Z" fill="{c}"/>',
+              'club':f'<circle cx="0" cy="-2.4" r="2" fill="{c}"/><circle cx="-2.2" cy="0.6" r="2" fill="{c}"/><circle cx="2.2" cy="0.6" r="2" fill="{c}"/><rect x="-0.7" y="0" width="1.4" height="4" fill="{c}"/>',
+              'spade':f'<path d="M0 -4.5 L4 0 Q4 3 1 2 L1.6 4.5 L-1.6 4.5 L-1 2 Q-4 3 -4 0 Z" fill="{c}"/>'}[pip]
+        return f'<g transform="translate({cx} {cy}) rotate({a})"><rect x="-8" y="-11" width="16" height="22" rx="2" fill="#fff"/><rect x="-8" y="-11" width="16" height="22" rx="2" fill="none" stroke="{Q["cream2"]}" stroke-width="1"/>{mark}</g>'
+    def chair(cx,flip):
+        t=f'translate({cx} 32) scale({flip} 1)'
+        return f'<g transform="{t}"><path d="M-10 28 L-10 4 Q-10 -2 -2 -2 L2 -2 Q4 4 4 28 Z" fill="{WOOD[1]}"/><rect x="-8" y="4" width="8" height="20" rx="2" fill="{CRIM[0]}"/>{two(-12,28,22,6,CRIM[0],CRIM[1],3)}<path d="M-10 34 L-11 52 M8 34 L9 52" stroke="{WOOD[2]}" stroke-width="3" stroke-linecap="round"/></g>'
+    return f'''<g transform="translate({x} {y})">{shadow(54,86,54,6)}{chair(10,1)}{chair(98,-1)}
+      <rect x="51" y="50" width="6" height="32" fill="{WOOD[1]}"/><path d="M36 86 Q54 74 72 86" stroke="{WOOD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="54" cy="46" rx="38" ry="9" fill="{WOOD[1]}"/><path d="M54 37 A38 9 0 0 1 92 46 A38 9 0 0 1 54 55 Z" fill="{WOOD[2]}"/><ellipse cx="54" cy="44" rx="33" ry="6.5" fill="{Q["green"]}"/><path d="M54 37.5 A33 6.5 0 0 1 87 44 A33 6.5 0 0 1 54 50.5 Z" fill="{Q["green2"]}"/>
+      <rect x="26" y="38" width="12" height="8" rx="1.5" fill="{Q["navy"]}" transform="rotate(-10 32 42)"/><rect x="27" y="36" width="12" height="8" rx="1.5" fill="{Q["navy"]}" transform="rotate(-10 33 40)"/><rect x="29" y="38" width="8" height="4" rx="1" fill="none" stroke="{GOLD[1]}" stroke-width="1" transform="rotate(-10 33 40)"/>
+      <rect x="66" y="40" width="10" height="7" rx="1.5" fill="#fff" transform="rotate(14 71 43)"/>
+      <g transform="translate(54 42) scale(0.62 0.5) translate(-58 -24)">{card(46,24,-24,True,'heart')}{card(54,21,-8,False,'spade')}{card(62,21,8,True,'diamond')}{card(70,24,24,False,'club')}</g></g>'''
 def fern_stand(x,y):
     leaf=lambda a,l: f'<path d="M24 34 Q{24+l*0.5*math.cos(math.radians(a))-4:.1f} {34-l*0.8*math.sin(math.radians(a)):.1f} {24+l*math.cos(math.radians(a)):.1f} {34-l*math.sin(math.radians(a)):.1f}" stroke="{Q["green"]}" stroke-width="7" fill="none" stroke-linecap="round"/>'
     return f'''<g transform="translate({x} {y})">{shadow(24,82,16,4)}{"".join(leaf(a,l) for a,l in ((160,24),(130,28),(100,30),(75,30),(50,28),(20,24)))}
@@ -373,7 +390,7 @@ add5('folded_s',folded_s(0,0),(0,-6,32,46)); add5('hat_boxes',hat_boxes(0,0),(0,
 H5['Sitting room']=sitting_head()+STEP
 add5('sofa',sofa(0,0),(0,0,132,78)); add5('tea_table',tea_table(0,0),(0,0,80,96)); add5('chess_table',chess_table(0,0),(-4,-24,108,110))
 add5('rocking_chair',rocking_chair(0,0),(0,-10,88,108)); add5('fish_tank',fish_tank(0,0),(0,0,84,104)); add5('curio_cabinet',curio_cabinet(0,0),(0,-4,64,132))
-add5('fern_stand',fern_stand(0,0),(0,0,48,86)); add5('lamp_table',lamp_table(0,0),(0,-10,40,80))
+add5('games_table',games_table(0,0),(-4,0,116,92)); add5('fern_stand',fern_stand(0,0),(0,0,48,86)); add5('lamp_table',lamp_table(0,0),(0,-10,40,80))
 H5['Tower stairs']=tower_head()+STEP
 add5('hoist',hoist(0,0),(0,0,80,138)); add5('portrait_mouse',portrait(0,0,'mouse',CRIM[0],CRIM[1],'oval'),(0,-4,60,126)); add5('portrait_lion',portrait(0,0,'lion',Q["navy"],Q["navy2"]),(0,-2,60,124))
 add5('portrait_elephant',portrait(0,0,'elephant',Q["green"],Q["green2"],'arch'),(0,-4,60,126)); add5('banner_stand',banner_stand(0,0),(0,-6,44,142))

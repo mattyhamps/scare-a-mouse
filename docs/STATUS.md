@@ -70,8 +70,8 @@ _Last updated: 26 November 2026._
   up less often. Levels 836 and 848 were renamed to match ("Steamer Trunk", "Hat Box Tower").
 - The Sitting room (861–890) and Tower stairs (891–920), drawn in `gen25.py`:
   The Sitting room is the royal family's tea-and-games room (sage wallpaper, a window seat, a landscape
-  painting, a shelf of plates and a tea set; a sofa, a tea table with a cake stand, chess tables with
-  plain pieces, a rocking chair with a knitting basket, a fish tank, a curio cabinet, a fern and a lamp
+  painting, a shelf of plates and a tea set; a sofa, a tea table with a cake stand, a chess table with
+  plain pieces, a card table, a rocking chair with a knitting basket, a fish tank, a curio cabinet, a fern and a lamp
   table), sage and cream checked tiles with a cream runner whose path climbs in L-shaped knight's moves.
   Board walls are tea chests.
   The Tower stairs is a stone stairwell (arrow slits, banners, a round window; a rope hoist with a basket,
@@ -82,10 +82,15 @@ _Last updated: 26 November 2026._
   chess pieces.)
 - Their levels (`Recipe.royalFloor`, 861–920) mix the new puzzle types below in with the familiar ones,
   with traps in 6 levels and walls in 6 levels per room, and a few easy dog chains as breathers. They
-  score about as hard as 801–860. Flames are shared across the whole Royal floor (about 1 in 15 of
-  801–950), so for now only 870–872 of the new levels have one; they will shift when the Throne room is
-  built. 882 and 890 were changed after the dry run (a walled STOP+CATCH moving level and a frozen
-  SWERVE+CATCH one were slow).
+  score about as hard as 801–860. 882 and 890 were changed after the dry run (a walled STOP+CATCH moving
+  level and a frozen SWERVE+CATCH one were slow).
+- Flames from 801 on are spread out (Matt's review of #60): `Difficulty.hardest` skips a level within 4 of a
+  flame already picked and takes the next hardest, so a room doesn't get several in a row. Earlier floors
+  keep their flames. The Royal floor's flames are now 816, 830, 840, 850, 872, 886, 909 and 920 (832, 870
+  and 871 lost theirs); they are counted across 801–950 and will shift again when the Throne room is
+  built. A test checks the spacing.
+- The Sitting room's second chess table became a card table with two chairs (`games_table`; the Guard
+  room already has a `card_table`). Matt kept the Wardrobe's two folded-clothes stools.
 - The art scripts need Python 3.12 or newer (`python` on Matt's PC is 3.10; use the Python 3.13 install).
 
 ## Next

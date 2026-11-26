@@ -88,6 +88,18 @@ class LevelsTest {
         assertTrue(msg.length() == 0, "Repeated puzzles:" + msg);
     }
 
+    /** From the Royal floor on, no two flames sit within a few levels of each other. */
+    @Test
+    void flamesAreSpreadOutFromTheRoyalFloor() {
+        List<Integer> hard = Difficulty.hardLevels(levels);
+        for (int i = 1; i < hard.size(); i++) {
+            if (hard.get(i - 1) >= Difficulty.SPREAD_FROM) {
+                assertTrue(hard.get(i) - hard.get(i - 1) > Difficulty.SPREAD,
+                        "flames " + hard.get(i - 1) + " and " + hard.get(i) + " are too close");
+            }
+        }
+    }
+
     /** The flame marks in the game come from data/hard-levels.json; it must match the levels (LevelsCli hard --write). */
     @Test
     void hardLevelsListIsUpToDate() throws IOException {
