@@ -60,7 +60,8 @@ CI runs the builder test only when the physics or the level builder change (see 
    `java -cp engine/target/classes:levels/target/classes io.github.mattyhamps.scareamouse.levels.LevelsCli make 651 --candidates 3 --balance 10 --write`
    (on Windows use `;` between the two classpath folders). If it finds nothing, try `--seed` with another
    number. `make` refuses a level that repeats another one.
-3. Give each new level a name that fits its room (every name in the game is different).
+3. Give each new level a name that fits its room (every name in the game is different, 26 characters at most so it
+   fits on a phone; `node tools/screens/names.js` checks the real header at 360px and 390px).
 4. `LevelsCli hard --write` updates `data/hard-levels.json` (the flame marks), then run the tests.
 5. A new room also needs its drawings (room-art.json, see `tools/README.md`), a layout in `ROOM_SCENES`
    and a board look in `BOARDS` (index.html). The tests check all three.

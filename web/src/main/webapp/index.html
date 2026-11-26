@@ -35,10 +35,11 @@
   .dot{width:34px;height:34px;border-radius:10px;border:2px solid #4a4155;background:var(--bg2);color:var(--muted);font:600 15px Fredoka,system-ui;display:grid;place-items:center;cursor:pointer}
   .dot.cur{border-color:var(--gold);color:var(--ink)}
   .dot.done{background:#3c5a3b;border-color:#5f8f5d;color:#e6ffe4}
-  .title{display:flex;align-items:baseline;justify-content:space-between}
-  .title{gap:10px}
-  .title h2{margin:0;font-size:20px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .title .sub{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+  /* the level's name gets the whole first line (it wraps rather than being cut off); the label ("Boss ·
+     Level N · solved") and the cheese count share the line under it. tools/screens/names.js checks every name fits. */
+  .title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px}
+  .title h2{margin:0;font-size:20px;font-weight:600;flex-basis:100%;min-width:0;line-height:1.15;overflow-wrap:anywhere}
+  .title .sub{color:var(--muted);font-size:14px;display:flex;flex:1;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap}
   .cheese{font:600 14px Fredoka,system-ui;color:#3a2f22;background:linear-gradient(180deg,#ffe7a8,#f2c95b);border-radius:999px;padding:2px 9px}
   .cheese.bump{animation:cheeseBump .6s ease-out}
   @keyframes cheeseBump{40%{transform:scale(1.35)}}

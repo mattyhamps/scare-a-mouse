@@ -102,6 +102,12 @@ _Last updated: 26 November 2026._
   boss). 942 was changed after the dry run (a waiting runner with SWERVE+CATCH was slow). The boss, 950
   "Crowning Glory", has 3 animals to place, 4 walls and a trap to spring (scores 19, against 14.5 for 800).
   The Royal floor's flames: 816, 830, 840, 850, 872, 886, 909, 920, 937, 948.
+- Long level names no longer get cut off on phones. Before, the name shared its row with the label ("Boss ·
+  Level N · solved ✓") and the cheese count: 6 names were cut off at 390px and 24 at 360px, and 115 / 370 more
+  once a level was solved. Now the name has the whole first line and the label and cheese sit on a line under
+  it (Matt picked this over wrapping the name or shrinking it). The board sits about 20px lower on every
+  level. `tools/screens/names.js` checks every name at 360px and 390px, and `LevelsTest` keeps names to 26
+  characters (the longest that fit, "The Mouse Queen's Portrait").
 - The art scripts need Python 3.12 or newer (`python` on Matt's PC is 3.10; use the Python 3.13 install).
 
 ## Next
@@ -112,6 +118,9 @@ _Last updated: 26 November 2026._
    Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying). Keep mixing in the new
    puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
 2. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+3. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
+   without scrolling: the level screen with the new two-line header, the map, the cards and pop-ups), at a
+   few phone sizes, with and without the preview banner.
 
 ## New puzzle types for 861 on
 
