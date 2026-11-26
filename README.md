@@ -152,6 +152,20 @@ faded with no cheese. A caught mouse gets the bar on its tail and "The mouse got
 builds twelve test levels (801–812: two with only the mouse and cats, then steer-around, then spring) into `web/src/main/webapp/trap-lab.json`; add `?lab=trap-lab` to the
 address to play them.
 
+**Trapdoors** (Towers and roof, from 951): levels carry a `trapdoors` list (`[x, y]`, none or one pair) only
+when they have them. Rule 9 in the engine: an animal (the mouse too) that runs onto a trapdoor drops through
+and comes out of the other one in the same step, still heading the same way; if anything is standing on
+either trapdoor it waits, as behind any animal. The engine reports who dropped through on each step
+(`drops`), and the game shows it: the animal shrinks into the first trapdoor, both trapdoors flash, and it
+grows back out of the other. On the board a trapdoor is an open wooden hatch with stone steps going down.
+A recipe asks for one with `withTrapdoors(1)`: the first trapdoor goes on a runner's path and its partner
+somewhere with room to run on, and the next link (or the mouse) waits along the stretch after it; the level
+maker throws away any level that wins without the trapdoors. Level 951 is made by hand like level 1
+(`TrapdoorLab.intro`, through `LevelsCli make 951`): one cat, and the trapdoors take the mouse under a
+mousetrap. The checker skips its clutter rule for it (`LevelRules.teaching`), since the trap is there to show
+the idea. `TrapdoorLab` builds eleven test levels (951–961) into `web/src/main/webapp/trapdoor-lab.json`; add
+`?lab=trapdoor-lab` to the address to play them.
+
 **The plan for the rest of the castle** (all 10×10, each floor about as hard as the one before, with a mix
 of easier and harder levels, flames on the toughest and a boss at the end):
 

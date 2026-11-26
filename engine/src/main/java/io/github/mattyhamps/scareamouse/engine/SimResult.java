@@ -46,9 +46,15 @@ public final class SimResult {
      * {@link #frames}. Null unless recorded.
      */
     public final List<List<Integer>> snaps;
+    /**
+     * For each frame, the animals that dropped through a trapdoor that step (they come out of the other one).
+     * Lined up with {@link #frames}. Null unless recorded.
+     */
+    public final List<List<Integer>> drops;
 
     SimResult(boolean win, boolean loop, boolean caught, int moved, int ticks, List<List<Snapshot>> frames,
-              List<List<Integer>> bumps, List<List<Integer>> snaps) {
+              List<List<Integer>> bumps, List<List<Integer>> snaps, List<List<Integer>> drops) {
+        this.drops = drops;
         this.win = win;
         this.loop = loop;
         this.caught = caught;
@@ -63,7 +69,7 @@ public final class SimResult {
         return frames == null ? null : frames.get(frames.size() - 1);
     }
 
-    /** JSON for the browser: {win, loop, caught, moved, ticks, frames:[[{id,t,x,y,gone}...]...], bumps:[[ids]...], snaps:[[traps]...]}. */
+    /** JSON for the browser: {win, loop, caught, moved, ticks, frames:[[{id,t,x,y,gone}...]...], bumps:[[ids]...], snaps:[[traps]...], drops:[[ids]...]}. */
     public String toJson() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("win", win);
@@ -102,6 +108,13 @@ public final class SimResult {
             }
         }
         m.put("snaps", ss);
+        List<Object> ds = new ArrayList<>();
+        if (drops != null) {
+            for (List<Integer> d : drops) {
+                ds.add(new ArrayList<Object>(d));
+            }
+        }
+        m.put("drops", ds);
         return Json.write(m);
     }
 }

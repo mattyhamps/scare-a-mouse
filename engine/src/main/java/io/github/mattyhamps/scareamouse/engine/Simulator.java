@@ -33,6 +33,10 @@ import java.util.Set;
  *   <li><b>Mousetraps:</b> the mouse is caught if it runs onto a set trap, and the run fails. Any other
  *       animal that runs onto a set trap springs it and keeps going; a sprung trap is harmless for the
  *       rest of the run. Only running onto a trap counts. Animals can't be placed on them.</li>
+ *   <li><b>Trapdoors:</b> a board has none or one linked pair. An animal (the mouse too) that runs onto a
+ *       trapdoor drops through and comes out of the other one in the same step, still heading the same way.
+ *       If anything is standing on either trapdoor it waits, as behind any animal (rule 4); two animals
+ *       heading for the same square block each other as usual. Animals can't be placed on them.</li>
  * </ol>
  * The run ends when the mouse gets into the hole, when the mouse is caught, when a step passes with
  * nothing moving, or when the board repeats an earlier state (an endless loop).
@@ -74,6 +78,14 @@ public final class Simulator {
             }
         }
         final boolean[] sprung = new boolean[level.traps.size()];
+        final int[] door = new int[w * h];   // rule 9: for a trapdoor square, the other trapdoor's square; otherwise -1
+        java.util.Arrays.fill(door, -1);
+        if (level.trapdoors.size() == 2) {
+            int[] a = level.trapdoors.get(0);
+            int[] b = level.trapdoors.get(1);
+            door[a[1] * w + a[0]] = b[1] * w + b[0];
+            door[b[1] * w + b[0]] = a[1] * w + a[0];
+        }
         int sprungCount = 0;
 
         List<Piece> all = new ArrayList<>(level.fixed);
@@ -98,10 +110,12 @@ public final class Simulator {
         List<List<SimResult.Snapshot>> frames = record ? new ArrayList<>() : null;
         List<List<Integer>> bumps = record ? new ArrayList<>() : null;
         List<List<Integer>> snaps = record ? new ArrayList<>() : null;
+        List<List<Integer>> drops = record ? new ArrayList<>() : null;
         if (record) {
             frames.add(snap(type, x, y, gone));
             bumps.add(new ArrayList<Integer>());
             snaps.add(new ArrayList<Integer>());
+            drops.add(new ArrayList<Integer>());
         }
         boolean[] everMoved = new boolean[n];
         Set<String> seen = new HashSet<>();
@@ -157,7 +171,7 @@ public final class Simulator {
                 }
             }
             if (!seen.add(key.toString())) {
-                return new SimResult(false, true, false, count(everMoved), 0, frames, bumps, snaps);
+                return new SimResult(false, true, false, count(everMoved), 0, frames, bumps, snaps, drops);
             }
 
             List<Integer> runners = new ArrayList<>();
@@ -173,12 +187,12 @@ public final class Simulator {
             // Rule 4: two animals stepping into the same square => neither moves.
             Map<Integer, Integer> claims = new HashMap<>();
             for (int i : runners) {
-                claims.merge(cellKey(x[i] + dx[i], y[i] + dy[i]), 1, Integer::sum);
+                claims.merge(landing(door, w, h, x[i] + dx[i], y[i] + dy[i]), 1, Integer::sum);
             }
             List<Integer> pending = new ArrayList<>();
             List<Integer> standoff = new ArrayList<>(); // blocked this step by another animal heading for the same square
             for (int i : runners) {
-                if (claims.get(cellKey(x[i] + dx[i], y[i] + dy[i])) == 1) {
+                if (claims.get(landing(door, w, h, x[i] + dx[i], y[i] + dy[i])) == 1) {
                     pending.add(i);
                 } else {
                     standoff.add(i);
@@ -191,6 +205,7 @@ public final class Simulator {
             boolean won = false;
             boolean caught = false;
             List<Integer> snapped = new ArrayList<>();   // traps sprung this step
+            List<Integer> dropped = new ArrayList<>();   // animals that came through a trapdoor this step
             boolean progress = true;
             while (progress) {
                 progress = false;
@@ -211,6 +226,21 @@ public final class Simulator {
                         anyDone = true;
                         progress = true;
                         won = true;
+                        continue;
+                    }
+                    int through = nx < 0 || ny < 0 || nx >= w || ny >= h ? -1 : door[ny * w + nx];
+                    if (through >= 0) {   // rule 9: through the trapdoor, if both trapdoors are clear
+                        if (at(grid, w, h, nx, ny) >= 0 || grid[through] >= 0) {
+                            continue;
+                        }
+                        grid[y[i] * w + x[i]] = -1;
+                        x[i] = through % w;
+                        y[i] = through / w;
+                        grid[through] = i;
+                        dropped.add(i);
+                        done[i] = true;
+                        anyDone = true;
+                        progress = true;
                         continue;
                     }
                     if (at(grid, w, h, nx, ny) < 0) {
@@ -249,18 +279,19 @@ public final class Simulator {
                 frames.add(snap(type, x, y, gone));
                 bumps.add(standoff);
                 snaps.add(snapped);
+                drops.add(dropped);
             }
             if (won) {
-                return new SimResult(true, false, false, count(everMoved), tick + 1, frames, bumps, snaps);
+                return new SimResult(true, false, false, count(everMoved), tick + 1, frames, bumps, snaps, drops);
             }
             if (caught) {
-                return new SimResult(false, false, true, count(everMoved), 0, frames, bumps, snaps);
+                return new SimResult(false, false, true, count(everMoved), 0, frames, bumps, snaps, drops);
             }
             if (!anyDone) {
                 break; // nothing moved: the board is settled
             }
         }
-        return new SimResult(false, false, false, count(everMoved), 0, frames, bumps, snaps);
+        return new SimResult(false, false, false, count(everMoved), 0, frames, bumps, snaps, drops);
     }
 
     /** Walls, the castle edge, and the hole for anything but the mouse. */
@@ -276,6 +307,12 @@ public final class Simulator {
 
     private static int at(int[] grid, int w, int h, int x, int y) {
         return x < 0 || y < 0 || x >= w || y >= h ? -1 : grid[y * w + x];
+    }
+
+    /** Where a step into (nx, ny) lands: the other trapdoor for a trapdoor, otherwise that square (as a cellKey). */
+    private static int landing(int[] door, int w, int h, int nx, int ny) {
+        int through = nx < 0 || ny < 0 || nx >= w || ny >= h ? -1 : door[ny * w + nx];
+        return through >= 0 ? cellKey(through % w, through / w) : cellKey(nx, ny);
     }
 
     private static int cellKey(int x, int y) {

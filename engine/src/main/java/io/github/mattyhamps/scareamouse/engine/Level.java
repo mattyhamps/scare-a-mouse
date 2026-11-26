@@ -37,6 +37,11 @@ public final class Level {
      * placed on them.
      */
     public final List<int[]> traps;
+    /**
+     * Trapdoors as {x, y}: none, or one linked pair. An animal that runs onto one comes out of the other in the
+     * same step, still heading the same way (it waits if either trapdoor is covered). Nothing can be placed on them.
+     */
+    public final List<int[]> trapdoors;
 
     public Level(String name, String tip, int w, int h, int holeX, int holeY,
                  List<int[]> walls, List<Piece> fixed, List<Animal> inventory, List<Piece> solution) {
@@ -50,6 +55,11 @@ public final class Level {
 
     public Level(String name, String tip, int w, int h, int holeX, int holeY, List<int[]> walls, List<Piece> fixed,
                  List<Animal> inventory, List<Piece> solution, List<int[]> turns, List<int[]> traps) {
+        this(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, traps, Collections.<int[]>emptyList());
+    }
+
+    public Level(String name, String tip, int w, int h, int holeX, int holeY, List<int[]> walls, List<Piece> fixed,
+                 List<Animal> inventory, List<Piece> solution, List<int[]> turns, List<int[]> traps, List<int[]> trapdoors) {
         this.name = name;
         this.tip = tip;
         this.w = w;
@@ -62,6 +72,27 @@ public final class Level {
         this.solution = Collections.unmodifiableList(new ArrayList<>(solution));
         this.turns = Collections.unmodifiableList(new ArrayList<>(turns));
         this.traps = Collections.unmodifiableList(new ArrayList<>(traps));
+        this.trapdoors = Collections.unmodifiableList(new ArrayList<>(trapdoors));
+    }
+
+    /** True if (x, y) holds a trapdoor. */
+    public boolean isTrapdoor(int x, int y) {
+        for (int[] t : trapdoors) {
+            if (t[0] == x && t[1] == y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The other trapdoor of the pair if (x, y) is a trapdoor, otherwise null. */
+    public int[] trapdoorPartner(int x, int y) {
+        if (trapdoors.size() != 2) {
+            return null;
+        }
+        int[] a = trapdoors.get(0);
+        int[] b = trapdoors.get(1);
+        return a[0] == x && a[1] == y ? b : b[0] == x && b[1] == y ? a : null;
     }
 
     /** True if (x, y) holds a mousetrap. */
@@ -93,9 +124,9 @@ public final class Level {
         return false;
     }
 
-    /** True if (x, y) is on the board and holds no wall, no hole, no turn tile, no trap and no fixed animal. */
+    /** True if (x, y) is on the board and holds no wall, no hole, no turn tile, no trap, no trapdoor and no fixed animal. */
     public boolean isOpen(int x, int y) {
-        if (x < 0 || y < 0 || x >= w || y >= h || isWall(x, y) || (x == holeX && y == holeY) || turnAt(x, y) >= 0 || isTrap(x, y)) {
+        if (x < 0 || y < 0 || x >= w || y >= h || isWall(x, y) || (x == holeX && y == holeY) || turnAt(x, y) >= 0 || isTrap(x, y) || isTrapdoor(x, y)) {
             return false;
         }
         for (Piece p : fixed) {
@@ -122,27 +153,27 @@ public final class Level {
     public Level withoutFixed(int index) {
         List<Piece> f = new ArrayList<>(fixed);
         f.remove(index);
-        return new Level(name, tip, w, h, holeX, holeY, walls, f, inventory, solution, turns, traps);
+        return new Level(name, tip, w, h, holeX, holeY, walls, f, inventory, solution, turns, traps, trapdoors);
     }
 
     public Level withoutWall(int index) {
         List<int[]> ws = new ArrayList<>(walls);
         ws.remove(index);
-        return new Level(name, tip, w, h, holeX, holeY, ws, fixed, inventory, solution, turns, traps);
+        return new Level(name, tip, w, h, holeX, holeY, ws, fixed, inventory, solution, turns, traps, trapdoors);
     }
 
     public Level withoutTurn(int index) {
         List<int[]> ts = new ArrayList<>(turns);
         ts.remove(index);
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, ts, traps);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, ts, traps, trapdoors);
     }
 
     public Level withTurns(List<int[]> newTurns) {
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, newTurns, traps);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, newTurns, traps, trapdoors);
     }
 
     public Level withTraps(List<int[]> newTraps) {
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, newTraps);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, newTraps, trapdoors);
     }
 
     public Level withoutTrap(int index) {
@@ -151,12 +182,16 @@ public final class Level {
         return withTraps(ts);
     }
 
+    public Level withTrapdoors(List<int[]> newTrapdoors) {
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, traps, newTrapdoors);
+    }
+
     public Level withNameAndTip(String newName, String newTip) {
-        return new Level(newName, newTip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, traps);
+        return new Level(newName, newTip, w, h, holeX, holeY, walls, fixed, inventory, solution, turns, traps, trapdoors);
     }
 
     public Level withSolution(List<Piece> newSolution) {
-        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, newSolution, turns, traps);
+        return new Level(name, tip, w, h, holeX, holeY, walls, fixed, inventory, newSolution, turns, traps, trapdoors);
     }
 
     // ---- JSON (same shape the game page reads) ----
@@ -195,11 +230,19 @@ public final class Level {
                 traps.add(new int[] {Json.toInt(p.get(0)), Json.toInt(p.get(1))});
             }
         }
+        List<int[]> trapdoors = new ArrayList<>();
+        Object doorsJson = m.get("trapdoors");
+        if (doorsJson != null) {
+            for (Object o : (List<?>) doorsJson) {
+                List<?> p = (List<?>) o;
+                trapdoors.add(new int[] {Json.toInt(p.get(0)), Json.toInt(p.get(1))});
+            }
+        }
         return new Level(
                 (String) m.get("name"), (String) m.get("tip"),
                 Json.toInt(m.get("w")), Json.toInt(m.get("h")),
                 Json.toInt(hole.get(0)), Json.toInt(hole.get(1)),
-                walls, Piece.listFromJson(m.get("fixed")), inv, Piece.listFromJson(m.get("solution")), turns, traps);
+                walls, Piece.listFromJson(m.get("fixed")), inv, Piece.listFromJson(m.get("solution")), turns, traps, trapdoors);
     }
 
     public Map<String, Object> toJson() {
@@ -234,6 +277,13 @@ public final class Level {
                 ts.add(new int[] {t[0], t[1]});
             }
             m.put("traps", ts);
+        }
+        if (!trapdoors.isEmpty()) {   // and for trapdoors
+            List<Object> ds = new ArrayList<>();
+            for (int[] t : trapdoors) {
+                ds.add(new int[] {t[0], t[1]});
+            }
+            m.put("trapdoors", ds);
         }
         return m;
     }

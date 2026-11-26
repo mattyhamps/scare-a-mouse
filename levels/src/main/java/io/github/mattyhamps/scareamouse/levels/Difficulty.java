@@ -28,7 +28,8 @@ public final class Difficulty {
                 + 0.5 * b.depth
                 + 1.0 * level.walls.size()
                 + 1.0 * level.turns.size()
-                + 1.0 * level.traps.size();
+                + 1.0 * level.traps.size()
+                + 1.5 * (level.trapdoors.size() / 2);
     }
 
     /** Animals in the solution that start next to nothing on the board, so nothing points at their square. */

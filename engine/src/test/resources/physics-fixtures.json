@@ -465,5 +465,77 @@
     "........."
    ]
   }
+ },
+ {
+  "name": "9 · the mouse runs onto a trapdoor, comes out of the other one and into the hole",
+  "board": [
+   "CMO..O"
+  ],
+  "hole": [
+   6,
+   0
+  ],
+  "placed": [],
+  "expect": {
+   "win": true,
+   "steps": 2
+  }
+ },
+ {
+  "name": "9 · any animal drops through and keeps going the same way",
+  "board": [
+   "DCO...O.."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "D.O...O.C"
+   ]
+  }
+ },
+ {
+  "name": "9 · two animals go through one after the other",
+  "board": [
+   "DCMO..O..."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "D..O..O.CM"
+   ]
+  }
+ },
+ {
+  "name": "9 · a covered trapdoor: the animal waits in front of it",
+  "board": [
+   "CMO.O.MC"
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "C.O.MM.C"
+   ],
+   "win": false
+  }
+ },
+ {
+  "name": "9 · coming out of a trapdoor works across rows",
+  "board": [
+   "CM.O",
+   "....",
+   "..O."
+  ],
+  "hole": null,
+  "placed": [],
+  "expect": {
+   "pic": [
+    "C..O",
+    "....",
+    "..OM"
+   ]
+  }
  }
 ]
