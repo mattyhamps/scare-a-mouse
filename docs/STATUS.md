@@ -102,6 +102,19 @@ _Last updated: 26 November 2026._
   boss). 942 was changed after the dry run (a waiting runner with SWERVE+CATCH was slow). The boss, 950
   "Crowning Glory", has 3 animals to place, 4 walls and a trap to spring (scores 19, against 14.5 for 800).
   The Royal floor's flames: 816, 830, 840, 850, 872, 886, 909, 920, 937, 948.
+- Long level names no longer get cut off on phones. Before, the name shared its row with the label ("Boss ·
+  Level N · solved ✓") and the cheese count: 6 names were cut off at 390px and 24 at 360px, and 115 / 370 more
+  once a level was solved. Now the header is one line: the crown (boss) or flame sits just before the name,
+  the solved tick just after it, and the cheese count on the right. The "Level N" label is gone from there
+  (the Level button at the top already shows it). Matt first picked a two-line header, then this one-line
+  version to save height. Names are kept to 20 characters (the most that fit at 360px with a crown and a
+  tick); six were renamed: 514 "Guard Change", 650 "Floor Champion", 830 "Goodnight, Majesty", 898 "The Mouse
+  Queen", 926 "Coloured Windows", 944 "Kneel to the Crown" (only names changed, so progress is kept).
+  `tools/screens/names.js` checks every name in the real header at 360px and 390px, and `LevelsTest` fails on
+  a name over 20 characters.
+- The top bar's title is a little smaller on screens 380px wide and narrower, so the Level button ("Level 950")
+  no longer pokes into the page's right margin on small phones (it did from level 20 on). The old 420px rule
+  for it never took effect (a later rule overrode it).
 - The art scripts need Python 3.12 or newer (`python` on Matt's PC is 3.10; use the Python 3.13 install).
 
 ## Next
@@ -112,6 +125,10 @@ _Last updated: 26 November 2026._
    Aviary's, and a few birds drawn in the Aviary (in cages, on perches, two flying). Keep mixing in the new
    puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
 2. **Tower top (1071–1100):** everything together, the finale. Past 1100 an east wing: a mix of everything.
+3. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
+   without scrolling: the level screen, the map, the cards and pop-ups), at a few phone sizes, with and without
+   the preview banner. In a phone browser the level screen is still too tall: on Matt's iPhone (about 390×664
+   visible) the animal tray and the buttons sit partly below the fold.
 
 ## New puzzle types for 861 on
 

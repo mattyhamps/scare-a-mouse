@@ -88,6 +88,19 @@ class LevelsTest {
         assertTrue(msg.length() == 0, "Repeated puzzles:" + msg);
     }
 
+    /**
+     * A level's name must fit on one line in the header above the board on a small phone (360px wide), next to
+     * the cheese count, with a crown or flame before it and the solved tick after it: 20 characters at most.
+     * tools/screens/names.js measures the real header; this keeps CI from letting a longer name in.
+     */
+    @Test
+    void levelNamesAreShortEnoughForAPhone() {
+        for (int n = 1; n <= levels.size(); n++) {
+            String name = levels.get(n - 1).name;
+            assertTrue(name.length() <= 20, "level " + n + "'s name is too long for a phone's header (20 characters at most): " + name);
+        }
+    }
+
     /** From the Royal floor on, no two flames sit within a few levels of each other. */
     @Test
     void flamesAreSpreadOutFromTheRoyalFloor() {
