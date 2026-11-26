@@ -1647,6 +1647,7 @@ Promise.all([
     322: { art: '<span class="g-statue"></span><span class="g-statue"></span>', title: 'New: statues!',
            text: 'Animals can\'t run through the statues. Mind the art!' },
   };
+  let cardsSeen = store.get('cm_cards', []);
   function showGuide(cards, done) {
     let k = 0;
     const close = () => { $('guide').classList.remove('show'); if (done) done(); };
@@ -1661,13 +1662,13 @@ Promise.all([
     $('guideSkip').onclick = close;
     draw(); $('guide').classList.add('show');
   }
-  // A level that brings in something new shows its card every time you open it, so someone who skipped it,
-  // or came back later, can read it again.
   function showNewCard(i) {
-    if (NEW_CARDS[i]) showGuide([NEW_CARDS[i]]);
+    if (!NEW_CARDS[i] || cardsSeen.includes(i)) return;
+    cardsSeen = [...cardsSeen, i]; store.set('cm_cards', cardsSeen);
+    showGuide([NEW_CARDS[i]]);
   }
 
-  function load(i, quiet){   // quiet: don't show the level's card (the map is about to open over it)
+  function load(i){
     if(!isOpen(i)) i=unlockedUpTo();
     clearTimeout(timer); clearTimeout(backTimer);
     li=i; store.set('cm_level',li); L=LEVELS[li];
@@ -1683,7 +1684,7 @@ Promise.all([
     { const j = hints.h.map((n, k) => n > 0 && !hints.c[k] ? k : -1).filter(k => k >= 0).pop(); if (j !== undefined) { $('tip').textContent = `Hint: ${hintText(j, hints.h[j])}`; $('tip').classList.add('hinting'); } }
     showCheese();
     renderDots(); buildBoard(); renderTray(); renderAnimals(); updateButtons();
-    if (!quiet) showNewCard(li);
+    showNewCard(li);
   }
 
   function buildBoard(){
@@ -2237,7 +2238,7 @@ Promise.all([
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
   // After a win: back to the level picker instead of the next level. Reloading the level first
   // puts it back in normal play, showing the winning setup, if the picker is closed without choosing.
-  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); const r=clearedRoom; clearedRoom=undefined; load(li, true); openPicker(r); };
+  $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); const r=clearedRoom; clearedRoom=undefined; load(li); openPicker(r); };
   $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
   let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
   // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
