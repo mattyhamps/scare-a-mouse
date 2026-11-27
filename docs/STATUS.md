@@ -247,7 +247,8 @@ Notes from Matt's legal and App Store checklist (a separate document):
 - The game's name is **Mouse in Hole** (store, app and everything players see). It's for puzzle fans aged
   about 15–45, with plain, friendly text. Matt publishes as an individual. (November 2026)
 - Hints cost 3 cheese for the shaded area and 3 more for the exact square, and new players start with 0
-  cheese. A hint by ad is always available, rewarded ads only. Cheese packs are how players skip ads. There's
+  cheese. Flame levels only show that they're harder; they pay the same 1 cheese as any level (bosses
+  still pay 3). A hint by ad is always available, rewarded ads only. Cheese packs are how players skip ads. There's
   no "remove ads" purchase and no unlimited hints, so cheese keeps its value. Details in `docs/APP_STORE.md`.
 - Difficulty: the castle (1–1100) stays at its current difficulty for launch; it levels off at about 12
   from level 200 on. Levels after 1100 should get gradually harder: a higher average, and flame and boss

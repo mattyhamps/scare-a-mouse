@@ -19,8 +19,9 @@ show screenshots of visual changes first, as usual.
 - **How the game earns:**
   - **Hints cost cheese:** 3 for the shaded area, 3 more for the exact square (one animal fully shown = 6).
   - **New players start with 0 cheese.** The first levels are easy, so everyone has about 20 by level 20.
-  - **Earning stays as it is:** 1 per first solve with no hints, 2 on a flame level, 3 on a boss, and 2 for
-    clearing a room. Using any hint on a level means that level earns nothing.
+  - **Earning:** 1 per first solve with no hints, 3 on a boss, and 2 for clearing a room. Flame levels
+    still show that they're extra hard (the flame on the map, by the level number and in the tip) but pay
+    the same 1 cheese as any other level (Matt). Using any hint on a level means that level earns nothing.
   - **A hint by ad is always there.** When a player can't afford a hint, the hint button offers "Watch an ad
     for this hint". The ad gives that one hint, never cheese. If no ad can load (offline, or no ad to show),
     give the hint anyway.
@@ -52,6 +53,8 @@ show screenshots of visual changes first, as usual.
    - "Reset progress (testing)" shown only in developer mode.
 5. **Hints and cheese** (from the decisions above):
    - `HINT_PRICE` becomes 3 and 3, and new players start with 0 cheese.
+   - Flame levels pay 1 cheese like any other level: drop the extra cheese, and the "Solve it without hints
+     for 2 cheese" part of the flame tip. The flame still marks the level as extra hard.
    - Add a line to the how-to-play cards: "Stuck? Spend cheese on a hint. You earn cheese by solving
      levels without hints."
    - Keep any price wording in cards and tips correct.
