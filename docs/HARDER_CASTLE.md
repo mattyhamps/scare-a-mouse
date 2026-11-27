@@ -41,8 +41,35 @@ alongside the App Store steps, in its own pull requests.
     technique within 3 levels of itself. When choosing among candidates, mark down solutions that repeat
     the techniques of the last few levels, like the existing hand-animal penalty.
 
-Not picked for now: 4 or more animals to place (build time unknown), a spare animal in your hand (it
-changes a core rule), and expert extras like stars or a daily puzzle.
+12. **4 and 5 animals to place (an experiment, Matt).** Longer build times are fine for better puzzles, as
+    long as it's possible. Use these mainly for flame levels, bosses and the upper floors.
+
+Not picked for now: a spare animal in your hand (it changes a core rule), and expert extras like stars or
+a daily puzzle.
+
+### Making 4 and 5 animals possible
+
+The hard part is checking a level, not building it. `LevelChecker.solutions` tries every way to place
+your animals, and that grows fast. With about 85 open squares:
+- 3 animals is about 100,000 placements;
+- 4 animals is about 2 million;
+- 5 animals is about 30 million.
+
+That's for each candidate level, and the builder tries many. So before building, measure, then speed up
+the checker without changing what it decides. Ideas to try:
+- **Prune squares that can't matter.** Only consider squares where an animal could ever touch something or
+  stand in some runner's way. Work this out from where every animal could go, with a safe margin, and
+  test it against the full search on many levels so it never changes a result.
+- **Stop early.** The checker only needs to know whether there are more solutions than allowed, and the
+  smaller-hand checks only need to find one.
+- **Run in parallel,** and run the cheap checks first (pressing Go with nothing placed, the clutter rule)
+  so bad candidates are thrown out before the big search.
+- **Build fewer, better candidates.** The chain builder already knows where its pieces must go, so it can
+  stop trying shapes that can't work.
+
+Report how long one 4-animal and one 5-animal level takes to build and check, before and after the
+speed-ups. Matt is happy to wait longer per level (minutes, even an hour for a boss), but a whole room
+has to finish in a sensible time.
 
 ## How to do it
 
@@ -50,7 +77,8 @@ changes a core rule), and expert extras like stars or a daily puzzle.
    freeze-release, waiting runner, catch, stop, lane blocker cleared, wrap-around, standoff, an animal
    placed touching nothing, trap sprung first, steer round a trap, trapdoor, turn tile, and the new ones as
    they're added. Report how often each appears per room, with the STOP and CATCH counts called out.
-2. **Dry run the new techniques and combinations** (points 1–7). Use `LevelsCli probe`, and report build
+2. **Dry run the new techniques and combinations** (points 1–7 and 12; see "Making 4 and 5 animals
+   possible"). Use `LevelsCli probe`, and report build
    time and `Difficulty.score` for each. Drop anything that can't build in about a minute.
 3. **Propose the curve to Matt** as a table by room, and wait for his OK:
    - Levels 1–200 and the warm-ups stay as they are.
