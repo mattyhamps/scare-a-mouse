@@ -169,11 +169,18 @@ _Last updated: 26 November 2026._
   - Boards: sandy, oak and gold, no walls. Map icons: a tower, a bell, a crown.
 - Their levels (`Recipe.towersFloor`): the same mix as 951–1000, no walls, trapdoors in 12 of the 75 (about
   1 in 6 or 7), mousetraps in 13, turn tiles in 3. 1005 was changed after the dry run. 1075 is the floor's boss:
-  three to place, a trap to spring and a trapdoor. Flames across the floor: 965, 981, 986, 1021, 1029, 1034, 1040.
+  three to place, a trap to spring and a trapdoor.
+- Made harder after Matt's review of #65 (the castle was getting easier as it climbed): 18 of the easiest
+  recipes swapped for harder ones (the three one-dog levels are gone, most trapdoor levels now have two to
+  place, more three-animal levels: 1001, 1003, 1004, 1009, 1013, 1017, 1020, 1026, 1031, 1036, 1037, 1044, 1046, 1052,
+  1056, 1057, 1063, 1066). Average `Difficulty.score` now about 12 in each room (Watchtower 12.1, Belfry
+  12.1, Crown vault 12.2; before 10.0, 10.6, 10.7), above the Royal floor (11.1), below the Fourth (12.5).
+  Flames across the floor: 965, 981, 986, 1029, 1034, 1040, 1054, 1066.
 
 ## Next
 
-1. **Tower top (1076–1100):** everything together, the finale (boss at 1100). Drawings first (show Matt).
+1. **Tower top (1076–1100):** everything together, the finale (boss at 1100). Make it the hardest room (average
+   `Difficulty.score` of 12 or more). Drawings first (show Matt).
    Keep mixing in the new puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
    Past 1100 an east wing: a mix of everything.
 2. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
