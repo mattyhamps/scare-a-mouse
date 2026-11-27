@@ -114,7 +114,7 @@ Recipes are mixed through each batch of ten rather than grouped.
 **The castle map.** Levels are grouped into rooms, and rooms into areas: the Outside (Meadow,
 Orchard, Stables, Moat bridge, Gate: 1–100), then in through the Cellars (Storeroom, Wine cellar,
 Dungeon, Kitchens: 101–200), then up the castle's floors (First floor: Library, Study, Great hall,
-Ballroom, Gallery: 201–350; and so on up to the Tower top at level 1000). The level picker opens at your room; from there you can go back to
+Ballroom, Gallery: 201–350; and so on up to the Tower top, levels 1076–1100). The level picker opens at your room; from there you can go back to
 the floor plan or to the whole castle. The last level of each area is its boss (`Recipe.BOSSES`).
 Rooms and areas are listed in `ROOMS` and `AREAS` in `index.html`. Each room's map is one flat
 drawing: the back wall with the door out at the top, then the floor, with the road winding up from the
@@ -175,9 +175,9 @@ of easier and harder levels, flames on the toughest and a boss at the end):
 | Fourth floor | 651–800 | Treasury, Music room, Sewing room, Guest bedrooms, Clock tower | None; turn tiles in about 1 level in 6 or 7 |
 | Royal floor | 801–950 | Royal chambers, Wardrobe, Sitting room, Tower stairs, Throne room | Mousetraps (801): the mouse is caught if it runs onto one; any other animal springs it safely |
 | Towers and roof | 951–1075 | Battlements, Aviary, Watchtower, Belfry, Crown vault (25 levels each, so every room ends on a 5 or a 0) | Trapdoors (951): run into one, come out of its partner |
-| Tower top | 1076–1100 | Tower top | Everything together, the finale |
+| Tower top | 1076–1100 | Tower top (the open roof at night) | None; everything together, walls back in about 1 level in 5. The finale: a card after 1100 says you reached the top, and its door leads beyond the castle |
 
-Past 1100 the castle grows an east wing: a mix of everything, moving the story along. Each new piece
+Past 1100 the story goes on beyond the castle (the rooms are called East wing 1, 2 and so on for now, in `index.html`): a mix of everything, moving the story along. Each new piece
 comes in at the start of a room, with a card and a few easy levels, then shows up more rarely.
 
 **No emoji.** Everything in the game is drawn: animals (`ART`), icons (`ICONS`) and rooms

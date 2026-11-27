@@ -12,7 +12,8 @@ _Last updated: 26 November 2026._
   castle map, bosses, flames on the hardest levels (2 cheese), hints bought per animal with cheese, and
   the mouse travelling between rooms when you clear one.
 - Levels 801–950, the whole Royal floor (five rooms and its boss), with mousetraps (see below).
-- Levels 951–1075, the whole Towers and roof (five rooms and its boss), with trapdoors (see below).
+- Levels 951–1100, the whole Towers and roof (six rooms, the floor's boss at 1075 and the castle's last boss
+  at 1100), with trapdoors (see below). The castle is finished: a finale card after 1100.
 - Turn tiles (blue painted space with chevrons that flashes when it turns an animal) come in at 501 with a
   card and a slow ramp, then appear in about 1 level in 6 or 7. Adding `?lab` to the address loads test
   puzzles from turn-lab.json.
@@ -176,13 +177,31 @@ _Last updated: 26 November 2026._
   1056, 1057, 1063, 1066). Average `Difficulty.score` now about 12 in each room (Watchtower 12.1, Belfry
   12.1, Crown vault 12.2; before 10.0, 10.6, 10.7), above the Royal floor (11.1), below the Fourth (12.5).
   Flames across the floor: 965, 981, 986, 1029, 1034, 1040, 1054, 1066.
+- The Tower top (1076–1100), the finale, also in `gen26.py` (Matt picked the starry roof, then swapped
+  most of the first pieces and the board walls):
+  - The open roof at night: moon, stars and fireworks, the castle's other towers far below, and far-off
+    hills with a road and a village's lights (the world beyond the castle, in place of a first idea of a
+    new wing being built). The climb ends at a little stair turret with the castle's flag on its roof.
+  - Pieces: a brass telescope, a star chart on an easel, a globe of the night sky, a desk with a book of
+    stars, a rug with cushions for stargazing, a rain barrel with the moon in it. Lanterns on posts at
+    every third turn of the path (`pillar` in `ROOM_SCENES`, placed by the shape).
+  - Dark blue-grey roof stones; a pale moonlit path with gold dots that runs straight from point to point
+    like a constellation (`constellation`). The board: pale night-blue checks, the plain walls (Matt).
+  - Its door says "Beyond the castle" (Matt), not the next room's name; the rooms after 1100 are still
+    called East wing 1, 2 and so on in `index.html` until they are designed.
+  - The finale card (`FINALE_CARD`): after clearing the Tower top it pops up over the win screen, says you
+    reached the top of the castle, and that the door leads beyond the castle with more on the way.
+- Its levels (`Recipe.towersFloor`): the hardest room so far, average `Difficulty.score` 12.6. Walls are back
+  in 6 of the 25 (about 1 in 5, Matt; a room's wall drawing never gets a card), mousetraps in 5, trapdoors
+  in 4, one turn tile. 1084 was changed after the dry run. 1100 is the castle's last boss (score 19, the
+  hardest in the room): walls, two traps to spring and a trapdoor; its first build scored only 15.5, so the
+  recipe was made harder. Flames: 1083 and 1099.
 
 ## Next
 
-1. **Tower top (1076–1100):** everything together, the finale (boss at 1100). Make it the hardest room (average
-   `Difficulty.score` of 12 or more). Drawings first (show Matt).
-   Keep mixing in the new puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
-   Past 1100 an east wing: a mix of everything.
+1. **Beyond the castle (past 1100):** what comes next is still open (Matt: leave the door open for more
+   levels and a bigger world). Name and design it first, then drawings (show Matt). Keep mixing in the new
+   puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
 2. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
    without scrolling: the level screen, the map, the cards and pop-ups), at a few phone sizes, with and without
    the preview banner. In a phone browser the level screen is still too tall: on Matt's iPhone (about 390×664

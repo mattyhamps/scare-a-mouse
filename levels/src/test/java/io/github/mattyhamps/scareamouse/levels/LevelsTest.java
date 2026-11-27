@@ -35,7 +35,7 @@ class LevelsTest {
     @Test
     void levelsComeInBatchesOfTen() {
         int n = levels.size();
-        boolean endsTowerRoom = n > 950 && n <= 1075 && (n - 950) % 25 == 0;
+        boolean endsTowerRoom = n > 950 && n <= 1100 && (n - 950) % 25 == 0;
         assertTrue(n % 10 == 0 || endsTowerRoom, "level count " + n);
     }
 
