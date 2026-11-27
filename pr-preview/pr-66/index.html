@@ -1824,9 +1824,12 @@ Promise.all([
     draw(); $('guide').classList.add('show');
   }
   // A level that brings in something new shows its card every time you open it, so someone who skipped it,
-  // or came back later, can read it again.
+  // or came back later, can read it again. The same goes for the finale card: once the Tower top is cleared,
+  // opening its last level (1100) shows it again (Matt's review of #66).
   function showNewCard(i) {
+    const top = ROOMS.length - 1;
     if (NEW_CARDS[i]) showGuide([NEW_CARDS[i]]);
+    else if (!DEMO && i === room(top).end - 1 && roomCleared(top)) showGuide([FINALE_CARD]);
   }
 
   // The level's name above the board: the crown on a boss or the flame on an extra-hard level before it, a tick after it once solved.
