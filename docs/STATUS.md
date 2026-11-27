@@ -206,7 +206,10 @@ _Last updated: 27 November 2026._
    are in `docs/APP_STORE.md`. Work through its steps in order, one pull request each. Step 1 (feel like a
    phone app) includes Matt's height check: the level screen, the floor map and the cards must fit a phone
    without scrolling.
-2. **Beyond the castle (past 1100):** on hold while the app ships (Matt). What comes next is still open
+2. **A harder, less repetitive castle before launch:** the plan and Matt's picks are in
+   `docs/HARDER_CASTLE.md` (Matt's playtest found 801–1100 too easy, and the "stop a runner" trick too
+   common). It runs alongside the App Store steps, in its own pull requests.
+3. **Beyond the castle (past 1100):** on hold while the app ships (Matt). What comes next is still open
    (Matt: leave the door open for more levels and a bigger world). Name and design it first, then
    drawings (show Matt). Levels there should get gradually harder (see the decisions below).
    `trap-lab.json` is still kept (Matt, #60).
@@ -250,10 +253,10 @@ Notes from Matt's legal and App Store checklist (a separate document):
   cheese. Flame levels only show that they're harder; they pay the same 1 cheese as any level (bosses
   still pay 3). A hint by ad is always available, rewarded ads only. Cheese packs are how players skip ads. There's
   no "remove ads" purchase and no unlimited hints, so cheese keeps its value. Details in `docs/APP_STORE.md`.
-- Difficulty: the castle (1–1100) stays at its current difficulty for launch; it levels off at about 12
-  from level 200 on. Levels after 1100 should get gradually harder: a higher average, and flame and boss
-  levels that properly test puzzle fans (for example 4 animals to place, or two new pieces together). After
-  launch, use player stats (where people stop or use hints) to fix any castle level that's too hard.
+- Difficulty: after Matt's playtest the castle gets harder and more varied before launch
+  (`docs/HARDER_CASTLE.md`): a rising curve from about level 200, harder flame levels and bosses, new
+  techniques, and no technique repeated too often. Levels after 1100 keep climbing. After launch, use player
+  stats (where people stop or use hints) to fix any level that's too hard.
 
 - A level's pop-up card shows every time the level is opened (Matt: so it can be read again).
 - Boards stay 10×10 from the Second floor on.

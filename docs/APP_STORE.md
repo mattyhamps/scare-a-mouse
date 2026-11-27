@@ -33,8 +33,8 @@ show screenshots of visual changes first, as usual.
   - **Version 1.0 ships with cheese packs.** Rewarded ads come in 1.1, soon after.
 - **Ads:** non-personalized at launch, so there's no tracking pop-up. Google's consent screen is shown to
   EU and UK players.
-- **Difficulty:** the castle stays at its current difficulty for launch. Levels after 1100 should get
-  gradually harder (see STATUS). After launch, use player stats to find and fix any level that's too hard.
+- **Difficulty:** the castle is made harder and more varied before launch (`docs/HARDER_CASTLE.md`). After
+  launch, use player stats to find and fix any level that's too hard.
 
 ## Step 1: feel like a phone app (no Capacitor yet)
 
