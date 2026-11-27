@@ -239,7 +239,7 @@ public final class Recipe {
         if (n > 800 && n <= 950) {
             return royalFloor(n);
         }
-        if (n > 950 && n <= 1075) {
+        if (n > 950 && n <= 1100) {
             return towersFloor(n);
         }
         switch (n) {
@@ -975,12 +975,13 @@ public final class Recipe {
     }
 
     /**
-     * 951-1075: the Towers and roof, 10x10: the Battlements (951-975), Aviary (976-1000), Watchtower (1001-1025),
-     * Belfry (1026-1050) and Crown vault (1051-1075, the floor's boss at 1075).
+     * 951-1100: the Towers and roof, 10x10: the Battlements (951-975), Aviary (976-1000), Watchtower (1001-1025),
+     * Belfry (1026-1050) and Crown vault (1051-1075, the floor's boss at 1075), then the Tower top (1076-1100), the
+     * finale, the hardest room, with walls again (about 1 level in 5, Matt) and the castle's last boss at 1100.
      * The floor's rooms have 25 levels each so every room ends on a 5 or a 0 (Matt).
      * Trapdoors come in at 951 (made by hand, TrapdoorLab.intro: no recipe here), then five easy levels to learn
      * them (952-956), then trapdoors only now and then, about 1 level in 7 (Matt). Mousetraps carry on at about
-     * 1 level in 7 and a turn tile turns up now and then. No walls on this floor (Matt).
+     * 1 level in 7 and a turn tile turns up now and then. No walls on this floor (Matt) until the Tower top.
      */
     private static Recipe towersFloor(int n) {
         Trick plain = Trick.PLAIN, free = Trick.FREEZE_RELEASE, wait = Trick.WAITING_RUNNER;
@@ -1116,6 +1117,32 @@ public final class Recipe {
             case 1073: return new Recipe(Animal.LION, 1, false, "", free).withMoves(Move.STOP);
             case 1074: return new Recipe(Animal.LION, 1, false, "", plain).withMoves(Move.SWERVE);
             case 1075: return new Recipe(Animal.LION, 1, false, "", plain).withSpringTraps(1).withTrapdoors(1); // boss: three to place, a trap to spring and a trapdoor
+            // the Tower top: the finale, the hardest room: everything together, walls again in about 1 level in 5
+            case 1076: return new Recipe(Animal.LION, 1, false, "", free).withMoves(Move.STOP);
+            case 1077: return new Recipe(Animal.ELEPHANT, 2, false, "", wait);
+            case 1078: return new Recipe(Animal.LION, 1, false, "", plain).withWalls(1, 3);
+            case 1079: return new Recipe(Animal.CAT, 1, true, "", free).withCatches(1);
+            case 1080: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withTrapdoors(1);
+            case 1081: return new Recipe(Animal.LION, 2, false, "", plain).withMoves(Move.CATCH);
+            case 1082: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.STOP).withWalls(1, 3);
+            case 1083: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(2);
+            case 1084: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withMoves(Move.SWERVE);
+            case 1085: return new Recipe(Animal.ELEPHANT, 2, false, "", free).withBlockers(Animal.CAT, Animal.DOG);
+            case 1086: return new Recipe(Animal.CAT, 1, true, "", plain).withTraps(1, 2);
+            case 1087: return new Recipe(Animal.ELEPHANT, 2, false, "", plain).withWalls(1, 3);
+            case 1088: return new Recipe(Animal.LION, 1, false, "", free).withTrapdoors(1);
+            case 1089: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withCatches(1);
+            case 1090: return new Recipe(Animal.ELEPHANT, 0, false, "", free).withMoves(Move.SWERVE, Move.STOP);
+            case 1091: return new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.CATCH).withTurnTiles(1).withTraps(1, 2);
+            case 1092: return new Recipe(Animal.LION, 1, false, "", free).withMoves(Move.CATCH).withWalls(1, 3);
+            case 1093: return new Recipe(Animal.LION, 2, false, "", free).withBlockers(Animal.DOG, Animal.BEAR);
+            case 1094: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withMoves(Move.STOP).withTraps(1, 2);
+            case 1095: return new Recipe(Animal.LION, 0, false, "", plain).withSpringTraps(1).withTrapdoors(1);
+            case 1096: return new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(1);
+            case 1097: return new Recipe(Animal.LION, 1, false, "", plain).withMoves(Move.SWERVE).withWalls(2, 4);
+            case 1098: return new Recipe(Animal.ELEPHANT, 1, false, "", wait).withMoves(Move.STOP);
+            case 1099: return new Recipe(Animal.ELEPHANT, 2, false, "", free).withBlockers(Animal.DOG, Animal.BEAR);
+            case 1100: return new Recipe(Animal.LION, 0, false, "", plain).withWalls(1, 3).withSpringTraps(2).withTrapdoors(1); // the castle's last boss: walls, two traps to spring and a trapdoor
             default: return null;
         }
     }
