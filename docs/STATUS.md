@@ -217,11 +217,13 @@ _Last updated: 27 November 2026._
 2. **A harder, less repetitive castle before launch:** the plan and Matt's picks are in
    `docs/HARDER_CASTLE.md` (Matt's playtest found 801–1100 too easy, and the "stop a runner" trick too
    common). It runs alongside the App Store steps, in its own pull requests.
-3. **Beyond the castle (past 1100):** on hold while the app ships (Matt). Ideas discussed so far: the Tower top's
-   telescope shows the lands beyond, and the next area is "the Kingdom", a map of named places (Village
-   green, Bakery, Windmill, Orchard, Harbour, Lighthouse, Misty forest, Snowy peaks). Or a sky bridge to a
-   second tower, "the Far tower", with named rooms. Rooms of 25–30 levels, not 50, and named, not numbered. What comes next is still open
-   (Matt: leave the door open for more levels and a bigger world). Name and design it first, then
+3. **Beyond the castle (past 1100):** on hold while the app ships (Matt). What comes next is still open
+   (Matt: leave the door open for more levels and a bigger world). Ideas so far:
+   - the Tower top's telescope shows the lands beyond, and the next area is "the Kingdom", a map of named
+     places (for example Village green, Bakery, Windmill, Harbour, Lighthouse, Misty forest, Snowy peaks;
+     not Orchard, which is already a room);
+   - or a sky bridge to a second tower, "the Far tower", with named rooms.
+   Rooms of 25–30 levels, not 50, and named, not numbered. Name and design it first, then
    drawings (show Matt). Levels there should get gradually harder (see the decisions below).
    `trap-lab.json` is still kept (Matt, #60).
 
