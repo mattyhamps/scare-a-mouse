@@ -190,9 +190,11 @@ _Last updated: 26 November 2026._
   - Its door says "Beyond the castle" (Matt), not the next room's name; the rooms after 1100 are still
     called East wing 1, 2 and so on in `index.html` until they are designed.
   - The finale card (`FINALE_CARD`): after clearing the Tower top it pops up over the win screen, says you
-    reached the top of the castle, and that the door leads beyond the castle with more on the way.
+    reached the top of the castle, and that the door leads beyond the castle with more on the way. Like the
+    other cards it can be read again: it shows whenever level 1100 is opened after the room is cleared
+    (Matt's review of #66).
 - Its levels (`Recipe.towersFloor`): the hardest room so far, average `Difficulty.score` 12.6. Walls are back
-  in 6 of the 25 (about 1 in 5, Matt; a room's wall drawing never gets a card), mousetraps in 5, trapdoors
+  in 6 of the 25 (about 1 in 5, Matt; a room's wall drawing never gets a card), mousetraps in 6, trapdoors
   in 4, one turn tile. 1084 was changed after the dry run. 1100 is the castle's last boss (score 19, the
   hardest in the room): walls, two traps to spring and a trapdoor; its first build scored only 15.5, so the
   recipe was made harder. Flames: 1083 and 1099.
