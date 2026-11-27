@@ -268,7 +268,8 @@ Notes from Matt's legal and App Store checklist (a separate document):
   no "remove ads" purchase and no unlimited hints, so cheese keeps its value. Details in `docs/APP_STORE.md`.
 - Difficulty: after Matt's playtest the castle gets harder and more varied before launch
   (`docs/HARDER_CASTLE.md`): a rising curve from about level 200, harder flame levels and bosses, new
-  techniques, and no technique repeated too often. Levels after 1100 keep climbing. After launch, use player
+  techniques, and no technique repeated too often. It shouldn't be all difficult: an occasional easy level
+  (about 1 in 8–10) is kept as a breather, but overall the game keeps getting more challenging. Levels after 1100 keep climbing. After launch, use player
   stats (where people stop or use hints) to fix any level that's too hard.
 
 - A level's pop-up card shows every time the level is opened (Matt: so it can be read again).

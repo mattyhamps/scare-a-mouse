@@ -33,8 +33,12 @@ alongside the App Store steps, in its own pull requests.
    solution unique.
 7. **More than one way the chain could start:** only one of them works, so the obvious first move is wrong.
 8. **A rising curve:** each floor harder than the last, instead of flat at about 12 from level 200.
-9. **Fewer breather levels** on the upper floors, but keep the easy warm-up levels after each new piece
-   (turn tiles at 501, mousetraps at 801, trapdoors at 951).
+9. **Breathers, but fewer of them (Matt):** it shouldn't be all difficult. Keep an occasional easier level
+   as a breather, about 1 in 8 to 10, placed where a rest feels good: right after a flame level or a hard
+   stretch, or at the start of a room. Breathers stay easy even as the floors get harder, so they really
+   feel like a rest. The rest of each room carries the rising curve, so overall the game keeps getting
+   more challenging. Also keep the easy warm-up levels after each new piece (turn tiles at 501, mousetraps
+   at 801, trapdoors at 951).
 10. **Real flame levels and bosses:** the hardest recipes the level maker can build, not just the hardest
     of an ordinary batch.
 11. **Limits on repeats:** no single technique in more than about 1 level in 8–10, and never the same
@@ -82,7 +86,8 @@ has to finish in a sensible time.
    time and `Difficulty.score` for each. Drop anything that can't build in about a minute.
 3. **Propose the curve to Matt** as a table by room, and wait for his OK:
    - Levels 1–200 and the warm-ups stay as they are.
-   - From about 200 up, the average climbs steadily from about 12 to about 16–18 by the Tower top.
+   - From about 200 up, the average climbs steadily from about 12 to about 16–18 by the Tower top. The
+     breathers (about 1 in 8–10) stay easy, so the other levels climb a little faster to make the average.
    - Show the share of each technique per room.
 4. **Rebuild floor by floor,** one pull request per floor or two:
    - Keep each room's look, its names (rename where a puzzle changes, 20 characters at most and none
