@@ -1,5 +1,5 @@
 import json, math, re
-# ================= Towers and roof: Battlements, Aviary (more rooms of this floor to follow)
+# ================= Towers and roof: Battlements, Aviary, Watchtower, Belfry, Crown vault
 # Builds on gen25.py's helpers (and so every floor before it), same flat style: the light half of each
 # object on the left, a darker half on the right, one soft shadow under anything that stands on the floor.
 # Run from this folder: python3 gen26.py && python3 export_towers.py
@@ -144,6 +144,197 @@ add6('tall_birdcage',tall_birdcage(0,0),(0,-4,60,136)); add6('hook_cage',hook_ca
 add6('bird_bath',bird_bath(0,0),(0,4,72,84)); add6('nest_post',nest_post(0,0),(-4,0,68,130)); add6('feeder_table',feeder_table(0,0),(0,-6,88,90))
 add6('bird_tree',bird_tree(0,0),(0,0,76,132))
 add6('bird_fly_blue',flying_bird(26,20,BLUE[0],BLUE[1]),(0,0,52,34)); add6('bird_fly_red',flying_bird(26,20,RED[0],RED[1],True),(0,0,52,34))
+# ---------- WATCHTOWER (the lookout room: a round sandstone room high up, windows over the countryside)
+SAND=('#e3cfa4','#cdb382','#a88f62')
+def wt_window(x,y,w=40,h=100):
+    return f'''<path d="M{x} {y+h} L{x} {y+16} Q{x} {y} {x+w/2} {y} Q{x+w} {y} {x+w} {y+16} L{x+w} {y+h} Z" fill="{SAND[2]}"/>
+      <path d="M{x+5} {y+h-4} L{x+5} {y+18} Q{x+5} {y+6} {x+w/2} {y+6} Q{x+w-5} {y+6} {x+w-5} {y+18} L{x+w-5} {y+h-4} Z" fill="{SKY[0]}"/>
+      <path d="M{x+5} {y+h*0.62} Q{x+w*0.4} {y+h*0.55} {x+w-5} {y+h*0.6} L{x+w-5} {y+h-4} L{x+5} {y+h-4} Z" fill="{Q["olive"]}"/>
+      <path d="M{x+5} {y+h*0.76} Q{x+w*0.6} {y+h*0.7} {x+w-5} {y+h*0.78} L{x+w-5} {y+h-4} L{x+5} {y+h-4} Z" fill="{Q["olive2"]}"/>
+      <circle cx="{x+w*0.68}" cy="{y+h*0.56}" r="4" fill="{Q["green"]}"/><path d="M{x+5} {y+h*0.88} L{x+w-5} {y+h*0.84}" stroke="#6f9bb3" stroke-width="2.4"/>
+      <rect x="{x-4}" y="{y+h-2}" width="{w+8}" height="7" rx="2" fill="{SAND[0]}"/>'''
+def torch(x,y):
+    return f'''<g transform="translate({x} {y})"><circle cx="0" cy="-10" r="14" fill="{Q["mustard"]}" opacity=".18"/><rect x="-2" y="0" width="4" height="18" fill="{IRON[2]}"/><path d="M-6 18 L6 18 L4 24 L-4 24 Z" fill="{IRON[1]}"/>
+      <path d="M-5 0 Q-7 -10 0 -18 Q7 -10 5 0 Z" fill="{Q["orange"]}"/><path d="M-2.5 0 Q-3 -6 0 -11 Q3 -6 2.5 0 Z" fill="{Q["mustard"]}"/></g>'''
+def watchtower_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="{SAND[1]}"/>'
+    w+=''.join(f'<rect x="{x}" y="{y}" width="44" height="18" rx="2" fill="{SAND[0] if (x//48+r)%3 else SAND[2]}" opacity=".35"/>' for r,y in enumerate(range(4,214,22)) for x in range(-24+(r%2)*24,390,48))
+    w+='<rect x="0" y="0" width="34" height="214" fill="#3a2a18" opacity=".14"/><rect x="356" y="0" width="34" height="214" fill="#3a2a18" opacity=".14"/>'   # the wall curves away
+    w+=wt_window(22,46)+wt_window(84,46)+wt_window(266,46)+wt_window(328,46)
+    w+=torch(135,92)+torch(255,92)
+    # the map of the lands around the castle, pinned above the door
+    w+=f'<rect x="150" y="24" width="90" height="62" rx="2" fill="{Q["cream2"]}"/><rect x="153" y="27" width="84" height="56" fill="{Q["cream"]}"/>'
+    w+=f'<path d="M156 70 Q176 58 192 66 Q210 74 234 58" stroke="#6f9bb3" stroke-width="3" fill="none"/><path d="M164 50 l7 -10 l7 10 Z M178 48 l6 -8 l6 8 Z" fill="{Q["olive2"]}"/><circle cx="214" cy="40" r="5" fill="{GREY[1]}"/><rect x="211" y="33" width="6" height="7" fill="{GREY[2]}"/>'
+    w+=f'<path d="M200 70 l6 6 M206 70 l-6 6" stroke="{CRIM[0]}" stroke-width="2.4"/>'+''.join(f'<circle cx="{px}" cy="{py}" r="2.6" fill="{c}"/>' for px,py,c in ((152,26,CRIM[0]),(238,26,BLUE[0]),(152,84,BLUE[0]),(238,84,CRIM[0])))
+    w+=f'<rect x="146" y="100" width="98" height="114" fill="{SAND[2]}"/>'+gate_arch(164,62,(WOOD[1],WOOD[2]))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
+    return w
+def watch_pillar(x,y):   # a round sandstone pillar in the middle of the room, with a torch
+    return f'''<g transform="translate({x} {y})">{shadow(22,112,24,6)}<rect x="0" y="100" width="44" height="12" rx="2" fill="{SAND[2]}"/><rect x="5" y="8" width="34" height="94" fill="{SAND[0]}"/><rect x="25" y="8" width="14" height="94" fill="{SAND[1]}"/>
+      {"".join(f'<rect x="5" y="{yy}" width="34" height="2" fill="{SAND[2]}" opacity=".6"/>' for yy in (30,54,78))}<rect x="0" y="0" width="44" height="10" rx="2" fill="{SAND[2]}"/>{torch(22,44)}</g>'''
+def map_table(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(48,74,46,5)}<path d="M10 30 L10 74 M86 30 L86 74 M20 30 L20 68 M76 30 L76 68" stroke="{WOOD[2]}" stroke-width="5"/>{two(0,22,96,10,WOOD[1],WOOD[2],2)}
+      <path d="M8 22 L14 4 L86 6 L90 22 Z" fill="{Q["cream"]}"/><path d="M60 5 L86 6 L90 22 L62 22 Z" fill="{Q["cream2"]}"/><path d="M18 18 Q34 8 50 14 Q66 20 82 10" stroke="#6f9bb3" stroke-width="2.4" fill="none"/>
+      <path d="M26 12 l5 -6 l5 6 Z" fill="{Q["olive2"]}"/>{"".join(f'<circle cx="{px}" cy="{py}" r="2.4" fill="{c}"/>' for px,py,c in ((40,10,CRIM[0]),(70,16,BLUE[0]),(58,9,CRIM[0])))}
+      <circle cx="80" cy="16" r="5" fill="{GOLD[1]}"/><circle cx="80" cy="16" r="3" fill="{Q["cream"]}"/><path d="M80 13 L80 19" stroke="{CRIM[0]}" stroke-width="1.4"/></g>'''
+def spyglass_rack(x,y):
+    def glass(gx,rot,l): return f'<g transform="translate({gx} 60) rotate({rot})"><rect x="-4" y="{-l}" width="8" height="{l}" rx="2" fill="{GOLD[1]}"/><rect x="0" y="{-l}" width="4" height="{l}" rx="2" fill="{GOLD[2]}"/><rect x="-5.5" y="{-l-6}" width="11" height="10" rx="2" fill="{GOLD[1]}"/><rect x="-4.5" y="{-l*0.5}" width="9" height="5" fill="{WOOD[2]}"/></g>'
+    return f'''<g transform="translate({x} {y})">{shadow(30,104,26,5)}{glass(16,-12,54)}{glass(30,0,62)}{glass(44,12,50)}{two(4,56,52,48,WOOD[1],WOOD[2],3)}
+      <rect x="0" y="52" width="60" height="8" rx="2" fill="{WOOD[2]}"/><rect x="12" y="70" width="36" height="20" rx="2" fill="none" stroke="{WOOD[0]}" stroke-width="2"/></g>'''
+def signal_horn(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(40,100,32,5)}<path d="M40 100 L40 56 M24 100 L40 70 L56 100" stroke="{WOOD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M6 30 Q4 6 30 8 Q60 10 68 34 Q72 46 60 50 Q50 52 46 42 Q42 26 26 28 Q16 30 14 40 Z" fill="{GOLD[1]}"/><path d="M48 18 Q62 24 68 34 Q72 46 60 50 Q50 52 46 42 Q44 30 40 26 Z" fill="{GOLD[2]}"/>
+      <ellipse cx="9" cy="36" rx="8" ry="11" fill="{GOLD[2]}"/><ellipse cx="9" cy="36" rx="5" ry="8" fill="#5a3a12"/><path d="M58 46 L70 52" stroke="{GOLD[1]}" stroke-width="4" stroke-linecap="round"/>
+      <path d="M22 16 Q40 6 56 20" stroke="{CRIM[0]}" stroke-width="3" fill="none"/><path d="M30 12 L30 22 M44 12 L44 22" stroke="{CRIM[1]}" stroke-width="2"/></g>'''
+def beacon_lamp(x,y):
+    return f'''<g transform="translate({x} {y})"><circle cx="26" cy="22" r="30" fill="{Q["mustard"]}" opacity=".2"/>{shadow(26,128,24,5)}{two(6,96,40,32,SAND[0],SAND[1],2)}<rect x="2" y="92" width="48" height="7" rx="2" fill="{SAND[2]}"/>
+      <rect x="23" y="48" width="6" height="46" fill="{IRON[1]}"/><path d="M8 6 L26 -8 L44 6 Z" fill="{IRON[2]}"/><rect x="10" y="6" width="32" height="38" rx="3" fill="{Q["mustard"]}"/>
+      <path d="M18 40 Q14 26 26 14 Q38 26 34 40 Z" fill="{Q["orange"]}"/><path d="M10 6 L10 44 M42 6 L42 44 M26 6 L26 44" stroke="{IRON[2]}" stroke-width="2.4"/><rect x="6" y="42" width="40" height="7" rx="2" fill="{IRON[2]}"/><circle cx="26" cy="-10" r="3" fill="{IRON[1]}"/></g>'''
+def log_desk(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(30,110,24,5)}<rect x="26" y="40" width="8" height="70" fill="{WOOD[1]}"/><path d="M12 110 L30 100 L48 110" stroke="{WOOD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M2 30 L58 22 L58 34 L2 42 Z" fill="{WOOD[2]}"/><path d="M6 30 L30 26 L30 36 L6 40 Z" fill="{Q["cream"]}"/><path d="M30 26 L54 23 L54 33 L30 36 Z" fill="{Q["cream2"]}"/>
+      <path d="M10 33 L26 30 M10 36 L24 34 M34 30 L50 28 M34 33 L48 31" stroke="{Q["brown"]}" stroke-width="1"/>
+      <g transform="translate(36 -6)"><rect x="0" y="0" width="16" height="3" fill="{WOOD[2]}"/><rect x="0" y="22" width="16" height="3" fill="{WOOD[2]}"/><path d="M2 3 L14 3 L8 12.5 L14 22 L2 22 L8 12.5 Z" fill="#cfe7ee"/><path d="M5 18 L11 18 L13 22 L3 22 Z M6 8 L10 8 L8 11 Z" fill="{Q["tan"]}"/></g></g>'''
+def weathervane(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(36,132,16,4)}<rect x="34" y="20" width="4" height="112" fill="{GOLD[1]}"/><path d="M26 132 L46 132" stroke="{Q["cream"]}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M8 64 L64 64 M36 52 L36 76" stroke="{Q["cream"]}" stroke-width="2.4"/><path d="M2 60 L5 68 L7 63 L9 68 L12 60" stroke="{Q["cream"]}" stroke-width="1.8" fill="none"/><path d="M70 60 L64 60 L64 68 L70 68 M64 64 L69 64" stroke="{Q["cream"]}" stroke-width="1.8" fill="none"/>
+      <path d="M14 18 L58 18" stroke="{Q["cream"]}" stroke-width="2.4"/><path d="M58 18 L66 12 L66 24 Z" fill="{Q["cream"]}"/><path d="M14 18 L8 12 L4 12 L8 18 L4 24 L8 24 Z" fill="{Q["cream"]}"/>
+      <path d="M22 16 Q20 0 34 2 Q38 -6 42 0 Q44 6 40 8 Q52 6 54 16 Z" fill="{GOLD[1]}"/><path d="M38 2 Q46 4 48 8 L52 6 Q54 12 54 16 L40 16 Z" fill="{GOLD[2]}"/><path d="M34 -2 l2 -6 l3 5 l2 -5 l1 6 Z" fill="{CRIM[0]}"/><circle cx="37" cy="3" r="1.2" fill="{DARK}"/><circle cx="36" cy="18" r="3" fill="{GOLD[1]}"/></g>'''
+def watch_bench(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(46,60,44,5)}<path d="M10 34 L8 60 M82 34 L84 60 M20 34 L20 56 M72 34 L72 56" stroke="{WOOD[2]}" stroke-width="5"/>{two(0,26,92,10,WOOD[1],WOOD[2],2)}
+      <path d="M12 26 Q12 10 24 10 L50 10 Q60 10 60 26 Z" fill="{BLUE[0]}"/><path d="M12 18 L60 18" stroke="{Q["cream"]}" stroke-width="3"/><path d="M40 10 L50 10 Q60 10 60 26 L40 26 Z" fill="{BLUE[1]}"/>
+      <rect x="70" y="10" width="14" height="16" rx="3" fill="{Q["cream"]}"/><path d="M84 14 Q90 18 84 22" stroke="{Q["cream2"]}" stroke-width="2.4" fill="none"/><rect x="70" y="10" width="14" height="4" rx="2" fill="{Q["brown"]}"/></g>'''
+
+# ---------- BELFRY (the bell loft: bronze bells on oak beams, ropes, sleepy bats)
+OAK=('#8c6440','#6e4c30','#523822')
+BRONZE=('#d9a85a','#b8863a','#8a6024')
+def bell(cx,top,w,h,crack=False):   # a bronze bell, light on the left, with a clapper showing under it
+    x0,x1=cx-w/2,cx+w/2
+    s=f'<path d="M{cx-w*0.26:.1f} {top+h*0.12:.1f} Q{cx-w*0.28:.1f} {top:.1f} {cx} {top} Q{cx+w*0.28:.1f} {top} {cx+w*0.26:.1f} {top+h*0.12:.1f} Q{cx+w*0.3:.1f} {top+h*0.6:.1f} {x1} {top+h*0.9:.1f} L{x1} {top+h} L{x0} {top+h} L{x0} {top+h*0.9:.1f} Q{cx-w*0.3:.1f} {top+h*0.6:.1f} {cx-w*0.26:.1f} {top+h*0.12:.1f} Z" fill="{BRONZE[0]}"/>'
+    s+=f'<path d="M{cx} {top} Q{cx+w*0.28:.1f} {top} {cx+w*0.26:.1f} {top+h*0.12:.1f} Q{cx+w*0.3:.1f} {top+h*0.6:.1f} {x1} {top+h*0.9:.1f} L{x1} {top+h} L{cx+w*0.1:.1f} {top+h} Z" fill="{BRONZE[1]}"/>'
+    s+=f'<rect x="{x0-2:.1f}" y="{top+h*0.84:.1f}" width="{w+4}" height="{h*0.1:.1f}" rx="2" fill="{BRONZE[2]}"/><circle cx="{cx}" cy="{top+h+h*0.08:.1f}" r="{w*0.08:.1f}" fill="{BRONZE[2]}"/><rect x="{cx-w*0.12:.1f}" y="{top-h*0.1:.1f}" width="{w*0.24:.1f}" height="{h*0.12:.1f}" rx="2" fill="{BRONZE[2]}"/>'
+    if crack: s+=f'<path d="M{cx-w*0.1:.1f} {top+h:.1f} l4 -10 l-5 -8 l5 -9" stroke="{BRONZE[2]}" stroke-width="2" fill="none"/>'
+    return s
+def bat(x,y,s=1):   # a little bat hanging upside down, wings folded, fast asleep
+    return f'''<g transform="translate({x} {y}) scale({s})"><path d="M-2 0 L-2 4 M2 0 L2 4" stroke="#3a2e3e" stroke-width="1.6"/><ellipse cx="0" cy="14" rx="7" ry="10" fill="#5a4a62"/><path d="M-7 8 Q-12 16 -6 24 Q0 20 0 14 Z M7 8 Q12 16 6 24 Q0 20 0 14 Z" fill="#46384e"/>
+      <circle cx="0" cy="24" r="5" fill="#5a4a62"/><path d="M-4 29 L-3 25 L-1 28 Z M4 29 L3 25 L1 28 Z" fill="#5a4a62"/><path d="M-3 23 q1.4 1 2.6 0 M0.6 23 q1.4 1 2.6 0" stroke="#e6d6f0" stroke-width=".9" fill="none"/></g>'''
+def belfry_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="{OAK[2]}"/>'
+    w+=''.join(f'<rect x="{x}" y="0" width="28" height="214" fill="{OAK[1]}" opacity="{.5 if k%2 else .7}"/>' for k,x in enumerate(range(0,390,30)))
+    for x in (12,322):   # louvred windows: slats with slivers of sky
+        w+=f'<rect x="{x}" y="40" width="56" height="104" rx="3" fill="{OAK[0]}"/><rect x="{x+5}" y="45" width="46" height="94" fill="{SKY[0]}"/>'+''.join(f'<path d="M{x+5} {yy} L{x+51} {yy+8} L{x+51} {yy+14} L{x+5} {yy+6} Z" fill="{OAK[1]}"/>' for yy in range(45,134,12))
+    w+=f'<rect x="0" y="8" width="390" height="16" fill="{OAK[0]}"/><rect x="0" y="20" width="390" height="4" fill="{OAK[2]}" opacity=".6"/>'
+    w+=f'<rect x="124" y="24" width="12" height="190" fill="{OAK[0]}"/><rect x="254" y="24" width="12" height="190" fill="{OAK[0]}"/><path d="M136 70 L168 24 M254 70 L222 24" stroke="{OAK[0]}" stroke-width="9"/>'
+    w+=f'<circle cx="195" cy="62" r="36" fill="none" stroke="{OAK[0]}" stroke-width="6"/>'+''.join(f'<path d="M195 62 L{195+36*math.cos(math.radians(a)):.1f} {62+36*math.sin(math.radians(a)):.1f}" stroke="{OAK[0]}" stroke-width="3"/>' for a in range(0,360,45))
+    w+=f'<path d="M195 24 L195 30" stroke="{IRON[2]}" stroke-width="4"/>'+bell(195,30,58,56)
+    w+=f'<path d="M98 24 L98 32 M290 24 L290 32" stroke="{IRON[2]}" stroke-width="3"/>'+bell(98,32,38,38)+bell(290,32,38,38)
+    w+=f'<path d="M98 76 Q94 120 100 150 Q104 176 98 206" stroke="{Q["tan"]}" stroke-width="3" fill="none"/><path d="M290 76 Q294 120 288 150 Q284 176 290 206" stroke="{Q["tan"]}" stroke-width="3" fill="none"/>'
+    w+=f'<rect x="94" y="150" width="9" height="20" rx="4" fill="{CRIM[0]}"/><rect x="286" y="150" width="9" height="20" rx="4" fill="{BLUE[0]}"/>'
+    w+=bat(40,24)+bat(160,24,0.9)+bat(232,24,0.8)+bat(352,24)
+    w+=f'<rect x="146" y="100" width="98" height="114" fill="{OAK[1]}"/>'+gate_arch(164,62,(WOOD[1],WOOD[2]))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
+    return w
+def old_bell(x,y):
+    return f'<g transform="translate({x} {y})">{shadow(40,78,40,6)}{bell(40,6,76,66,True)}<path d="M6 78 L74 78" stroke="{WOOD[1]}" stroke-width="5" stroke-linecap="round"/></g>'
+def bell_frame(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(36,102,34,5)}<path d="M8 102 L22 10 M64 102 L50 10" stroke="{WOOD[0]}" stroke-width="7" stroke-linecap="round"/><path d="M50 10 L64 102" stroke="{WOOD[1]}" stroke-width="7" stroke-linecap="round"/>
+      <rect x="14" y="4" width="44" height="9" rx="2" fill="{WOOD[0]}"/><path d="M36 13 L36 22" stroke="{IRON[2]}" stroke-width="3"/>{bell(36,22,34,34)}<path d="M14 90 L58 90" stroke="{WOOD[1]}" stroke-width="5"/>
+      <path d="M50 46 Q58 70 54 92" stroke="{Q["tan"]}" stroke-width="2.4" fill="none"/></g>'''
+def loft_ladder(x,y):
+    rungs=''.join(f'<rect x="4" y="{yy}" width="24" height="5" rx="1" fill="{OAK[0]}"/>' for yy in range(10,122,16))
+    return f'<g transform="translate({x} {y})">{shadow(20,130,22,5)}<g transform="rotate(8 16 130)"><rect x="0" y="0" width="6" height="130" rx="2" fill="{WOOD[0]}"/><rect x="26" y="0" width="6" height="130" rx="2" fill="{WOOD[1]}"/>{rungs}</g></g>'
+def rope_coil(x,y):
+    rings=''.join(f'<ellipse cx="36" cy="{30-k*5}" rx="{32-k*3}" ry="{11-k*0.8:.1f}" fill="none" stroke="{"#f3dcaa" if k%2 else "#d8b47a"}" stroke-width="6"/>' for k in range(4))
+    return f'<g transform="translate({x} {y})">{shadow(36,40,34,5)}{rings}<path d="M64 32 Q76 36 80 30" stroke="{Q["tan2"]}" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="36" cy="14" rx="14" ry="4" fill="#2a1d14" opacity=".8"/></g>'
+def bat_post(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(36,122,18,4)}<rect x="32" y="8" width="9" height="114" fill="{WOOD[0]}"/><rect x="37" y="8" width="4" height="114" fill="{WOOD[1]}"/><rect x="2" y="6" width="70" height="9" rx="2" fill="{WOOD[0]}"/>
+      <path d="M22 122 L50 122" stroke="{WOOD[1]}" stroke-width="6" stroke-linecap="round"/>{bat(14,15)}{bat(60,15,0.85)}</g>'''
+def handbell(hx,hy,s,c):
+    return f'<g transform="translate({hx} {hy}) scale({s})"><rect x="-3" y="-20" width="6" height="12" rx="2" fill="{c}"/><path d="M-6 -8 Q-7 4 -11 10 L11 10 Q7 4 6 -8 Q0 -12 -6 -8 Z" fill="{BRONZE[0]}"/><path d="M1 -10 Q7 -8 6 -8 Q7 4 11 10 L2 10 Z" fill="{BRONZE[1]}"/><rect x="-12" y="9" width="24" height="3" rx="1" fill="{BRONZE[2]}"/></g>'
+def handbell_table(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(46,72,44,5)}<path d="M10 40 L10 72 M82 40 L82 72" stroke="{WOOD[1]}" stroke-width="6"/>{two(0,32,92,10,CRIM[0],CRIM[1],2)}<path d="M2 42 L90 42" stroke="{GOLD[1]}" stroke-width="2"/>
+      {handbell(16,22,1.15,CRIM[0])}{handbell(38,23,1,BLUE[0])}{handbell(58,24,0.85,Q["green"])}{handbell(76,25,0.7,Q["mustard"])}</g>'''
+def clapper_crate(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(34,62,34,5)}{two(2,24,64,38,WOOD[1],WOOD[2],2)}<path d="M2 36 L66 36 M2 50 L66 50 M6 24 L62 62" stroke="{WOOD[2]}" stroke-width="2.4"/>
+      <g transform="rotate(-24 30 18)"><rect x="27" y="-10" width="6" height="30" rx="2" fill="{IRON[1]}"/><circle cx="30" cy="22" r="8" fill="{IRON[2]}"/><circle cx="27" cy="19" r="2.4" fill="{IRON[0]}"/></g>
+      <rect x="48" y="12" width="16" height="14" rx="2" fill="{IRON[1]}"/><rect x="48" y="10" width="16" height="4" rx="2" fill="{IRON[2]}"/><path d="M54 10 L52 2" stroke="{WOOD[1]}" stroke-width="3"/></g>'''
+
+# ---------- CROWN VAULT (the crown jewels, behind a round steel vault door: the floor's last room)
+STEEL=('#c9ced6','#a3aab4','#747c88')
+VSTONE=('#4a3f38','#3d342e','#2e2722')
+def crown(cx,base,w,c=None,gem=None):   # a king's crown, its band sitting on y=base
+    c=c or GOLD[1]; gem=gem or CRIM[0]; h=w*0.62
+    tips=' '.join(f'L{cx-w/2+w*k/4:.1f} {base-h*(1 if k%2==0 else 0.55):.1f}' for k in range(5))
+    s=f'<path d="M{cx-w/2:.1f} {base:.1f} {tips} L{cx+w/2:.1f} {base:.1f} Z" fill="{c}"/>'
+    s+=f'<path d="M{cx:.1f} {base-h*0.55:.1f} L{cx+w/4:.1f} {base-h:.1f} L{cx+w/2:.1f} {base-h*0.55:.1f} L{cx+w/2:.1f} {base:.1f} L{cx:.1f} {base:.1f} Z" fill="{GOLD[2]}" opacity=".55"/>'
+    s+=f'<rect x="{cx-w/2-1:.1f}" y="{base-h*0.24:.1f}" width="{w+2:.1f}" height="{h*0.26:.1f}" rx="1.5" fill="{GOLD[2]}"/>'
+    s+=''.join(f'<circle cx="{cx-w/2+w*k/4:.1f}" cy="{base-h-2:.1f}" r="{w*0.05+1:.1f}" fill="#fff4d0"/>' for k in (0,2,4))
+    s+=f'<circle cx="{cx:.1f}" cy="{base-h*0.11:.1f}" r="{w*0.07+0.5:.1f}" fill="{gem}"/><circle cx="{cx-w*0.3:.1f}" cy="{base-h*0.11:.1f}" r="{w*0.05:.1f}" fill="{BLUE[0]}"/><circle cx="{cx+w*0.3:.1f}" cy="{base-h*0.11:.1f}" r="{w*0.05:.1f}" fill="{Q["green"]}"/>'
+    return s
+def vault_door():
+    s=f'<circle cx="195" cy="160" r="60" fill="{VSTONE[2]}"/><circle cx="195" cy="160" r="54" fill="{STEEL[1]}"/><path d="M195 106 A54 54 0 0 1 195 214 Z" fill="{STEEL[2]}" opacity=".55"/>'
+    s+=f'<circle cx="195" cy="160" r="44" fill="none" stroke="{STEEL[0]}" stroke-width="3"/>'+''.join(f'<circle cx="{195+49*math.cos(math.radians(a)):.1f}" cy="{160+49*math.sin(math.radians(a)):.1f}" r="2.6" fill="{STEEL[2]}"/>' for a in range(0,360,30))
+    s+=''.join(f'<path d="M195 160 L{195+26*math.cos(math.radians(a)):.1f} {160+26*math.sin(math.radians(a)):.1f}" stroke="{GOLD[1]}" stroke-width="4" stroke-linecap="round"/>' for a in range(0,360,60))
+    s+=f'<circle cx="195" cy="160" r="26" fill="none" stroke="{GOLD[1]}" stroke-width="3"/><circle cx="195" cy="160" r="8" fill="{GOLD[2]}"/><rect x="250" y="146" width="10" height="28" rx="3" fill="{STEEL[2]}"/>'
+    return s
+def niche(x,c,gem):
+    return f'''<path d="M{x} 150 L{x} 74 Q{x} 46 {x+35} 46 Q{x+70} 46 {x+70} 74 L{x+70} 150 Z" fill="{GOLD[2]}"/><path d="M{x+5} 150 L{x+5} 76 Q{x+5} 52 {x+35} 52 Q{x+65} 52 {x+65} 76 L{x+65} 150 Z" fill="{CRIM[2]}"/>
+      <circle cx="{x+35}" cy="102" r="26" fill="#fff4d0" opacity=".16"/>{two(x+18,120,34,30,MARBLE[0],MARBLE[1],2)}<rect x="{x+14}" y="116" width="42" height="6" rx="2" fill="{MARBLE[2]}"/>{crown(x+35,116,34,c,gem)}'''
+def crown_vault_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="{VSTONE[1]}"/>'
+    w+=''.join(f'<rect x="{x}" y="{y}" width="60" height="30" rx="2" fill="{VSTONE[0] if (x//64+r)%2 else VSTONE[2]}" opacity=".55"/>' for r,y in enumerate(range(2,214,34)) for x in range(-30+(r%2)*32,390,64))
+    w+=f'<rect x="0" y="0" width="390" height="10" fill="{GOLD[2]}"/><rect x="0" y="10" width="390" height="3" fill="{GOLD[1]}"/>'
+    w+=''.join(f'<path d="M{x} 13 Q{x+32} 40 {x+65} 13 Z" fill="{CRIM[0]}"/><path d="M{x+32} 26 Q{x+50} 24 {x+65} 13 L{x+32} 13 Z" fill="{CRIM[1]}"/><circle cx="{x}" cy="15" r="4" fill="{GOLD[1]}"/>' for x in range(0,390,65))
+    w+=niche(26,GOLD[1],CRIM[0])+niche(294,'#e8e2d6',BLUE[0])
+    w+=f'<rect x="0" y="150" width="390" height="64" fill="{VSTONE[2]}"/><rect x="0" y="148" width="390" height="5" fill="{GOLD[2]}"/>'
+    w+=f'<path d="M171 40 L219 40 L219 70 Q219 92 195 100 Q171 92 171 70 Z" fill="{CRIM[0]}"/><path d="M195 40 L219 40 L219 70 Q219 92 195 100 Z" fill="{CRIM[1]}"/><path d="M171 40 L219 40 L219 70 Q219 92 195 100 Q171 92 171 70 Z" fill="none" stroke="{GOLD[1]}" stroke-width="3"/>'+crown(195,74,30)
+    w+=vault_door()
+    return w
+def glow(cx,cy,r): return f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#fff4d0" opacity=".18"/>'
+def crown_plinth(x,y):
+    return f'''<g transform="translate({x} {y})">{glow(30,30,30)}{shadow(30,122,26,5)}{two(10,48,40,66,MARBLE[0],MARBLE[1],2)}<rect x="4" y="112" width="52" height="10" rx="2" fill="{MARBLE[2]}"/><rect x="4" y="42" width="52" height="9" rx="2" fill="{GOLD[1]}"/>
+      <rect x="14" y="62" width="32" height="36" rx="2" fill="none" stroke="{GOLD[1]}" stroke-width="2"/>{crown(30,42,46)}</g>'''
+def orb_sceptre(x,y):
+    return f'''<g transform="translate({x} {y})">{glow(36,30,30)}{shadow(36,92,32,5)}<path d="M14 54 L10 92 M58 54 L62 92" stroke="{GOLD[2]}" stroke-width="5"/>{two(2,46,68,10,CRIM[0],CRIM[1],3)}<path d="M4 56 L68 56" stroke="{GOLD[1]}" stroke-width="2"/>
+      <circle cx="24" cy="32" r="14" fill="{GOLD[1]}"/><path d="M24 18 A14 14 0 0 1 24 46 Z" fill="{GOLD[2]}"/><path d="M10 32 L38 32 M24 18 L24 46" stroke="{Q["cream"]}" stroke-width="2"/><path d="M24 18 L24 8 M19 12 L29 12" stroke="{GOLD[1]}" stroke-width="3"/><circle cx="24" cy="32" r="3" fill="{CRIM[0]}"/>
+      <g transform="rotate(28 52 30)"><rect x="49" y="4" width="6" height="44" rx="2" fill="{GOLD[1]}"/><circle cx="52" cy="2" r="6" fill="{BLUE[0]}"/><path d="M46 8 L58 8" stroke="{GOLD[2]}" stroke-width="3"/></g></g>'''
+def sword_case(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(52,72,50,5)}<path d="M10 40 L8 72 M94 40 L96 72" stroke="{GOLD[2]}" stroke-width="5"/>{two(0,34,104,9,GOLD[1],GOLD[2],2)}
+      <rect x="2" y="6" width="100" height="30" rx="3" fill="#cfe7ee" opacity=".75"/><rect x="2" y="6" width="100" height="30" rx="3" fill="none" stroke="{GOLD[1]}" stroke-width="2.4"/><rect x="4" y="26" width="96" height="9" fill="{CRIM[1]}"/>
+      <path d="M14 22 L72 22 L80 25 L72 28 L14 28 Z" fill="{STEEL[0]}"/><path d="M14 25 L80 25 L72 28 L14 28 Z" fill="{STEEL[1]}"/><rect x="72" y="16" width="5" height="18" rx="2" fill="{GOLD[1]}"/><rect x="77" y="22" width="16" height="6" rx="2" fill="{GOLD[2]}"/><circle cx="95" cy="25" r="4" fill="{CRIM[0]}"/><circle cx="74.5" cy="25" r="2" fill="{BLUE[0]}"/>
+      <path d="M10 10 L26 10" stroke="#fff" stroke-width="2" opacity=".7"/></g>'''
+def tiara(tx,ty,c): return f'<path d="M{tx-12} {ty} Q{tx} {ty-14} {tx+12} {ty}" stroke="{GOLD[1]}" stroke-width="3" fill="none"/><path d="M{tx-6} {ty-5} L{tx} {ty-14} L{tx+6} {ty-5}" fill="{GOLD[1]}"/><circle cx="{tx}" cy="{ty-8}" r="2.6" fill="{c}"/>'
+def tiara_cabinet(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(32,124,30,5)}{two(2,4,60,116,GOLD[1],GOLD[2],3)}<rect x="8" y="12" width="48" height="98" rx="2" fill="{CRIM[1]}"/><rect x="8" y="12" width="48" height="98" rx="2" fill="#cfe7ee" opacity=".22"/>
+      {"".join(f'<rect x="8" y="{yy}" width="48" height="3" fill="{GOLD[2]}"/>' for yy in (42,74,106))}{tiara(32,40,BLUE[0])}{tiara(32,72,CRIM[0])}
+      <path d="M16 90 Q32 106 48 90" stroke="{GOLD[1]}" stroke-width="2" fill="none"/>{"".join(f'<circle cx="{px}" cy="{py}" r="2.4" fill="{c}"/>' for px,py,c in ((22,97,Q["green"]),(32,101,CRIM[0]),(42,97,Q["green"])))}
+      <path d="M14 18 L22 18" stroke="#fff" stroke-width="2" opacity=".7"/><rect x="0" y="118" width="64" height="6" rx="2" fill="{GOLD[2]}"/><circle cx="52" cy="62" r="2" fill="{GOLD[0]}"/></g>'''
+def ring_tray(x,y):
+    return f'''<g transform="translate({x} {y})">{glow(32,24,22)}{shadow(32,72,26,5)}<rect x="28" y="34" width="8" height="38" fill="{GOLD[2]}"/><path d="M16 72 L32 64 L48 72" stroke="{GOLD[2]}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="32" cy="32" rx="30" ry="8" fill="{GOLD[1]}"/><ellipse cx="32" cy="30" rx="26" ry="6" fill="{CRIM[1]}"/>
+      {"".join(f'<ellipse cx="{rx}" cy="{ry}" rx="5" ry="3.4" fill="none" stroke="{GOLD[0]}" stroke-width="2"/><circle cx="{rx}" cy="{ry-3.6}" r="2.2" fill="{c}"/>' for rx,ry,c in ((18,30,BLUE[0]),(32,28,CRIM[0]),(46,30,Q["green"]),(26,33,'#fff4d0'),(40,33,GRN[0])))}</g>'''
+def ermine_robe(x,y):
+    spots=''.join(f'<path d="M{sx} {sy} l1.4 3 l-2.8 0 Z" fill="{DARK}"/>' for sx,sy in ((12,62),(14,86),(12,108),(48,62),(46,86),(48,108),(24,28),(36,28)))
+    return f'''<g transform="translate({x} {y})">{shadow(30,124,26,5)}<rect x="27" y="4" width="6" height="16" fill="{WOOD[2]}"/><ellipse cx="30" cy="6" rx="8" ry="6" fill="{WOOD[1]}"/>
+      <path d="M14 20 Q30 14 46 20 L56 118 L4 118 Z" fill="{CRIM[0]}"/><path d="M30 18 Q40 16 46 20 L56 118 L30 118 Z" fill="{CRIM[1]}"/>
+      <path d="M8 18 Q30 10 52 18 L50 34 Q30 26 10 34 Z" fill="#fbf6ec"/><path d="M6 50 L18 52 L16 118 L4 118 Z M54 50 L42 52 L44 118 L56 118 Z" fill="#fbf6ec"/>{spots}
+      <path d="M22 118 L38 118 L36 124 L24 124 Z" fill="{WOOD[2]}"/></g>'''
+def crowned_bust(x,y):
+    return f'''<g transform="translate({x} {y})">{shadow(28,124,24,5)}{two(10,62,36,52,MARBLE[0],MARBLE[1],2)}<rect x="4" y="112" width="48" height="10" rx="2" fill="{MARBLE[2]}"/><rect x="6" y="58" width="44" height="7" rx="2" fill="{MARBLE[2]}"/>
+      <path d="M8 58 Q8 40 28 40 Q48 40 48 58 Z" fill="{MARBLE[0]}"/><path d="M28 40 Q48 40 48 58 L28 58 Z" fill="{MARBLE[1]}"/><rect x="22" y="32" width="12" height="10" fill="{MARBLE[1]}"/>
+      <ellipse cx="28" cy="24" rx="12" ry="14" fill="{MARBLE[0]}"/><path d="M28 10 Q40 12 40 24 Q40 36 28 38 Z" fill="{MARBLE[1]}"/><path d="M15 22 Q12 26 16 28" stroke="{MARBLE[2]}" stroke-width="2" fill="none"/>
+      {crown(28,14,24)}<path d="M10 52 Q28 60 46 52" stroke="{GOLD[1]}" stroke-width="2.4" fill="none"/><circle cx="28" cy="56" r="3.4" fill="{GOLD[1]}"/></g>'''
+
+H6['Watchtower']=watchtower_head()+STEP
+add6('watch_pillar',watch_pillar(0,0),(0,0,44,114)); add6('map_table',map_table(0,0),(0,2,96,76)); add6('spyglass_rack',spyglass_rack(0,0),(-4,-8,68,114))
+add6('signal_horn',signal_horn(0,0),(0,4,74,98)); add6('beacon_lamp',beacon_lamp(0,0),(0,-14,52,144)); add6('log_desk',log_desk(0,0),(0,-8,60,120))
+add6('weathervane',weathervane(0,0),(0,-10,72,144)); add6('watch_bench',watch_bench(0,0),(0,8,92,54))
+H6['Belfry']=belfry_head()+STEP
+add6('old_bell',old_bell(0,0),(0,0,80,84)); add6('bell_frame',bell_frame(0,0),(0,2,72,102)); add6('loft_ladder',loft_ladder(0,0),(-2,-2,52,134))
+add6('rope_coil',rope_coil(0,0),(0,10,84,34)); add6('bat_post',bat_post(0,0),(0,4,74,120)); add6('handbell_table',handbell_table(0,0),(0,0,92,74))
+add6('clapper_crate',clapper_crate(0,0),(0,-4,68,68))
+H6['Crown vault']=crown_vault_head()   # no step: the round vault door comes right down to the floor
+add6('crown_plinth',crown_plinth(0,0),(0,0,60,124)); add6('orb_sceptre',orb_sceptre(0,0),(0,0,72,94)); add6('sword_case',sword_case(0,0),(0,4,104,70))
+add6('tiara_cabinet',tiara_cabinet(0,0),(0,2,64,124)); add6('ring_tray',ring_tray(0,0),(0,2,64,72)); add6('ermine_robe',ermine_robe(0,0),(0,0,60,126))
+add6('crowned_bust',crowned_bust(0,0),(0,-2,56,126))
 H6={k:re.sub(r'\s+',' ',v).strip() for k,v in H6.items()}
 json.dump({'heads':H6,'props':P6},open('./towers_art.json','w'),separators=(',',':'),ensure_ascii=False)
 print({k:len(v) for k,v in H6.items()}, len(P6))

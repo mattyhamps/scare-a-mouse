@@ -7,7 +7,7 @@ Python scripts. Each `genNN.py` builds on the one before it (it runs the earlier
 drawing style stays the same: flat shapes, the light half of each object on the left and a darker half on
 the right, one soft shadow under anything that stands on the floor.
 
-- `gen26.py`: the Towers and roof so far (Battlements, Aviary). `python3 gen26.py && python3 export_towers.py`
+- `gen26.py`: the Towers and roof (Battlements, Aviary, Watchtower, Belfry, Crown vault). `python3 gen26.py && python3 export_towers.py`
   rebuilds them (no board walls on this floor).
 - `gen22.py`, `gen23.py`: the Third floor (Guard room, Toy room, Hall of mirrors, Bathhouse, Trophy room).
   `python3 gen22.py && python3 gen23.py && python3 export_third.py` rebuilds those rooms in room-art.json.
