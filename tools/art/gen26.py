@@ -1,5 +1,5 @@
 import json, math, re
-# ================= Towers and roof: Battlements, Aviary, Watchtower, Belfry, Crown vault
+# ================= Towers and roof: Battlements, Aviary, Watchtower, Belfry, Crown vault, Tower top
 # Builds on gen25.py's helpers (and so every floor before it), same flat style: the light half of each
 # object on the left, a darker half on the right, one soft shadow under anything that stands on the floor.
 # Run from this folder: python3 gen26.py && python3 export_towers.py
@@ -335,7 +335,87 @@ H6['Crown vault']=crown_vault_head()   # no step: the round vault door comes rig
 add6('crown_plinth',crown_plinth(0,0),(0,0,60,124)); add6('orb_sceptre',orb_sceptre(0,0),(0,0,72,94)); add6('sword_case',sword_case(0,0),(0,4,104,70))
 add6('tiara_cabinet',tiara_cabinet(0,0),(0,2,64,124)); add6('ring_tray',ring_tray(0,0),(0,2,64,72)); add6('ermine_robe',ermine_robe(0,0),(0,0,60,126))
 add6('crowned_bust',crowned_bust(0,0),(0,-2,56,126))
+# ---------- TOWER TOP (the open roof at night, the castle's flag at the very top: the finale)
+NIGHT=('#1a2040','#222a4e','#2e3760')
+MOON=('#f6eed6','#e6dab6')
+ROOF=('#8d90a8','#74778f','#5c5f76')   # the tower's moonlit stone
+def spark(x,y,s,c):  # 4-point sparkle (as in gen5.py)
+    return f'<path d="M{x} {y-s} Q{x+s*.18} {y-s*.18} {x+s} {y} Q{x+s*.18} {y+s*.18} {x} {y+s} Q{x-s*.18} {y+s*.18} {x-s} {y} Q{x-s*.18} {y-s*.18} {x} {y-s} Z" fill="{c}"/>'
+def burst(cx,cy,r,c,c2,n=12):   # a firework: rays out from the middle, a dot at the end of each
+    o=''.join(f'<path d="M{cx+r*0.3*math.cos(a):.1f} {cy+r*0.3*math.sin(a):.1f} L{cx+r*math.cos(a):.1f} {cy+r*math.sin(a):.1f}" stroke="{c}" stroke-width="2.2" stroke-linecap="round"/><circle cx="{cx+r*1.12*math.cos(a):.1f}" cy="{cy+r*1.12*math.sin(a):.1f}" r="2" fill="{c2}"/>' for a in [2*math.pi*k/n for k in range(n)])
+    return o+f'<circle cx="{cx}" cy="{cy}" r="{r*0.16:.1f}" fill="{c2}"/>'
+def far_roof(x,base,w,h,lit=()):   # another of the castle's towers far below, a dark shape with lit windows
+    o=f'<rect x="{x-w/2}" y="{base-h}" width="{w}" height="{h}" fill="#141a34"/><path d="M{x-w/2-6} {base-h+1} L{x} {base-h-w*0.9} L{x+w/2+6} {base-h+1} Z" fill="#10152c"/>'
+    return o+''.join(f'<rect x="{x-4}" y="{base-h+12+k*20}" width="8" height="11" rx="4" fill="{GOLD[0]}" opacity=".85"/>' for k in lit)
+def tower_top_head():
+    w=f'<rect x="0" y="0" width="390" height="214" fill="{NIGHT[1]}"/><rect x="0" y="0" width="390" height="60" fill="{NIGHT[0]}"/><rect x="0" y="120" width="390" height="94" fill="{NIGHT[2]}" opacity=".7"/>'
+    w+=''.join(f'<circle cx="{sx}" cy="{sy}" r="{r}" fill="{MOON[0]}" opacity="{op}"/>' for sx,sy,r,op in [(22,18,1.4,.9),(98,12,1.2,.8),(132,58,1.6,.9),(168,24,1.1,.7),(236,14,1.3,.9),(262,64,1.2,.7),(356,20,1.5,.9),(374,74,1.1,.7),(20,96,1.2,.7),(112,100,1.3,.8),(286,108,1.2,.8),(58,132,1.1,.6),(150,128,1.2,.6)])
+    w+=''.join(spark(sx,sy,s,GOLD[0]) for sx,sy,s in [(74,82,5),(104,30,4),(268,70,4),(330,90,5),(38,56,3.5),(250,40,3.5)])
+    # the moon, top left, with a soft glow
+    w+=f'<circle cx="60" cy="42" r="34" fill="{MOON[0]}" opacity=".08"/><circle cx="60" cy="42" r="22" fill="{MOON[0]}"/><circle cx="70" cy="36" r="19" fill="{NIGHT[0]}"/>'
+    # fireworks over the castle
+    w+=burst(316,46,26,Q["coral"],GOLD[0])+burst(140,26,13,'#8fc2e8','#e6f2fa',10)+burst(364,82,11,GOLD[0],MOON[0],10)
+    # far off, the world beyond the castle: dark hills, a road winding away into them, a little village's lights
+    w+=f'<path d="M0 150 Q50 118 110 134 Q170 112 230 130 Q300 104 390 122 L390 176 L0 176 Z" fill="#3a4a72"/><path d="M180 150 Q250 124 310 136 Q350 126 390 132 L390 176 L180 176 Z" fill="#4a5c86"/>'
+    w+=f'<path d="M262 152 Q300 146 296 138 Q290 130 330 128 Q350 127 354 122" stroke="#c9cce0" stroke-width="3.4" fill="none" stroke-linecap="round"/>'
+    w+=''.join(f'<path d="M{hx} {hy} l7 -6 l7 6 Z" fill="#141a34"/><rect x="{hx+1}" y="{hy}" width="12" height="8" fill="#141a34"/><rect x="{hx+5}" y="{hy+2}" width="3.4" height="3.4" fill="{GOLD[0]}"/>' for hx,hy in [(348,116),(362,119),(375,114)])
+    # the rest of the castle far below
+    w+=far_roof(30,176,34,40,(0,))+far_roof(104,176,26,24)+far_roof(292,176,28,30,(0,))
+    # the tower's own parapet across the front, with merlons
+    w+=f'<rect x="0" y="166" width="390" height="48" fill="{ROOF[1]}"/><rect x="0" y="166" width="390" height="5" fill="{ROOF[0]}"/>'+merlons(0,390,150,16,22,14,ROOF[1])+merlons(0,390,150,4,22,14,ROOF[0])
+    w+=''.join(f'<rect x="{x}" y="{178+((x//48)%2)*14}" width="44" height="10" rx="2" fill="{ROOF[2]}" opacity=".55"/>' for x in range(2,390,48))
+    # the top of the stairs: a little stone turret with the door on (to the east wing), the castle's flag flying from its roof
+    w+=f'<rect x="192" y="6" width="5" height="40" fill="{IRON[0]}"/><rect x="194.5" y="6" width="2.5" height="40" fill="{IRON[1]}"/><circle cx="194.5" cy="6" r="5" fill="{GOLD[1]}"/><circle cx="193" cy="4.5" r="1.8" fill="{GOLD[0]}"/>'
+    w+=f'<path d="M197 10 Q224 4 252 14 Q240 28 254 42 Q224 34 197 40 Z" fill="{CRIM[0]}"/><path d="M197 26 Q224 20 250 30 Q240 36 254 42 Q224 34 197 40 Z" fill="{CRIM[1]}"/>'
+    w+=f'<path d="M214 30 L214 19 L219 24 L223 16 L227 24 L232 19 L232 30 Z" fill="{GOLD[1]}"/><rect x="214" y="28" width="18" height="3.5" fill="{GOLD[2]}"/>'
+    w+=f'<rect x="136" y="92" width="118" height="122" fill="{ROOF[0]}"/><rect x="214" y="92" width="40" height="122" fill="{ROOF[1]}"/>'
+    w+=''.join(f'<rect x="{140+(r%2)*20+k*40}" y="{98+r*20}" width="36" height="14" rx="2" fill="{ROOF[1]}" opacity=".5"/>' for r in range(2) for k in range(3) if 140+(r%2)*20+k*40<246)
+    w+=f'<path d="M126 96 L195 40 L264 96 Z" fill="#4c5376"/><path d="M195 40 L264 96 L195 96 Z" fill="#3a4062"/><rect x="128" y="92" width="134" height="6" rx="2" fill="{ROOF[2]}"/>'
+    w+=f'<rect x="146" y="104" width="98" height="110" fill="{ROOF[2]}"/>'+gate_arch(164,62,(WOOD[1],WOOD[2]))+f'<circle cx="216" cy="172" r="3.4" fill="{GOLD[0]}"/>'
+    w+=f'<rect x="150" y="124" width="10" height="16" rx="5" fill="{GOLD[0]}" opacity=".8"/><rect x="230" y="124" width="10" height="16" rx="5" fill="{GOLD[0]}" opacity=".8"/>'
+    return w
+def lantern_post(x,y):   # an iron post with a glowing lantern: one at every third turn of the starry path
+    return f'''<g transform="translate({x} {y})"><circle cx="18" cy="20" r="26" fill="{GOLD[0]}" opacity=".16"/>{shadow(18,104,14,4)}<rect x="15" y="34" width="6" height="70" fill="{IRON[1]}"/><rect x="18" y="34" width="3" height="70" fill="{IRON[2]}"/>
+      <rect x="8" y="100" width="20" height="6" rx="2" fill="{IRON[2]}"/><path d="M6 10 L18 0 L30 10 Z" fill="{IRON[1]}"/><rect x="8" y="10" width="20" height="24" rx="2" fill="{GOLD[0]}"/><rect x="18" y="10" width="10" height="24" rx="2" fill="{GOLD[1]}"/>
+      <path d="M8 10 L28 10 M8 34 L28 34 M18 10 L18 34" stroke="{IRON[2]}" stroke-width="2"/><path d="M14 30 Q12 22 18 16 Q22 24 20 30 Z" fill="#fff4d0"/></g>'''
+def telescope(x,y):   # the big brass telescope on a wooden stand, pointing up at the stars
+    return f'''<g transform="translate({x} {y})">{shadow(42,108,34,5)}<path d="M42 58 L14 108 M42 58 L70 108 M42 58 L44 108" stroke="{WOOD[1]}" stroke-width="5" stroke-linecap="round"/><path d="M42 58 L70 108" stroke="{WOOD[2]}" stroke-width="5" stroke-linecap="round"/>
+      <g transform="rotate(-34 42 52)"><rect x="-8" y="44" width="82" height="16" rx="4" fill="{GOLD[1]}"/><rect x="-8" y="52" width="82" height="8" rx="4" fill="{GOLD[2]}"/><rect x="62" y="40" width="18" height="24" rx="4" fill="{GOLD[1]}"/><rect x="62" y="52" width="18" height="12" rx="4" fill="{GOLD[2]}"/>
+        <rect x="-18" y="47" width="12" height="10" rx="2" fill="{IRON[1]}"/><rect x="20" y="42" width="5" height="20" fill="{WOOD[2]}"/><rect x="44" y="42" width="5" height="20" fill="{WOOD[2]}"/><ellipse cx="80" cy="52" rx="3" ry="11" fill="#cfe6f4"/></g>
+      <circle cx="42" cy="56" r="5" fill="{IRON[1]}"/></g>'''
+def star_easel(x,y):   # a star chart on an easel: the stars joined up into pictures
+    stars=[(16,22),(28,14),(40,26),(30,40),(18,52),(46,48),(36,62)]
+    return f'''<g transform="translate({x} {y})">{shadow(34,118,28,4)}<path d="M18 4 L6 118 M50 4 L62 118 M34 0 L34 112" stroke="{WOOD[1]}" stroke-width="4" stroke-linecap="round"/><path d="M50 4 L62 118" stroke="{WOOD[2]}" stroke-width="4" stroke-linecap="round"/>
+      <rect x="4" y="2" width="60" height="78" rx="3" fill="{Q["cream"]}"/><rect x="8" y="6" width="52" height="70" rx="2" fill="{Q["navy2"]}"/>
+      <path d="M{" L".join(f"{sx+2} {sy+2}" for sx,sy in stars[:4])} M{stars[3][0]+2} {stars[3][1]+2} L{stars[4][0]+2} {stars[4][1]+2} M{stars[3][0]+2} {stars[3][1]+2} L{stars[5][0]+2} {stars[5][1]+2} L{stars[6][0]+2} {stars[6][1]+2}" stroke="{MOON[1]}" stroke-width="1.2" fill="none" opacity=".7"/>
+      {"".join(spark(sx+2,sy+2,3.6,GOLD[0]) for sx,sy in stars)}<rect x="2" y="78" width="64" height="6" rx="2" fill="{WOOD[2]}"/></g>'''
+def star_globe(x,y):   # a globe of the night sky: dark blue with gold stars, in a brass ring on a wooden stand
+    stars=[(20,24),(34,16),(44,30),(26,40),(38,46),(16,36),(30,28)]
+    return f'''<g transform="translate({x} {y})">{shadow(30,104,24,4)}<path d="M30 70 L14 104 M30 70 L46 104 M30 70 L30 104" stroke="{WOOD[1]}" stroke-width="4.4" stroke-linecap="round"/><path d="M30 70 L46 104" stroke="{WOOD[2]}" stroke-width="4.4" stroke-linecap="round"/>
+      <rect x="22" y="62" width="16" height="10" rx="3" fill="{WOOD[1]}"/><rect x="30" y="62" width="8" height="10" rx="3" fill="{WOOD[2]}"/>
+      <circle cx="30" cy="34" r="25" fill="{Q["navy"]}"/><path d="M30 9 A25 25 0 0 1 30 59 Z" fill="{Q["navy2"]}"/>{"".join(spark(sx,sy,3,GOLD[0]) for sx,sy in stars)}
+      <path d="M20 24 L34 16 L44 30 M26 40 L38 46" stroke="{MOON[1]}" stroke-width="1" opacity=".6" fill="none"/>
+      <circle cx="30" cy="34" r="29" fill="none" stroke="{GOLD[1]}" stroke-width="3.4" stroke-dasharray="70 12"/><path d="M30 2 L30 66" stroke="{GOLD[2]}" stroke-width="2.4"/><circle cx="30" cy="3" r="3" fill="{GOLD[1]}"/></g>'''
+def star_desk(x,y):   # a little desk with a big open book of stars, a candle and a quill pen
+    return f'''<g transform="translate({x} {y})">{shadow(44,86,40,5)}{two(4,40,80,8,WOOD[0],WOOD[1],2)}<rect x="10" y="48" width="6" height="38" fill="{WOOD[1]}"/><rect x="72" y="48" width="6" height="38" fill="{WOOD[2]}"/><rect x="10" y="66" width="68" height="4" fill="{WOOD[2]}"/>
+      <path d="M14 40 L14 22 Q28 16 43 22 L43 40 Q28 35 14 40 Z" fill="{Q["cream"]}"/><path d="M43 22 Q58 16 72 22 L72 40 Q58 35 43 40 Z" fill="{Q["cream2"]}"/><path d="M43 22 L43 40" stroke="{WOOD[2]}" stroke-width="1.4"/>
+      {spark(24,28,3,Q["navy"])}{spark(33,25,2.4,Q["navy"])}{spark(30,33,2,Q["navy"])}<path d="M50 26 L66 26 M50 30 L64 30 M50 34 L62 34" stroke="{WOOD[1]}" stroke-width="1.4"/>
+      <rect x="74" y="20" width="7" height="20" rx="1" fill="#fbf4e2"/><rect x="72" y="38" width="11" height="3" rx="1" fill="{GOLD[2]}"/><circle cx="77.5" cy="12" r="10" fill="{GOLD[0]}" opacity=".22"/><path d="M77.5 18 Q73 12 77.5 5 Q82 12 77.5 18 Z" fill="{GOLD[1]}"/><path d="M77.5 17 Q75.5 13 77.5 9 Q79.5 13 77.5 17 Z" fill="#fff4d0"/>
+      <path d="M4 38 Q2 22 14 10" stroke="{Q["cream"]}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M14 10 Q10 18 8 30" stroke="{Q["cream2"]}" stroke-width="2" fill="none"/></g>'''
+def stargaze_rug(x,y):   # a rug with cushions and a folded blanket: for lying back and watching the stars
+    return f'''<g transform="translate({x} {y})"><path d="M4 30 L84 30 L94 64 L-6 64 Z" fill="{CRIM[1]}"/><path d="M10 34 L78 34 L86 60 L2 60 Z" fill="{CRIM[0]}"/><path d="M14 38 L74 38 L80 56 L8 56 Z" fill="none" stroke="{GOLD[1]}" stroke-width="2"/>
+      {"".join(f'<path d="M{fx} 64 l-2 5 M{fx+4} 64 l0 5" stroke="{GOLD[1]}" stroke-width="1.6"/>' for fx in range(0,90,10))}
+      <ellipse cx="22" cy="34" rx="16" ry="10" fill="{Q["navy"]}"/><ellipse cx="26" cy="32" rx="9" ry="5" fill="#5a6ab8" opacity=".6"/><ellipse cx="50" cy="30" rx="14" ry="9" fill="{GOLD[1]}"/><ellipse cx="53" cy="28" rx="7" ry="4" fill="{GOLD[0]}" opacity=".7"/>
+      <path d="M58 44 L84 44 L88 56 L60 56 Z" fill="{Q["cream"]}"/><path d="M60 50 L86 50" stroke="{Q["cream2"]}" stroke-width="2.4"/>{spark(22,34,3,GOLD[0])}</g>'''
+def rain_barrel(x,y):   # a wooden rain barrel on the roof, the moon and a star shining in the water
+    return f'''<g transform="translate({x} {y})">{shadow(30,88,28,4)}<path d="M8 16 Q4 52 10 86 L50 86 Q56 52 52 16 Z" fill="{WOOD[1]}"/><path d="M30 16 L52 16 Q56 52 50 86 L30 86 Z" fill="{WOOD[2]}"/>
+      <path d="M14 18 Q10 52 15 84 M24 18 Q22 52 24 84 M36 18 Q38 52 36 84 M46 18 Q50 52 45 84" stroke="{WOOD[2]}" stroke-width="1.4" opacity=".6" fill="none"/>
+      <path d="M7 30 Q30 34 53 30 M6 70 Q30 74 54 70" stroke="{IRON[1]}" stroke-width="4" fill="none"/>
+      <ellipse cx="30" cy="16" rx="23" ry="7" fill="{WOOD[2]}"/><ellipse cx="30" cy="16" rx="19" ry="5" fill="{NIGHT[1]}"/><circle cx="24" cy="15.5" r="3.2" fill="{MOON[0]}"/><circle cx="25.6" cy="14.6" r="2.6" fill="{NIGHT[1]}"/>{spark(36,16,2.2,GOLD[0])}</g>'''
+H6['Tower top']=tower_top_head()+STEP
+add6('lantern_post',lantern_post(0,0),(0,-6,36,112)); add6('telescope',telescope(0,0),(-12,0,100,112)); add6('star_easel',star_easel(0,0),(0,0,68,122))
+add6('star_globe',star_globe(0,0),(0,0,60,108)); add6('star_desk',star_desk(0,0),(0,0,90,90)); add6('stargaze_rug',stargaze_rug(0,0),(-6,18,100,54)); add6('rain_barrel',rain_barrel(0,0),(0,6,60,86))
 H6={k:re.sub(r'\s+',' ',v).strip() for k,v in H6.items()}
 json.dump({'heads':H6,'props':P6},open('./towers_art.json','w'),separators=(',',':'),ensure_ascii=False)
 print({k:len(v) for k,v in H6.items()}, len(P6))
-# No board walls on this floor (Matt).
+# No board walls drawn for this floor: the Tower top's walls are the plain ones (Matt).
