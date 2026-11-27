@@ -26,6 +26,7 @@ export scripts don't need those.
 ## `screens/`: look at the game and play it
 
 Node scripts using Playwright (`npm install -g playwright` and `npx playwright install chromium` once).
+If Node can't find Playwright, set `NODE_PATH` to the folder `npm root -g` prints.
 They serve the built game from `web/target/site` (build it with `mvn -q package -DskipTests -pl web -am`).
 
 - `node tools/screens/play.js 501 650`: plays each level with its intended solution and says whether the
@@ -35,6 +36,10 @@ They serve the built game from `web/target/site` (build it with `mvn -q package 
 - `node tools/screens/names.js`: puts every level's name with its crown or flame and solved tick, and a 4-digit cheese
   count into the real header at 360px and 390px wide, and lists any name that doesn't fit on one line (exits with 1).
 - `node tools/screens/card.js 501`: the level with its how-to card, then the board.
+- `node tools/screens/fit.js`: checks that the game fits a phone without scrolling at 390×664 (an iPhone's
+  browser) and 360×640: the how-to-play cards, a spread of levels (with their cards), the room, floor and
+  castle maps, and the tester link's "Coming soon" map. Saves `fit-<size>-*.png` and exits with 1 if anything
+  needs scrolling. Give level numbers to check other levels. `OUT` sets another folder for the screenshots.
 
 Screenshots go to `tools/screens/out/` (not committed). Set `SITE` to serve another folder, and `CHROME`
 to use a particular Chrome.
