@@ -2,7 +2,7 @@
 
 Update this file in every pull request: what changed, what's next, and any decision Matt made.
 
-_Last updated: 26 November 2026._
+_Last updated: 27 November 2026._
 
 ## Done
 
@@ -201,13 +201,31 @@ _Last updated: 26 November 2026._
 
 ## Next
 
-1. **Beyond the castle (past 1100):** what comes next is still open (Matt: leave the door open for more
-   levels and a bigger world). Name and design it first, then drawings (show Matt). Keep mixing in the new
-   puzzle types below (Matt's call). `trap-lab.json` is still kept (Matt, #60).
-2. **Height check (Matt's to-do):** check heights across the whole game on phones (does each screen fit
-   without scrolling: the level screen, the map, the cards and pop-ups), at a few phone sizes, with and without
-   the preview banner. In a phone browser the level screen is still too tall: on Matt's iPhone (about 390×664
-   visible) the animal tray and the buttons sit partly below the fold.
+**Where to start (Matt, 27 November 2026):** two jobs, each in its own pull requests, each starting from
+`main`:
+- **App Store step 1** (`docs/APP_STORE.md`): the rename, the phone fit, and hints at 3 + 3. Quick, and it
+  doesn't touch levels.
+- **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`): the technique tagging report and the dry
+  run, including 4 and 5 animals. Show Matt the results and the proposed curve before rebuilding
+  anything.
+
+1. **The App Store:** ship the finished castle as an iPhone app called **Mouse in Hole**, as soon as
+   possible. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps
+   are in `docs/APP_STORE.md`. Work through its steps in order, one pull request each. Step 1 (feel like a
+   phone app) includes Matt's height check: the level screen, the floor map and the cards must fit a phone
+   without scrolling.
+2. **A harder, less repetitive castle before launch:** the plan and Matt's picks are in
+   `docs/HARDER_CASTLE.md` (Matt's playtest found 801–1100 too easy, and the "stop a runner" trick too
+   common). It runs alongside the App Store steps, in its own pull requests.
+3. **Beyond the castle (past 1100):** on hold while the app ships (Matt). What comes next is still open
+   (Matt: leave the door open for more levels and a bigger world). Ideas so far:
+   - the Tower top's telescope shows the lands beyond, and the next area is "the Kingdom", a map of named
+     places (for example Village green, Bakery, Windmill, Harbour, Lighthouse, Misty forest, Snowy peaks;
+     not Orchard, which is already a room);
+   - or a sky bridge to a second tower, "the Far tower", with named rooms.
+   Rooms of 25–30 levels, not 50, and named, not numbered. Name and design it first, then
+   drawings (show Matt). Levels there should get gradually harder (see the decisions below).
+   `trap-lab.json` is still kept (Matt, #60).
 
 ## New puzzle types for 861 on
 
@@ -237,8 +255,22 @@ Notes from Matt's legal and App Store checklist (a separate document):
 - Keep "CastleMouse" and "Castle Mouse" out of the game's name, store listing, keywords and icon.
 - Nothing important may be drawn with emoji (already true, and a test enforces it).
 - The repo is public with no license. Plan to make it private before launch.
+- The rest of the release checklist (listing, privacy policy, privacy labels, the EU contact details) is
+  step 5 of `docs/APP_STORE.md`.
 
 ## Decisions to remember
+
+- The game's name is **Mouse in Hole** (store, app and everything players see). It's for puzzle fans aged
+  about 15–45, with plain, friendly text. Matt publishes as an individual. (November 2026)
+- Hints cost 3 cheese for the shaded area and 3 more for the exact square, and new players start with 0
+  cheese. Flame levels only show that they're harder; they pay the same 1 cheese as any level (bosses
+  still pay 3). A hint by ad is always available, rewarded ads only. Cheese packs are how players skip ads. There's
+  no "remove ads" purchase and no unlimited hints, so cheese keeps its value. Details in `docs/APP_STORE.md`.
+- Difficulty: after Matt's playtest the castle gets harder and more varied before launch
+  (`docs/HARDER_CASTLE.md`): a rising curve from about level 200, harder flame levels and bosses, new
+  techniques, and no technique repeated too often. It shouldn't be all difficult: an occasional easy level
+  (about 1 in 8–10) is kept as a breather, but overall the game keeps getting more challenging. Levels after 1100 keep climbing. After launch, use player
+  stats (where people stop or use hints) to fix any level that's too hard.
 
 - A level's pop-up card shows every time the level is opened (Matt: so it can be read again).
 - Boards stay 10×10 from the Second floor on.
