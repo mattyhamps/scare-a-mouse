@@ -1,6 +1,7 @@
 # Getting Mouse in Hole into the App Store
 
-The castle is finished (levels 1–1100). This file is the plan for shipping it as an iPhone app, as soon as
+The castle is finished (levels 1–1100), and it's being made harder before launch (`docs/HARDER_CASTLE.md`,
+in its own pull requests). This file is the plan for shipping it as an iPhone app, as soon as
 possible. Work through the steps in order, one pull request each (step 1 may need two). Each step says what
 to build and how to check it. Ask Matt before any choice that changes how the game looks or plays, and
 show screenshots of visual changes first, as usual.
@@ -30,11 +31,42 @@ show screenshots of visual changes first, as usual.
     Wheel (110, $2.99), Cheese cellar (250, $4.99).
   - **A one-time starter offer** the first time a player runs short: 60 cheese for $0.99, shown once.
   - **No "remove ads" purchase and no unlimited hints:** either would make cheese worthless.
+  - **Maybe later, not at launch:** "Big appetite", a one-time purchase (about $2.99) where clean solves
+    pay 2 cheese instead of 1. Also cosmetics bought with cheese (hats for the mouse, a golden hole), to
+    give strong players' cheese piles a use.
   - **Version 1.0 ships with cheese packs.** Rewarded ads come in 1.1, soon after.
 - **Ads:** non-personalized at launch, so there's no tracking pop-up. Google's consent screen is shown to
   EU and UK players.
 - **Difficulty:** the castle is made harder and more varied before launch (`docs/HARDER_CASTLE.md`). After
   launch, use player stats to find and fix any level that's too hard.
+
+### Why these numbers
+
+A simulation of three kinds of player through all 1,100 levels (the hint rates were guesses):
+- **Old prices (hints 1 + 2, start with 5):** puzzle fans and average players finished with hundreds of
+  cheese and never needed help. Only casual players ran short.
+- **New prices (3 + 3, start with 0):** puzzle fans still never run short. Average players start feeling
+  it around the Second floor, about 85 times over the castle. Casual players run short often, from about
+  level 25–50.
+- **Ad hints and packs** are the way through, so nobody is ever truly stuck.
+
+Rewarded video pays very roughly 0.5–1.5 cents per ad watched. Matt doesn't expect real money from this,
+so the aim is a fair, friendly economy, not squeezing players. Check the balance with TestFlight players
+and the level stats.
+
+## Matt's to-dos (outside the code)
+
+1. **Enroll in the Apple Developer Program as an individual** ($99/year): legal name, two-factor sign-in
+   on the Apple Account, and a real street address (P.O. boxes aren't accepted at enrollment).
+2. **Reserve the name "Mouse in Hole"** in App Store Connect once approved (create the app record).
+3. **Decide about the EU** before step 5. Selling there (purchases or ads) means Apple shows a contact
+   address, phone and email on the EU store. A PO box is fine for the address. Otherwise, leave the EU
+   out at launch.
+4. **At step 4:** a RevenueCat account (free at this size) and the Paid Apps agreement, tax (W-9) and bank
+   details in App Store Connect.
+5. **At step 6:** a Google AdMob account.
+6. **An LLC isn't needed now.** If the game takes off, Matt can form one (Pennsylvania: $125, then $7 a
+   year) and convert the Apple account to an organization, keeping the app.
 
 ## Step 1: feel like a phone app (no Capacitor yet)
 

@@ -201,6 +201,14 @@ _Last updated: 27 November 2026._
 
 ## Next
 
+**Where to start (Matt, 27 November 2026):** two jobs, each in its own pull requests, each starting from
+`main`:
+- **App Store step 1** (`docs/APP_STORE.md`): the rename, the phone fit, and hints at 3 + 3. Quick, and it
+  doesn't touch levels.
+- **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`): the technique tagging report and the dry
+  run, including 4 and 5 animals. Show Matt the results and the proposed curve before rebuilding
+  anything.
+
 1. **The App Store:** ship the finished castle as an iPhone app called **Mouse in Hole**, as soon as
    possible. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps
    are in `docs/APP_STORE.md`. Work through its steps in order, one pull request each. Step 1 (feel like a
@@ -209,7 +217,10 @@ _Last updated: 27 November 2026._
 2. **A harder, less repetitive castle before launch:** the plan and Matt's picks are in
    `docs/HARDER_CASTLE.md` (Matt's playtest found 801–1100 too easy, and the "stop a runner" trick too
    common). It runs alongside the App Store steps, in its own pull requests.
-3. **Beyond the castle (past 1100):** on hold while the app ships (Matt). What comes next is still open
+3. **Beyond the castle (past 1100):** on hold while the app ships (Matt). Ideas discussed so far: the Tower top's
+   telescope shows the lands beyond, and the next area is "the Kingdom", a map of named places (Village
+   green, Bakery, Windmill, Orchard, Harbour, Lighthouse, Misty forest, Snowy peaks). Or a sky bridge to a
+   second tower, "the Far tower", with named rooms. Rooms of 25–30 levels, not 50, and named, not numbered. What comes next is still open
    (Matt: leave the door open for more levels and a bigger world). Name and design it first, then
    drawings (show Matt). Levels there should get gradually harder (see the decisions below).
    `trap-lab.json` is still kept (Matt, #60).

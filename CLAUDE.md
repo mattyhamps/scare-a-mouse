@@ -9,6 +9,7 @@ into its hole. The levels climb a castle, floor by floor. Owner: Matt (GitHub `m
 - The README explains the rules, the code layout, how levels are made and the plan for the rest of the castle.
 - **Read `docs/STATUS.md` first**: where the project is right now and what's next. Update it in every PR.
 - The game ships to the App Store as **Mouse in Hole**: the plan and Matt's decisions are in `docs/APP_STORE.md`.
+- Before launch the castle is being made harder and less repetitive: the plan is in `docs/HARDER_CASTLE.md`.
 
 ## How we work
 
