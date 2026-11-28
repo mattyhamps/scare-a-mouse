@@ -20,6 +20,23 @@ public final class Difficulty {
     }
 
     public static double score(Level level) {
+        return score(level, Techniques.detect(level));
+    }
+
+    /**
+     * The score, given the level's technique tags. The newer techniques (docs/HARDER_CASTLE.md point 4) count
+     * too: a freeze on purpose, a standoff and an animal that clears a path at the right moment each take some
+     * seeing, and every turn of the mouse's run past the first is one more thing to plan.
+     */
+    static double score(Level level, Techniques.Tags tags) {
+        return base(level)
+                + (tags.tags.contains(Techniques.Tag.PIN) ? 3.0 : 0)
+                + (tags.tags.contains(Techniques.Tag.STANDOFF) ? 3.0 : 0)
+                + (tags.tags.contains(Techniques.Tag.CLEAR_PATH) ? 2.5 : 0)
+                + 1.5 * Math.max(0, tags.mouseTurns - 1);
+    }
+
+    private static double base(Level level) {
         Interest.Breakdown b = Interest.breakdown(level);
         return 4.0 * (level.inventory.size() - 1)
                 + 3.0 * blindPlacements(level)

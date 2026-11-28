@@ -1805,7 +1805,7 @@ Promise.all([
   // the card shows on the first such level. STANDOFF_AT is that level's index; it's set when the castle is rebuilt.
   const STANDOFF_CARD = { art: `<span>${art('dog',40)}</span><span>${icon('arrow',22)}</span><span class="g-sq"></span><span class="g-flip">${icon('arrow',22)}</span><span>${art('bear',40)}</span>`,
     title: 'Standoff!', text: 'When two animals run for the same square at the same moment, neither can get in. Both stop and stay put.' };
-  const STANDOFF_AT = null;
+  const STANDOFF_AT = 202;   // level 203, the first standoff on purpose (LevelsTest checks it)
   const NEW_CARDS = {
     12: { art: scares('lion','bear'), title: 'New animal: the lion!', text: 'Lions scare bears.' },
     32: { art: `<div class="g-row">${scares('elephant','lion')}</div><div class="g-row">${scares('mouse','elephant')}</div>`, title: 'New animal: the elephant!',

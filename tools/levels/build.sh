@@ -21,7 +21,7 @@ for n in $(seq "$from" "$to"); do
   for s in 0 1; do
     seed=$(( n * 1000 + s * 7919 ))
     start=$(date +%s)
-    out=$(cli make "$n" --candidates 3 --balance 10 --seed "$seed" --timeout 180 --write 2>&1); rc=$?
+    out=$(cli make "$n" --candidates 3 --balance 10 --seed "$seed" --timeout 180 --strict --write 2>&1); rc=$?
     echo "[$n seed $seed rc $rc $(( $(date +%s) - start ))s] $(echo "$out" | grep -E 'Built|No level|same puzzle|Exception' | head -2 | tr '\n' ' ')" | tee -a "$log"
     if [ $rc -eq 0 ]; then ok=1; break; fi
   done

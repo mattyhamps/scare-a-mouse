@@ -435,38 +435,43 @@ public final class Recipe {
             case 198: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE).withWalls(2, 4);
             case 199: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4);
             case 200: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH).withWalls(2, 4); // boss
-            // 201-260: the Library, the first 9x9 boards. A smidge harder than the Kitchens (more levels with
-            // 3 animals in your hand), about half already moving, and about 1 in 5 levels with 1-3 bookshelves.
-            case 201: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 202: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 203: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.STOP);
-            case 204: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 205: return new Recipe(Animal.ELEPHANT, 1, false, "New: bookshelves! Like the counters, animals can't run through them.", Trick.WAITING_RUNNER).withWalls(1, 3);
-            case 206: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
-            case 207: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withCatches(1);
-            case 208: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
-            case 209: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withWalls(1, 3);
-            case 210: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
-            case 211: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.STOP);
-            case 212: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.STOP);
-            case 213: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withCatches(1);
-            case 214: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
-            case 215: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withMoves(Move.SWERVE, Move.CATCH);
-            case 216: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE);
-            case 217: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 218: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withMoves(Move.CATCH);
-            case 219: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN).withWalls(1, 3);
-            case 220: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withCatches(1);
-            case 221: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 222: return new Recipe(Animal.LION, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 223: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.STOP);
-            case 224: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withCatches(1);
-            case 225: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.STOP, Move.CATCH);
-            case 226: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.STOP);
-            case 227: return new Recipe(Animal.LION, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
-            case 228: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.CATCH);
-            case 229: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withCatches(1);
-            case 230: return new Recipe(Animal.LION, 1, false, "", Trick.PLAIN).withMoves(Move.SWERVE).withWalls(1, 3);
+            // 201-230: the Library, the first 9x9 boards. Rebuilt for the harder castle (docs/HARDER_CASTLE.md): each room
+            // keeps the repeat limits (no puzzle style within 8 levels, headline tricks at most 4 times and never within
+            // 3 levels, lane cleared and catch in at most 12 levels, freeze-release in at most 7), checked by
+            // TechniquesTest and kept by `LevelsCli make --strict`. 203 is the first standoff on purpose (its card).
+            // Breathers (one animal: a red herring, the mouse turning) come at the start of a room and after a hard
+            // stretch. Walls (bookshelves) in about 1 level in 5, only on kinds of puzzle that build quickly with them.
+            case 201: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
+            case 202: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.STOP);
+            case 203: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withPlaced(Move.STANDOFF);
+            case 204: return new Recipe(Animal.LION, 0, false, "", Trick.PLAIN).withHerrings(1, 0);
+            case 205: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN).withWalls(1, 3).withTip("New: bookshelves! Like the counters, animals can't run through them.");
+            case 206: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withCatches(1).withMouseTurns(2);
+            case 207: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withPlaced(Move.PIN);
+            case 208: return new Recipe(Animal.ELEPHANT, 3, false, "", Trick.PLAIN);
+            case 209: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withCatches(1).withHerrings(1, 1);
+            case 210: return new Recipe(Animal.LION, 3, false, "", Trick.PLAIN);
+            case 211: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.FREEZE_RELEASE).withWalls(1, 3);
+            case 212: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.CATCH);
+            case 213: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.STOP, Move.CATCH);
+            case 214: return new Recipe(Animal.LION, 0, false, "", Trick.PLAIN).withHerrings(1, 0);
+            case 215: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withPlaced(Move.STANDOFF);
+            case 216: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1).withWalls(1, 3);
+            case 217: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withCatches(1).withMouseTurns(2);
+            case 218: return new Recipe(Animal.ELEPHANT, 3, false, "", Trick.PLAIN);
+            case 219: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withPlaced(Move.PIN);
+            case 220: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMoves(Move.STOP).withWalls(1, 3);
+            case 221: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.CATCH).withWalls(1, 3);
+            case 222: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withCatches(1).withHerrings(1, 1);
+            case 223: return new Recipe(Animal.CAT, 1, true, "", Trick.FREEZE_RELEASE).withCatches(1);
+            case 224: return new Recipe(Animal.LION, 0, false, "", Trick.PLAIN).withMouseTurns(2);
+            case 225: return new Recipe(Animal.ELEPHANT, 2, false, "", Trick.PLAIN).withWalls(1, 3);
+            case 226: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.PLAIN).withMoves(Move.SWERVE, Move.STOP);
+            case 227: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.WAITING_RUNNER).withPlaced(Move.STANDOFF).withHerrings(1, 0);
+            case 228: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withPlaced(Move.PIN).withHerrings(1, 0);
+            case 229: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.PLAIN).withMouseTurns(2);
+            case 230: return new Recipe(Animal.ELEPHANT, 3, false, "", Trick.PLAIN); // tougher
+            // 231-260: the Study (not rebuilt yet: the First floor's other rooms follow the Library).
             case 231: return new Recipe(Animal.ELEPHANT, 1, false, "", Trick.FREEZE_RELEASE).withMoves(Move.STOP);
             case 232: return new Recipe(Animal.LION, 1, false, "", Trick.FREEZE_RELEASE).withCatches(1);
             case 233: return new Recipe(Animal.ELEPHANT, 0, false, "", Trick.FREEZE_RELEASE).withMoves(Move.SWERVE, Move.CATCH);
