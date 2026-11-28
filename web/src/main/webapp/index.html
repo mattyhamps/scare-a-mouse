@@ -49,7 +49,9 @@
   .tip{background:var(--bg2);border:1px solid #3d3548;border-radius:14px;padding:10px 12px;font-size:15px;color:#e8dfcf;line-height:1.35;min-height:62px;box-sizing:border-box}
   .chain{display:flex;align-items:center;justify-content:center;gap:2px;font-size:20px;background:rgba(255,255,255,.04);border-radius:12px;padding:6px 4px}
   .chain .arrow{font-size:11px;color:var(--muted);margin:0 1px}
-  .chain .cap{font-size:11px;color:var(--muted);margin-right:6px;font-weight:500}
+  .chain .cap{font-size:11px;color:var(--muted);margin-right:6px;font-weight:500;white-space:nowrap;line-height:1.25}
+  /* the row keeps one height on every level (two lines of caption), so the board doesn't change size */
+  .chain{height:40px;box-sizing:border-box;flex:none;overflow:hidden}
   .board-wrap{position:relative;align-self:center}
   .board{position:relative;border-radius:14px;box-shadow:0 14px 30px rgba(0,0,0,.45),0 0 0 2px #3a332c}
   .lvlbtn{font:600 15px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:12px;padding:7px 12px;cursor:pointer}
@@ -791,13 +793,14 @@ Promise.all([
   }
 
   // Food-chain legend
-  $('chain').innerHTML = '<span class="cap">each fears the next</span>' +
+  $('chain').innerHTML = '<span class="cap">each fears<br>the next</span>' +
     ORDER.concat('mouse').map(t=>`<span title="${t}">${art(t,24)}</span>`).join('<span class="arrow">→</span>');
 
   // Feel like an app, not a web page: no pinch zoom (iOS Safari ignores user-scalable=no) and no
   // double-tap zoom (touch-action above). Scrolling inside the map and cards still works.
   ['gesturestart', 'gesturechange'].forEach(t => document.addEventListener(t, e => e.preventDefault()));
-  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  // (two-finger scrolling still works inside the maps)
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 && !e.target.closest('.map')) e.preventDefault(); }, { passive: false });
 
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
@@ -2459,6 +2462,9 @@ Promise.all([
   $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); const r=clearedRoom; clearedRoom=undefined; load(li, true); openPicker(r); };
   $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
   let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
+  // The board fits the height the other rows leave; fit it again once the web fonts have loaded, in case the
+  // fallback font made a row a different height.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (mode === 'edit') { buildBoard(); renderAnimals(); renderTray(); } });
   // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
   async function checkDevLink(){
     const m=/^#dev=(.+)$/.exec(location.hash);

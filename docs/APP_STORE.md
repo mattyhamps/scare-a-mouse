@@ -119,6 +119,10 @@ Check: before and after screenshots at both sizes (level screen, floor map, a ca
    - Write down the one-time setup Matt has to do (Apple Developer account, App Store Connect app record,
      API key) in `docs/APP_STORE.md`, step by step.
 5. **The website version keeps working as it is.**
+6. **Check the board's squares on a real phone.** In a phone's browser at 360×640 a 10×10 board's squares are
+   about 28px, under Apple's 44pt guide for tap targets. In the app there's no browser bar, so the board gets
+   more height (about 700-800px on most phones). If placing animals still feels fiddly, give each square a
+   slightly larger tap area (from the review of step 1).
 
 Check: the app runs offline on Matt's iPhone through TestFlight, progress survives closing the app and
 restarting the phone, and the web version is unchanged.
