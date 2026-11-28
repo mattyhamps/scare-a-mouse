@@ -218,8 +218,8 @@ _Last updated: 27 November 2026._
 - **App Store step 1** (`docs/APP_STORE.md`): the rename, the phone fit, and hints at 3 + 3. Quick, and it
   doesn't touch levels.
 - **The harder castle:** steps 1 and 2 are done (see Done and `docs/HARDER_CASTLE_REPORT.md`). Waiting for
-  Matt's choice of curve and repeat limits, and whether to teach the builder the new techniques before the
-  rebuild.
+  Matt's choice of repeat limits, and whether to teach the builder the new techniques before the rebuild.
+  The curve is decided: the steeper one (option B in the report), with 4-animal levels anywhere they fit.
 
 1. **The App Store:** ship the finished castle as an iPhone app called **Mouse in Hole**, as soon as
    possible. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps
@@ -278,6 +278,9 @@ Notes from Matt's legal and App Store checklist (a separate document):
   cheese. Flame levels only show that they're harder; they pay the same 1 cheese as any level (bosses
   still pay 3). A hint by ad is always available, rewarded ads only. Cheese packs are how players skip ads. There's
   no "remove ads" purchase and no unlimited hints, so cheese keeps its value. Details in `docs/APP_STORE.md`.
+- The harder castle's curve (Matt, 27 November 2026): the steeper option, from about 12 at level 201 to about
+  17.5 at the Tower top (ordinary levels there about 18.8). 4-animal levels go anywhere they fit, not only on
+  flame levels and bosses: Matt wants more difficulty across the board. Breathers and warm-ups stay easy.
 - Difficulty: after Matt's playtest the castle gets harder and more varied before launch
   (`docs/HARDER_CASTLE.md`): a rising curve from about level 200, harder flame levels and bosses, new
   techniques, and no technique repeated too often. It shouldn't be all difficult: an occasional easy level

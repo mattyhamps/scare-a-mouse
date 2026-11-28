@@ -243,7 +243,13 @@ chain so fewer squares give another way to win), not just a faster checker.
 Points 6 and 7 of the plan (red herrings and more than one way to start) weren't tried: both need new checker
 rules first (a red herring breaks today's clutter rule on purpose).
 
-## Step 3: a proposed curve (for Matt's OK)
+## Step 3: a proposed curve
+
+**Matt's decision (27 November 2026): option B, the steeper curve, with 4-animal levels anywhere they fit,
+not only flames and bosses.** He wants more difficulty across the board. 4-animal levels start turning up in
+ordinary levels as the curve rises and are common on the upper floors; breathers and the warm-ups after a
+new piece stay easy. Flame levels and bosses sit above the line (4 animals, and 5 once the builder can make
+them).
 
 Levels 1-200 and the warm-ups after each new piece stay as they are. From 201 the room average climbs steadily
 from about 12. About 1 level in 9 is a breather that stays easy (score about 7) wherever it is, so the other
@@ -304,8 +310,7 @@ less than now (lane cleared and catch in at most about half the levels, freeze-r
 
 ## Questions for Matt before rebuilding
 
-1. **How high should the curve go:** option A (up to 16, mostly 3 animals upstairs, 4 for flames and bosses) or
-   option B (up to 17.5, 4 animals in most upper levels)?
+1. ~~How high should the curve go?~~ Decided: option B, 4 animals anywhere they fit (see step 3).
 2. **Limits on repeats:** hold every technique to 1 in 8-10 as planned, or only the headline tricks, with the
    everyday ones (lane cleared, catch, freeze-release) allowed more often than that, though less than now?
 3. **Teach the builder first?** Freeze on purpose, standoffs, the mouse turning twice, freeze-release with a
