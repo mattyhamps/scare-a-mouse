@@ -39,4 +39,28 @@ class TechniquesTest {
         String report = Techniques.report(levels, rooms, 1);
         assertEquals(rooms.size() + 2, report.split("\n").length);   // a header, a divider and a row per room
     }
+
+    @Test
+    void rebuiltRoomsKeepTheRepeatLimits() throws Exception {
+        List<Level> levels = levels();
+        List<Techniques.Room> rooms = Techniques.rooms(Paths.get("../web/src/main/webapp/index.html"), levels.size());
+        StringBuilder problems = new StringBuilder();
+        for (Techniques.Room room : rooms) {
+            if (Techniques.REBUILT_ROOMS.contains(room.name)) {
+                List<String> p = Techniques.limitProblems(levels, room.start, room.end);
+                if (!p.isEmpty()) {
+                    problems.append(room.name).append(": ").append(p).append('\n');
+                }
+            }
+        }
+        assertEquals("", problems.toString(), "rooms that break the repeat limits (docs/HARDER_CASTLE_REPORT.md)");
+    }
+
+    @Test
+    void limitsSpotRepeatsInTodaysLevels() throws Exception {
+        // The Watchtower (1001-1025) has stops in 1011, 1016, 1018: the limits must notice
+        List<String> p = Techniques.limitProblems(levels(), 1001, 1025);
+        assertTrue(p.stream().anyMatch(s -> s.contains("repeats stop")), p.toString());
+        assertEquals("2: stop, swerve, freeze-release, moving start", Techniques.style(Techniques.of(levels().get(1010))));
+    }
 }

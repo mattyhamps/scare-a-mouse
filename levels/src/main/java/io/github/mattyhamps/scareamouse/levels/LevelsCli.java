@@ -59,6 +59,14 @@ public final class LevelsCli {
                 System.out.print(Techniques.report(levels, rooms, from));
                 System.out.println();
                 System.out.print(Techniques.stopsAndCatches(levels, rooms, from));
+                if (contains(args, "--limits")) {   // where each room breaks the repeat limits
+                    for (Techniques.Room room : rooms) {
+                        if (room.end >= from) {
+                            List<String> problems = Techniques.limitProblems(levels, room.start, room.end);
+                            System.out.println(room.name + ": " + (problems.isEmpty() ? "keeps the limits" : problems.size() + " problems: " + problems));
+                        }
+                    }
+                }
                 String csv = option(args, "--csv", null);
                 if (csv != null) {
                     Files.write(Paths.get(csv), Techniques.perLevel(levels, rooms).getBytes(StandardCharsets.UTF_8));
@@ -219,7 +227,10 @@ public final class LevelsCli {
                 recent.merge(a, 1, Integer::sum);
             }
         }
-        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout, recent);
+        // keep puzzle styles from repeating: candidates that repeat the 8 levels before lose points (Matt's limits)
+        List<Level> before = new ArrayList<>(levels.subList(Math.max(0, n - 1 - Techniques.STYLE_GAP), Math.min(n - 1, levels.size())));
+        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout, recent, l -> true,
+                l -> Techniques.repeatPenalty(l, before));
         // a trap level where a trap doesn't matter to the puzzle: try a few more seeds before giving up
         for (int k = 1; k <= 6 && built != null && !built.level.traps.isEmpty()
                 && !TrapLab.trapsDoTheirJob(built.level, recipe.springTraps); k++) {

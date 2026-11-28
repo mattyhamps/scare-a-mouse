@@ -233,6 +233,13 @@ _Last updated: 27 November 2026._
   - `LevelsCli trial` is the dry run. 4 animals build in 14-42 s (scores 17.5-22.5). 5 animals built nothing in
     15-20 minutes: the candidates nearly always have a second solution. Freeze on purpose, standoffs and the
     mouse turning twice need the builder to design them.
+- **The level maker learned the new techniques** (`docs/HARDER_CASTLE_REPORT.md`, "Teaching the level maker"):
+  freeze on purpose (`Move.PIN`), standoffs (`Move.STANDOFF`, with a "Standoff!" card for the first level that
+  needs one), the mouse turning (`withMouseTurns`), freeze-release with a waiting runner in one chain (they share a
+  link), red herrings and decoy starts (`withHerrings`, with a checker allowance), and closing off shortcuts (a
+  win with fewer animals) with walls or mousetraps, smallest first. Repeat limits: `LevelsCli make` marks down
+  candidates that repeat recent styles and headline tricks; `techniques --limits` lists each room's problems;
+  rooms in `Techniques.REBUILT_ROOMS` are held to the limits by a test. No levels changed.
 
 ## Next
 
@@ -241,10 +248,11 @@ _Last updated: 27 November 2026._
 - **App Store step 1** (`docs/APP_STORE.md`): done in its pull request (see Done). Next is step 2,
   Capacitor.
 - **The harder castle:** steps 1 and 2 are done (see Done and `docs/HARDER_CASTLE_REPORT.md`). The curve,
-  the repeat limits and the order are decided (see the decisions below). **Next: teach the
-  builder** the new techniques (freeze on purpose, standoffs, the mouse turning twice, freeze-release with a
-  waiting runner, closing off other solutions so 5 animals and two missing links build) and the repeat limits,
-  with a new dry run. Then rebuild floor by floor from 201.
+  the repeat limits and the order are decided (see the decisions below). The level maker has
+  learned the new techniques (see Done). **Next: rebuild floor by floor from 201**, following the curve and the
+  limits; update `Difficulty.score` for the new techniques first (it doesn't count them yet; changing it moves
+  flames, so it goes with the rebuild), set `STANDOFF_AT` to the first standoff level, and add each rebuilt room
+  to `Techniques.REBUILT_ROOMS`.
 
 1. **The App Store:** ship the finished castle as a phone app called **Mouse in Hole**, as soon as
    possible, on iPhone first and then Android from the same Capacitor project. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps

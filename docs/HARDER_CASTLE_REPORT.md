@@ -327,3 +327,81 @@ of puzzle to fill a room, so they're cut as far as the new techniques allow inst
    pull request, with a new dry run), then rebuild; or start rebuilding the lower floors now with what builds
    today (4 animals, timing, the elephant-mouse loop, trapdoors with tricks) and add the new techniques to the
    upper floors once the builder can make them.
+
+## Teaching the level maker (28 November 2026)
+
+The level maker can now build each new technique Matt picked. Nothing in `data/` changed yet: this is the
+builder, a new dry run, and the repeat limits, ready for the rebuild.
+
+**What it learned:**
+- **Freeze-release with a waiting runner** in one chain. In a short chain they share a link: the animal the freeze
+  releases is the blocker the waiting runner is stuck behind. (Before, the builder never made one: the two need
+  5 links one after the other and an elephant chain has 4.)
+- **Freeze on purpose** (`withPlaced(PIN)`): a spoiler beside a runner's path with its way out blocked; your animal
+  beside it means it's touched by two when the runner passes, so it freezes instead of bolting.
+- **Standoff on purpose** (`withPlaced(STANDOFF)`): your animal is scared off by one on the board and reaches a square
+  on a runner's way on the same step as the runner, so neither moves. Any kind of animal works for it (the two
+  sit diagonally at the standoff), and one the runner scares or fears can't just be used as a plain stop instead.
+- **The mouse turning** (`withMouseTurns(n)`): the mouse swerves away from cats beside its run, two or three times.
+- **Red herrings and decoy starts** (`withHerrings(h, d)`): the checker allows exactly that many board animals to
+  play no part, and nothing else changes (one solution, every animal needed).
+- **Closing off shortcuts.** Most failed candidates weren't failing because of a second solution: one of your
+  animals wasn't needed (a smaller hand won, often by starting the chain partway along). Walls or mousetraps now
+  close those off too, smallest shortcut first. Mousetraps work best: they can sit on a square a runner passes
+  over, where a wall would stop it. For pins and standoffs the builder also picks an animal that can't start the
+  chain on its own.
+- **The "Standoff!" card** (shown to Matt as a screenshot): shown on the first level that needs a standoff, set when the
+  castle is rebuilt.
+- **Repeat limits** as decided: `LevelsCli make` marks down candidates that repeat a style from the 8 levels before
+  or a headline trick from the 3 before; `techniques --limits` lists where each room breaks the limits; rooms are
+  added to `Techniques.REBUILT_ROOMS` as they're rebuilt and a test holds them to the limits.
+
+**The dry run** (`LevelsCli trial`, 12 threads; 2 minutes each for the first rows, 5 for the rest):
+
+| Puzzle | Hand | Built in | Score | Blind | Chain | Techniques |
+|---|---|---|---|---|---|---|
+| freeze-release + waiting runner | 1 | 0.0s | 5.5 | 0 | 3 | freeze-release, waiting runner |
+| freeze-release + waiting runner, 1 blocker | 2 | 0.5s | 11.0 | 0 | 6 | freeze-release, waiting runner, lane cleared, two starters |
+| freeze on purpose | 2 | nothing in 120s | | | | |
+| freeze on purpose, freeze-release | 2 | 1.3s | 8.0 | 0 | 4 | freeze-release, freeze on purpose |
+| freeze on purpose, moving | 1 | nothing in 120s | | | | |
+| standoff | 2 | nothing in 120s | | | | |
+| standoff, waiting runner | 2 | 0.0s | 8.0 | 0 | 4 | waiting runner, standoff |
+| standoff, moving | 1 | nothing in 120s | | | | |
+| freeze on purpose, walls | 2 | nothing in 120s | | | | |
+| freeze on purpose, traps | 2 | nothing in 120s | | | | |
+| freeze on purpose, moving, walls | 1 | nothing in 120s | | | | |
+| standoff, walls | 2 | nothing in 120s | | | | |
+| standoff, traps | 2 | 1.7s | 7.5 | 0 | 5 | standoff, trap sprung |
+| standoff, moving, walls | 1 | nothing in 120s | | | | |
+| mouse turns twice | 1 | 0.0s | 2.0 | 0 | 4 | mouse turns 2+ |
+| mouse turns twice, freeze-release | 1 | 0.0s | 4.5 | 0 | 5 | freeze-release, mouse turns 2+ |
+| mouse turns three times | 1 | 0.0s | 1.5 | 0 | 3 | mouse turns 2+ |
+| red herring | 1 | 0.0s | 4.0 | 0 | 4 | freeze-release |
+| decoy start | 1 | 0.0s | 4.0 | 0 | 4 | freeze-release |
+| decoy start + red herring, 1 blocker | 2 | 0.1s | 7.5 | 0 | 7 | stop, lane cleared, two starters |
+| 4: pin + standoff, 1 blocker | 4 | nothing in 123s | | | | |
+| 4: freeze + wait, 1 blocker, pin | 3 | nothing in 121s | | | | |
+| 4: 2 blockers, standoff, mouse turns | 4 | nothing in 123s | | | | |
+| lion chain, 2 missing links, walls | 3 | nothing in 300s | | | | |
+| lion chain, 2 missing links, traps | 3 | nothing in 303s | | | | |
+| 4: moving, 2 blockers, swerve + stop, walls | 4 | nothing in 310s | | | | |
+| 5: elephant, 3 blockers, 1 catch, walls | 5 | nothing in 310s | | | | |
+| 5: elephant, 3 blockers, 1 catch, traps | 5 | nothing in 310s | | | | |
+| 5: lion, 4 lane blockers, walls | 5 | nothing in 310s | | | | |
+| 4: pin + standoff, 1 blocker | 4 | nothing in 300s | | | | |
+| 4: freeze + wait, 1 blocker, pin | 3 | nothing in 301s | | | | |
+| 4: 2 blockers, standoff, mouse turns | 4 | nothing in 301s | | | | |
+
+What it shows:
+- **Every new technique builds,** most in seconds: freeze-release with a waiting runner, standoffs (with a waiting
+  runner, or closed off with mousetraps), freeze on purpose (with a freeze-release), the mouse turning two or three
+  times, red herrings and decoy starts.
+- **Their scores look low** (2-11) because `Difficulty.score` doesn't count the new techniques yet: a mouse that
+  turns twice scores the same as a plain one-animal level. The score needs updating before the rebuild; it moves
+  today's flames, so it goes with the rebuild.
+- **Not yet:** 5 animals, two missing links and the hardest 4-animal mixes (pin + standoff, standoff + the mouse
+  turning) found nothing in 5 minutes. One 4-animal moving kind that built in 150 s before (swerve + stop, two
+  blockers, walls) didn't in this run: closing off now checks every smaller hand, which is slower. These need
+  more work: most likely designing the chain so fewer shortcuts exist in the first place, rather than closing them
+  off afterwards.

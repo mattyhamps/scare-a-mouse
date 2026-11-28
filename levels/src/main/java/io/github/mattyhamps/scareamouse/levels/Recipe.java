@@ -27,6 +27,16 @@ public final class Recipe {
         CATCH,
         /** Your animal stands in a runner's path and halts it, before it reaches an animal that would spoil things. */
         STOP,
+        /**
+         * Freeze on purpose: your animal sits beside a spoiler (one it scares, with its way out blocked), so when a
+         * runner passes the spoiler is touched by two animals it fears and freezes instead of bolting.
+         */
+        PIN,
+        /**
+         * Standoff on purpose: your animal is scared off by a board animal and arrives at a square on a runner's way
+         * on the same step as the runner, so neither moves, and the runner never reaches the spoiler.
+         */
+        STANDOFF,
     }
 
     /** The first animal in the chain's start; you place it, unless the level is already moving. */
@@ -75,16 +85,26 @@ public final class Recipe {
     public final int springTraps;
     /** Trapdoor pairs the chain must use (0 or 1): a runner drops through one and comes out of the other. */
     public final int trapdoors;
+    /** The mouse turns this many times on its way to the hole, swerving away from cats beside its run. */
+    public final int mouseTurns;
+    /** Red herrings: board animals that look as if they matter but play no part in the solution. */
+    public final int herrings;
+    /** Decoy starts: board animals your first animal could set off too, starting a chain that goes nowhere. */
+    public final int decoys;
 
     public Recipe(Animal trigger, int laneBlockers, boolean wrapAround, String tip, Trick... tricks) {
         this(7, new Move[0], false, 0, 0, trigger, laneBlockers, wrapAround, tip,
-                new Animal[] {Animal.CAT, Animal.DOG, Animal.BEAR}, 0, 0, 0, 0, 0, tricks);
+                new Animal[] {Animal.CAT, Animal.DOG, Animal.BEAR}, 0, 0, 0, 0, 0, 0, 0, 0, tricks);
     }
 
     private Recipe(int size, Move[] moves, boolean starterOnBoard, int wallsMin, int wallsMax, Animal trigger,
                    int laneBlockers, boolean wrapAround, String tip, Animal[] blockers, int turnTiles,
-                   int trapsMin, int trapsMax, int springTraps, int trapdoors, Trick... tricks) {
+                   int trapsMin, int trapsMax, int springTraps, int trapdoors, int mouseTurns, int herrings, int decoys,
+                   Trick... tricks) {
         this.size = size;
+        this.mouseTurns = mouseTurns;
+        this.herrings = herrings;
+        this.decoys = decoys;
         this.trapdoors = trapdoors;
         this.turnTiles = turnTiles;
         this.trapsMin = trapsMin;
@@ -111,7 +131,7 @@ public final class Recipe {
      * squares that would give a second, easier solution.
      */
     public Recipe withWalls(int min, int max) {
-        return new Recipe(size, moves, starterOnBoard, min, max, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+        return new Recipe(size, moves, starterOnBoard, min, max, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /** Everything that shapes the puzzle (not the tip), so two levels made the same way have the same key. */
@@ -121,7 +141,8 @@ public final class Recipe {
                 + java.util.Arrays.toString(blockers)
                 + " " + wallsMin + "-" + wallsMax + (turnTiles > 0 ? " turns " + turnTiles : "")
                 + (trapsMax > 0 ? " traps " + trapsMin + "-" + trapsMax : "") + (springTraps > 0 ? " spring " + springTraps : "")
-                + (trapdoors > 0 ? " trapdoors " + trapdoors : "");
+                + (trapdoors > 0 ? " trapdoors " + trapdoors : "") + (mouseTurns > 0 ? " mouse turns " + mouseTurns : "")
+                + (herrings > 0 ? " herrings " + herrings : "") + (decoys > 0 ? " decoys " + decoys : "");
     }
 
     /** True if the board starts moving on its own when you press Go. */
@@ -137,55 +158,75 @@ public final class Recipe {
         Move[] more = java.util.Arrays.copyOf(moves, moves.length + count);
         java.util.Arrays.fill(more, moves.length, more.length, Move.CATCH);
         return new Recipe(size, more, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip,
-                blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+                blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /** The same recipe as an already-moving level: the starter is on the board, and you make these moves. */
     public Recipe withMoves(Move... newMoves) {
-        return new Recipe(size, newMoves, true, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+        return new Recipe(size, newMoves, true, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /** The same recipe with another tip. */
     public Recipe withTip(String newTip) {
-        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, newTip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, newTip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /** The same recipe with turn tiles that the chain has to use. */
     public Recipe withTurnTiles(int count) {
-        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, count, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, count, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /** The same recipe with mousetraps that close off other solutions (the mouse has to be steered around them). */
     public Recipe withTraps(int min, int max) {
         return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers,
-                turnTiles, min, max, springTraps, trapdoors, tricks);
+                turnTiles, min, max, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /** The same recipe with mousetraps on the mouse's way, each with one more animal for you to spring it. */
     public Recipe withSpringTraps(int count) {
         return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers,
-                turnTiles, trapsMin, trapsMax, count, trapdoors, tricks);
+                turnTiles, trapsMin, trapsMax, count, trapdoors, mouseTurns, herrings, decoys, tricks);
+    }
+
+    /** The same recipe with your own animals for these moves, without starting the board moving (like withCatches). */
+    public Recipe withPlaced(Move... more) {
+        Move[] all = java.util.Arrays.copyOf(moves, moves.length + more.length);
+        System.arraycopy(more, 0, all, moves.length, more.length);
+        return new Recipe(size, all, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip,
+                blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
+    }
+
+    /** The same recipe where the mouse turns this many times on its way to the hole. */
+    public Recipe withMouseTurns(int count) {
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip,
+                blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, count, herrings, decoys, tricks);
+    }
+
+    /** The same recipe with red herrings and decoy starts (board animals that play no part, on purpose). */
+    public Recipe withHerrings(int herringCount, int decoyCount) {
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip,
+                blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herringCount, decoyCount, tricks);
     }
 
     /** The same recipe with a trapdoor pair that the chain has to use. */
     public Recipe withTrapdoors(int pairs) {
         return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers,
-                turnTiles, trapsMin, trapsMax, springTraps, pairs, tricks);
+                turnTiles, trapsMin, trapsMax, springTraps, pairs, mouseTurns, herrings, decoys, tricks);
     }
 
     /** Checker rules that go with this recipe. */
     public LevelRules rules() {
         if (wrapAround) {
             // The mouse moves early on purpose, so judge the chain by how many animals move instead.
-            return LevelRules.forBuilt(handSize(), 0, 6);
+            return LevelRules.forBuilt(handSize(), 0, 6).withHerrings(herrings + 2 * decoys);
         }
         int chain = trigger.ordinal() - 1; // animals between your first animal and the mouse
-        return LevelRules.forBuilt(handSize(), Math.min(chain, 3), 0);
+        return LevelRules.forBuilt(handSize(), Math.min(chain, 3), 0).withHerrings(herrings + 2 * decoys);
     }
 
     /** The same recipe, with only these blocker animals (for example only dogs, so you place lions not elephants). */
     public Recipe withBlockers(Animal... types) {
-        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, types, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+        return new Recipe(size, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, types, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     /**
@@ -208,7 +249,7 @@ public final class Recipe {
 
     /** The same recipe on a bigger (or smaller) square board. */
     public Recipe withSize(int newSize) {
-        return new Recipe(newSize, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, tricks);
+        return new Recipe(newSize, moves, starterOnBoard, wallsMin, wallsMax, trigger, laneBlockers, wrapAround, tip, blockers, turnTiles, trapsMin, trapsMax, springTraps, trapdoors, mouseTurns, herrings, decoys, tricks);
     }
 
     public boolean has(Trick t) {
