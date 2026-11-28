@@ -300,20 +300,29 @@ warm-up levels at the start, so their averages will sit a little under these num
 
 ### Limits on repeats
 
-The plan says no technique in more than about 1 level in 8-10, and never within 3 levels of itself. Today three
-techniques are in more than half the levels (lane cleared 75%, freeze-release 56%, catch 55%), because they're
-how most chains are built: a hard level usually uses two or three at once. Holding all of them to 1 in 10 would
-leave too few kinds of puzzle to fill a room. A suggestion to talk over: hold the headline tricks (stop,
-swerve, waiting runner, wrap-around, standoff, freeze on purpose, timing, the mouse turning, sprung traps) to
-about 1 in 8-10 and never within 3 levels of themselves, and let the everyday building blocks run more often but
-less than now (lane cleared and catch in at most about half the levels, freeze-release in about 1 in 3).
+**Decided (Matt, 27 November 2026):** Matt doesn't want to notice puzzle styles repeating, and wants
+techniques less common wherever that's possible. The plan, as starting numbers to tighten once the new
+techniques exist:
+- **Repeats are judged by puzzle style,** not single techniques: the main trick plus the set-up (for example "4
+  animals, stop + catch, moving start"). The same style never comes back within about 8 levels.
+- **Headline tricks** (stop, swerve, waiting runner, wrap-around, standoff, freeze on purpose, timing, the mouse
+  turning, sprung traps): each in at most about 1 level in 8-10, never within 3 levels of itself.
+- **Everyday building blocks, cut well down:** lane cleared from 75% to about 40%, catch from 55% to about 40%,
+  freeze-release from 56% to about 25%.
+- **The builder enforces it:** when choosing among candidates it marks down ones that repeat the styles and
+  techniques of the last few levels, and a test fails if a room breaks the limits.
 
-## Questions for Matt before rebuilding
+Why not 1 in 8-10 for everything: today lane cleared (75%), freeze-release (56%) and catch (55%) are how most
+chains are built, and a hard level uses two or three at once. Holding them to 1 in 10 would leave too few kinds
+of puzzle to fill a room, so they're cut as far as the new techniques allow instead.
+
+## Questions for Matt before rebuilding (all decided)
 
 1. ~~How high should the curve go?~~ Decided: option B, 4 animals anywhere they fit (see step 3).
-2. **Limits on repeats:** hold every technique to 1 in 8-10 as planned, or only the headline tricks, with the
-   everyday ones (lane cleared, catch, freeze-release) allowed more often than that, though less than now?
-3. **Teach the builder first?** Freeze on purpose, standoffs, the mouse turning twice, freeze-release with a
+2. ~~Limits on repeats?~~ Decided: see "Limits on repeats" above.
+3. ~~Teach the builder first?~~ Decided: yes, the builder first (Matt agreed it's more efficient: the castle is
+   rebuilt once instead of twice, the limits need the new techniques to swap in, and the steeper curve needs
+   4-5 animals with two tricks, which the builder can't make yet). The question was: Freeze on purpose, standoffs, the mouse turning twice, freeze-release with a
    waiting runner, and 5 animals all need builder work before they can go in levels. Either do that next (one
    pull request, with a new dry run), then rebuild; or start rebuilding the lower floors now with what builds
    today (4 animals, timing, the elephant-mouse loop, trapdoors with tricks) and add the new techniques to the

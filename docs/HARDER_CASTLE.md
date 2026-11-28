@@ -80,7 +80,8 @@ has to finish in a sensible time.
 **Steps 1 and 2 are done:** the results, the proposed curve and the questions for Matt are in
 `docs/HARDER_CASTLE_REPORT.md`. The tools: `LevelsCli techniques` (step 1), `LevelsCli trial` (step 2) and
 `FrontierSearch` (the quicker check for 4 and 5 animals). Matt picked the steeper curve (up to about 17.5,
-4-animal levels anywhere they fit).
+4-animal levels anywhere they fit), repeat limits by puzzle style (see the report), and teaching the builder
+the new techniques before rebuilding.
 
 1. **Tag the techniques.** Tag every level's intended solution by the techniques it uses: swerve,
    freeze-release, waiting runner, catch, stop, lane blocker cleared, wrap-around, standoff, an animal
