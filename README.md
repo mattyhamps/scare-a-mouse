@@ -1,6 +1,7 @@
-# Scare-a-Mouse 🐭
+# Mouse in Hole
 
-A chain-reaction puzzle game. Place animals so each one scares the next, and get the mouse
+A chain-reaction puzzle game, called **Mouse in Hole** everywhere players see it (the repo and the code
+keep the name Scare-a-Mouse). Place animals so each one scares the next, and get the mouse
 into the mouse hole.
 
 **Play:** https://mattyhamps.github.io/scare-a-mouse/ (works on iPhone and Android; use
@@ -184,18 +185,18 @@ comes in at the start of a room, with a card and a few easy levels, then shows u
 (`room-art.json`). `LevelsTest` fails if an emoji appears in `index.html`, `room-art.json` or the levels.
 
 **Extra-hard levels.** About 1 level in 15 on each floor is marked with a flame (on the map, by the level
-number and in its tip) and pays 2 cheese. `Difficulty` scores how hard a level is to solve: more animals
+number and in its tip). It pays 1 cheese like any other level. `Difficulty` scores how hard a level is to solve: more animals
 to place, placements that touch nothing on the board, tricks, a long chain, walls, turn tiles and traps. The
 hardest of each floor, not counting the boss, get the flame; from 801 on, no two flames sit within 4 levels of
 each other (the next hardest is taken instead). `LevelsCli hard --write` saves the list to
 `data/hard-levels.json`, and `LevelsTest` fails if the list is out of date, so run it after changing levels.
 
 **Hints and cheese.** Tap one of your animals (in the tray or on the board), then press Hint. Its first
-hint costs 1 cheese and shades the 3×3 patch it goes in; its second costs 2 and lights up its exact
+hint costs 3 cheese and shades the 3×3 patch it goes in; its second costs 3 more and lights up its exact
 square. If the animal is already on its right square, the hint confirms that instead, for the same
 price, and that animal needs no more hints. Tapping a placed animal picks it; tapping it again sends
-it back to the tray. Cheese is scarce: you earn 1 the first time you solve a level with no hints (2 on
-an extra-hard level, 3 on a boss level, nothing if you used a hint) and 2 for clearing a room. New players start with 5. Hints
+it back to the tray. Cheese is scarce: you earn 1 the first time you solve a level with no hints (3 on a
+boss level, nothing if you used a hint) and 2 for clearing a room. New players start with 0. Hints
 you've bought stay bought for that level.
 
 Level tools:

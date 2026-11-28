@@ -1,8 +1,9 @@
 # Getting Mouse in Hole into the App Store
 
 The castle is finished (levels 1–1100), and it's being made harder before launch (`docs/HARDER_CASTLE.md`,
-in its own pull requests). This file is the plan for shipping it as an iPhone app, as soon as
-possible. Work through the steps in order, one pull request each (step 1 may need two). Each step says what
+in its own pull requests). This file is the plan for shipping it as a phone app on **iPhone and Android**,
+as soon as possible. Both come from the same Capacitor project; the iPhone launches first and Android follows
+(see "Android" below). Work through the steps in order, one pull request each (step 1 may need two). Each step says what
 to build and how to check it. Ask Matt before any choice that changes how the game looks or plays, and
 show screenshots of visual changes first, as usual.
 
@@ -15,6 +16,9 @@ show screenshots of visual changes first, as usual.
   young children, so it doesn't go in Apple's Kids category.
 - **Publisher:** Matt publishes as an individual, so his legal name shows as the seller. If the game takes
   off, he can form an LLC later and convert the account; nothing here should depend on the seller name.
+- **Platforms:** iPhone and Android, from one Capacitor project around the same web game. The iPhone
+  launches first; Android follows once Google's closed test is done (it takes at least two weeks, so start
+  it early).
 - **Builds:** Matt has only occasional time on a Mac. iOS builds run on a cloud Mac (GitHub Actions macOS
   runners or Codemagic) and upload to TestFlight. Matt tests on his iPhone.
 - **How the game earns:**
@@ -64,9 +68,11 @@ and the level stats.
    out at launch.
 4. **At step 4:** a RevenueCat account (free at this size) and the Paid Apps agreement, tax (W-9) and bank
    details in App Store Connect.
-5. **At step 6:** a Google AdMob account.
+5. **At step 6:** a Google AdMob account (one account covers both phones).
 6. **An LLC isn't needed now.** If the game takes off, Matt can form one (Pennsylvania: $125, then $7 a
    year) and convert the Apple account to an organization, keeping the app.
+7. **For Android:** a Google Play developer account ($25 once) and 12 testers for the closed test (see
+   "Android" below). Start both well before the Android launch.
 
 ## Step 1: feel like a phone app (no Capacitor yet)
 
@@ -113,6 +119,10 @@ Check: before and after screenshots at both sizes (level screen, floor map, a ca
    - Write down the one-time setup Matt has to do (Apple Developer account, App Store Connect app record,
      API key) in `docs/APP_STORE.md`, step by step.
 5. **The website version keeps working as it is.**
+6. **Check the board's squares on a real phone.** In a phone's browser at 360×640 a 10×10 board's squares are
+   about 28px, under Apple's 44pt guide for tap targets. In the app there's no browser bar, so the board gets
+   more height (about 700-800px on most phones). If placing animals still feels fiddly, give each square a
+   slightly larger tap area (from the review of step 1).
 
 Check: the app runs offline on Matt's iPhone through TestFlight, progress survives closing the app and
 restarting the phone, and the web version is unchanged.
@@ -158,3 +168,68 @@ Check: buy each pack in the sandbox (TestFlight), with the cheese added once and
 2. **Google's consent screen** for EU and UK players (AdMob's UMP SDK).
 3. **An `app-ads.txt` file** on Matt's website.
 4. **Update the privacy policy and Apple's privacy labels** for the ads.
+
+## Android (after the iPhone)
+
+The same game ships on Google Play from the same Capacitor project (`npx cap add android` next to `ios`).
+Almost everything in steps 1–6 carries over; this section is what's different. Check Google's current rules
+in Play Console when each part starts, since they change from time to time.
+
+### Matt's to-dos for Android
+
+1. **A Google Play developer account as an individual: $25, paid once** (Apple's is $99 a year). Google
+   checks his ID and a phone number, and he needs an Android phone for the account's device check. His legal
+   name shows as the developer. If the game sells cheese, Google may also show a contact address on the
+   listing; as with the EU on Apple, check what Play Console asks for before launch.
+2. **The closed test (new personal accounts):** before Google lets a new personal account publish to
+   everyone, the app has to run a **closed test with at least 12 testers who stay opted in for at least 14
+   days in a row**. Then Matt applies for production access in Play Console (it asks a few questions about
+   the test), and Google takes a few days to answer. So:
+   - Line up 12+ testers early (friends and family with Android phones, a Google Group or an email list).
+   - Start the closed test as soon as the first Android build runs, ideally while the iPhone version is in
+     TestFlight, so the 14 days are over by the time the iPhone launches.
+   - Ask testers to actually play and leave feedback; Google looks at whether the test was real.
+3. **An Android phone to test on** (borrowed is fine), or the Android emulator for a first look. Matt tests
+   on his iPhone; a few real Android checks before launch are still worth it.
+4. **Payments profile** in Play Console (tax and bank details) before cheese packs can be sold.
+
+### What changes in each step
+
+- **Step 1 (this one):** nothing extra. The fit check already covers a small Android phone (360×640).
+- **Step 2 (Capacitor):**
+  - The same bundled site, Capacitor Preferences for saved progress (it uses Android's own storage), and the
+    same first-launch copy from browser storage.
+  - **The back button:** Android phones have a back gesture or button, and Google expects it to work. With
+    Capacitor's App plugin (`backButton`): close the open pop-up first (a card, the map, the win card), then
+    on the level screen open the map, and from the map leave the app (never lose progress). Show Matt how it
+    behaves before building more on it.
+  - **Screen sizes:** Android phones come in many shapes, from small (360×640) to tall (about 360×800 and
+    412×915) and foldables and tablets. Add the tall sizes to `tools/screens/fit.js`. On tablets the game
+    keeps its 520px-wide column in the middle (it already does in a browser).
+  - **Edge to edge:** new Android versions draw the app under the status bar and the gesture bar, like the
+    iPhone notch. Check that `env(safe-area-inset-*)` works in Android's WebView on a real phone; if it
+    comes back as 0, use a safe-area plugin so the header and the Go button stay clear.
+  - **Icon:** Android needs an adaptive icon (a foreground drawing on a plain background) on top of the
+    iPhone icon; make both from the icon Matt picks.
+  - **Cloud builds:** Android doesn't need a Mac. A GitHub Actions workflow on a Linux runner builds a signed
+    App Bundle (`.aab`) and uploads it to the closed-test track with a Play service account. The upload key
+    and the service account key live in GitHub secrets, never in the repo. Play App Signing keeps the real
+    signing key at Google, so a lost upload key can be replaced.
+  - **Target API level:** Google requires new apps to target a recent Android version (it moves up every
+    August). Use the level Play Console asks for.
+- **Step 3 (native touches):** Google Play Games achievements are optional; skip them at first unless Matt
+  wants them. Capacitor's Haptics plugin works on Android too. The same privacy-friendly level stats.
+- **Step 4 (cheese packs):** **Google Play Billing, through RevenueCat**, the same as StoreKit on the
+  iPhone: the same three packs and the starter offer as consumable products in Play Console, with the same
+  names and prices. RevenueCat keeps one list of products for both stores, so the cheese shop code is the
+  same. Test with Play's license testers (purchases that aren't charged). Google takes 15% of the first $1M
+  a year (Apple's Small Business Program is also 15%, but Matt has to sign up for it).
+- **Step 5 (launch):** the Play listing (short and long description, feature graphic, phone screenshots from
+  `tools/screens`), the **content rating questionnaire** (IARC), the **target audience** (pick the 13+ age
+  groups, so the game isn't in Google's Families programme, the same as staying out of Apple's Kids
+  category), the **Data safety form** (Google's privacy label, matching the privacy policy), and the same
+  privacy policy page. Then the closed test, production access, and release.
+- **Step 6 (ads):** **AdMob** rewarded ads on Android too, from the same AdMob account (a separate Android
+  app and ad unit in AdMob), wired into the same "Watch an ad for this hint" place. The same UMP consent
+  screen for the EU and UK, non-personalized ads, and the same `app-ads.txt`. Android has no tracking
+  pop-up like Apple's, but the Data safety form must say the app uses ads.
