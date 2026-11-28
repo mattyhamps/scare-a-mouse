@@ -204,7 +204,8 @@ public final class LevelsCli {
             long start = System.currentTimeMillis();
             ChainBuilder.Built built = ChainBuilder.find(recipe, "probe", n * 1000L, threads, 1, timeout);
             double secs = (System.currentTimeMillis() - start) / 1000.0;
-            System.out.printf("%d %s in %.1fs  (%s)%n", n, built == null ? "SLOW, nothing" : "ok", secs, recipe.key());
+            System.out.printf("%d %s in %.1fs  (%s)%s%n", n, built == null ? "SLOW, nothing" : "ok", secs, recipe.key(),
+                    built == null ? "" : "  -> " + Techniques.of(built.level));
             if (built == null) {
                 slow.add(n + " (" + recipe.key() + ")");
             }
@@ -229,7 +230,11 @@ public final class LevelsCli {
         }
         // keep puzzle styles from repeating: candidates that repeat the 8 levels before lose points (Matt's limits)
         List<Level> before = new ArrayList<>(levels.subList(Math.max(0, n - 1 - Techniques.STYLE_GAP), Math.min(n - 1, levels.size())));
-        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout, recent, l -> true,
+        java.util.function.Predicate<Level> keep = l -> true;
+        if (contains(args, "--strict")) {   // only candidates that keep the room's repeat limits (and use the recipe's new technique)
+            keep = strictFilter(levels, n, recipe);
+        }
+        ChainBuilder.Built built = ChainBuilder.find(recipe, name, seed, threads, want, timeout, recent, keep,
                 l -> Techniques.repeatPenalty(l, before));
         // a trap level where a trap doesn't matter to the puzzle: try a few more seeds before giving up
         for (int k = 1; k <= 6 && built != null && !built.level.traps.isEmpty()
@@ -263,6 +268,109 @@ public final class LevelsCli {
         } else {
             System.out.println(io.github.mattyhamps.scareamouse.engine.Json.write(level.toJson()));
         }
+    }
+
+    /**
+     * The --strict filter for level n: the candidate keeps the repeat limits of its room, counting the room's levels
+     * before n (a room is built in order, so those are the new ones) and the tricks the room's later recipes ask for,
+     * so a level never spends an allowance a later level needs. It must use the technique its recipe asks for (a
+     * freeze on purpose, a standoff, the mouse turning). A trick it uses by chance is fine (it makes the level harder)
+     * as long as the rest of the room still fits: not in the 3 levels after it if they ask for it, and within the room's
+     * allowance counting every later recipe that asks for it.
+     */
+    private static java.util.function.Predicate<Level> strictFilter(List<Level> levels, int n, Recipe recipe) throws IOException {
+        Techniques.Room room = null;
+        for (Techniques.Room r : Techniques.rooms(Paths.get("web/src/main/webapp/index.html"), Integer.MAX_VALUE)) {
+            if (r.start <= n && n <= r.end) {
+                room = r;
+            }
+        }
+        if (room == null) {
+            return l -> true;
+        }
+        List<Techniques.Tags> before = new ArrayList<>();
+        for (int k = room.start; k < n && k <= levels.size(); k++) {
+            before.add(Techniques.of(levels.get(k - 1)));
+        }
+        int size = room.end - room.start + 1;
+        java.util.Set<Techniques.Tag> must = java.util.EnumSet.noneOf(Techniques.Tag.class);
+        for (Recipe.Move m : recipe.moves) {
+            if (m == Recipe.Move.PIN) {
+                must.add(Techniques.Tag.PIN);
+            } else if (m == Recipe.Move.STANDOFF) {
+                must.add(Techniques.Tag.STANDOFF);
+            }
+        }
+        if (recipe.mouseTurns >= 2) {
+            must.add(Techniques.Tag.MOUSE_TURNS);
+        }
+        java.util.Map<Techniques.Tag, Integer> later = new java.util.EnumMap<>(Techniques.Tag.class);
+        java.util.Set<Techniques.Tag> next3 = java.util.EnumSet.noneOf(Techniques.Tag.class);
+        for (int k = n + 1; k <= room.end; k++) {
+            Recipe r = Recipe.forLevel(k);
+            if (r == null) {
+                continue;
+            }
+            for (Techniques.Tag g : asked(r)) {
+                later.merge(g, 1, Integer::sum);
+                if (k - n <= Techniques.HEADLINE_GAP) {
+                    next3.add(g);
+                }
+            }
+        }
+        java.util.Set<Techniques.Tag> mine = asked(recipe);
+        final int roomSize = size;
+        return l -> {
+            Techniques.Tags t = Techniques.of(l);
+            if (!t.tags.containsAll(must) || Techniques.breaks(t, before, roomSize) != null) {
+                return false;
+            }
+            for (Techniques.Tag g : t.tags) {
+                int most = Techniques.most(g, roomSize);
+                if (most == Integer.MAX_VALUE) {
+                    continue;
+                }
+                int used = 0;
+                for (Techniques.Tags b : before) {
+                    used += b.tags.contains(g) ? 1 : 0;
+                }
+                if (used + 1 + later.getOrDefault(g, 0) > most) {
+                    return false;   // the room's later levels need this allowance
+                }
+                if (!mine.contains(g) && Techniques.HEADLINE.contains(g) && next3.contains(g)) {
+                    return false;   // a trick by chance that one of the next 3 levels asks for
+                }
+            }
+            return true;
+        };
+    }
+
+    /** The techniques a recipe asks for (what the level is built to use). */
+    static java.util.Set<Techniques.Tag> asked(Recipe recipe) {
+        java.util.Set<Techniques.Tag> asked = java.util.EnumSet.noneOf(Techniques.Tag.class);
+        for (Recipe.Move m : recipe.moves) {
+            asked.add(m == Recipe.Move.STOP ? Techniques.Tag.STOP : m == Recipe.Move.SWERVE ? Techniques.Tag.SWERVE
+                    : m == Recipe.Move.CATCH ? Techniques.Tag.CATCH : m == Recipe.Move.PIN ? Techniques.Tag.PIN : Techniques.Tag.STANDOFF);
+        }
+        if (recipe.has(Recipe.Trick.FREEZE_RELEASE)) {
+            asked.add(Techniques.Tag.FREEZE);
+        }
+        if (recipe.has(Recipe.Trick.WAITING_RUNNER)) {
+            asked.add(Techniques.Tag.WAITING);
+        }
+        if (recipe.laneBlockers > 0 || recipe.wrapAround) {
+            asked.add(Techniques.Tag.LANE);
+        }
+        if (recipe.wrapAround) {
+            asked.add(Techniques.Tag.WRAP);
+        }
+        if (recipe.mouseTurns >= 2) {
+            asked.add(Techniques.Tag.MOUSE_TURNS);
+        }
+        if (recipe.springTraps > 0) {
+            asked.add(Techniques.Tag.SPRING);
+        }
+        return asked;
     }
 
     /** Saves a level built some other way (the mouse-and-cats trap levels), after the repeat check. */

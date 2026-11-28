@@ -75,10 +75,16 @@ public final class Techniques {
     }
 
     public static Tags of(Level level) {
+        Tags t = detect(level);
+        t.score = Difficulty.score(level, t);
+        return t;
+    }
+
+    /** The tags without the score (the score counts some of them, see {@link Difficulty#score}). */
+    static Tags detect(Level level) {
         Tags t = new Tags();
         t.hand = level.inventory.size();
         t.depth = LevelChecker.depth(level, level.solution);
-        t.score = Difficulty.score(level);
         Interest.Breakdown b = Interest.breakdown(level);
         if (b.freezeRelease > 0) {
             t.tags.add(Tag.FREEZE);
@@ -444,7 +450,7 @@ public final class Techniques {
      * Rooms rebuilt for the harder castle. Add each room's name here as it's rebuilt: {@code TechniquesTest} then
      * holds it to the repeat limits. Rooms not rebuilt yet are left alone (most of them break the limits today).
      */
-    static final List<String> REBUILT_ROOMS = List.of();
+    static final List<String> REBUILT_ROOMS = List.of("Library");
 
     /** A puzzle's style: how many animals you place and which techniques it uses, for example "3: catch, stop". */
     public static String style(Tags t) {
@@ -500,6 +506,46 @@ public final class Techniques {
             }
         }
         return out;
+    }
+
+    /** The most levels of a room of this size that may use a technique (no limit for the rest). */
+    static int most(Tag g, int roomSize) {
+        return HEADLINE.contains(g) ? (int) Math.ceil(roomSize * HEADLINE_SHARE)
+                : EVERYDAY.containsKey(g) ? (int) Math.floor(roomSize * EVERYDAY.get(g)) : Integer.MAX_VALUE;
+    }
+
+    /**
+     * Why a candidate would break the repeat limits, given the levels of its room built before it (in order), or null
+     * if it keeps them: a headline trick from the 3 levels before, a style from the 8 before, or one more use of a
+     * technique than the room may have. {@code LevelsCli make --strict} only keeps candidates that keep the limits, so
+     * a room built in order passes {@link #limitProblems} (as long as its recipes leave room for every technique).
+     */
+    static String breaks(Tags t, List<Tags> before, int roomSize) {
+        int n = before.size();
+        for (int back = 1; back <= Math.max(HEADLINE_GAP, STYLE_GAP) && back <= n; back++) {
+            Tags then = before.get(n - back);
+            if (back <= HEADLINE_GAP) {
+                for (Tag g : t.tags) {
+                    if (HEADLINE.contains(g) && then.tags.contains(g)) {
+                        return g.label + " was " + back + " level(s) back";
+                    }
+                }
+            }
+            if (back <= STYLE_GAP && style(then).equals(style(t))) {
+                return "style " + style(t) + " was " + back + " level(s) back";
+            }
+        }
+        for (Tag g : t.tags) {
+            int most = most(g, roomSize);
+            int used = 0;
+            for (Tags b : before) {
+                used += b.tags.contains(g) ? 1 : 0;
+            }
+            if (used + 1 > most) {
+                return g.label + " would be in " + (used + 1) + " levels of the room (at most " + most + ")";
+            }
+        }
+        return null;
     }
 
     /**

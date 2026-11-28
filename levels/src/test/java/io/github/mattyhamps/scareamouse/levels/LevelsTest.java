@@ -116,6 +116,22 @@ class LevelsTest {
         }
     }
 
+    /** The "Standoff!" card shows on the first level whose recipe needs a standoff on purpose (STANDOFF_AT in index.html). */
+    @Test
+    void standoffCardIsOnTheFirstStandoffLevel() throws IOException {
+        String html = new String(Files.readAllBytes(Paths.get("../web/src/main/webapp/index.html")), StandardCharsets.UTF_8);
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("const STANDOFF_AT = (\\w+);").matcher(html);
+        assertTrue(m.find(), "index.html has no STANDOFF_AT");
+        String first = "null";
+        for (int n = 1; n <= levels.size() && first.equals("null"); n++) {
+            Recipe r = Recipe.forLevel(n);
+            if (r != null && java.util.Arrays.asList(r.moves).contains(Recipe.Move.STANDOFF)) {
+                first = String.valueOf(n - 1);   // the game counts levels from 0
+            }
+        }
+        assertEquals(first, m.group(1), "STANDOFF_AT should be the first standoff level's index (level number - 1)");
+    }
+
     /** The flame marks in the game come from data/hard-levels.json; it must match the levels (LevelsCli hard --write). */
     @Test
     void hardLevelsListIsUpToDate() throws IOException {
