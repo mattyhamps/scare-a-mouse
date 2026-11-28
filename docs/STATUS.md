@@ -198,6 +198,29 @@ _Last updated: 27 November 2026._
   in 4, one turn tile. 1084 was changed after the dry run. 1100 is the castle's last boss (score 19, the
   hardest in the room): walls, two traps to spring and a trapdoor; its first build scored only 15.5, so the
   recipe was made harder. Flames: 1083 and 1099.
+- **App Store step 1: feels like a phone app** (`docs/APP_STORE.md`):
+  - Players see the name **Mouse in Hole** everywhere (top bar, page title, home-screen name, the tester
+    link's thank-you, the README). The repo, code and saved-progress keys keep Scare-a-Mouse.
+  - The level screen fits a phone with no scrolling: the board takes whatever height the other rows leave
+    (`buildBoard`), short screens get tighter spacing, and the Hint button no longer wraps onto two lines.
+    At 360×640 the board is 296px wide (was 328) and at 390×664 318px (was 340); the text keeps its size
+    (Matt OK'd the size and kept the food-chain row as it is).
+  - The floor map's stairs buttons ("Fourth floor", "Upstairs") are no longer cut off: the floor plan fills
+    the pop-up's space with the buttons under it. The "coming soon" room on the tester link's map showed only
+    "coming"; now both words show.
+  - App feel: no pinch or double-tap zoom, no long-press pop-ups, pop-ups clear of the notch and home bar.
+    "Reset progress (testing)" was already shown only in developer mode.
+  - Hints cost 3 and 3 more (`HINT_PRICE`), new players start with 0 cheese (`START_CHEESE`; saved balances
+    are kept), and flame levels pay 1 cheese like any other (their tip no longer says "for 2 cheese").
+  - A 5th how-to-play card, "Stuck?" (Matt picked it as its own card, with the prices): spend cheese on a
+    hint, earn it by solving levels without hints.
+  - `cantAfford` in the hint code is the one place "Watch an ad for this hint" will go (step 6); for now it
+    shows the "not enough cheese" message.
+  - `node tools/screens/fit.js` takes screenshots at 390×664 and 360×640 (how-to cards, levels and their
+    cards, the room, floor and castle maps, the tester link) and fails if anything needs scrolling.
+  - `docs/APP_STORE.md` now plans **Android** too: the same Capacitor project, iPhone first, then Google Play
+    ($25 account, a 12-tester / 14-day closed test for new personal accounts, Play Billing through
+    RevenueCat, AdMob, the back button, screen sizes).
 - **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`; the results are in
   `docs/HARDER_CASTLE_REPORT.md`). Nothing in `data/` changed.
   - `LevelsCli techniques` tags every level's solution by what happens when it's played (stop, swerve, catch,
@@ -215,16 +238,16 @@ _Last updated: 27 November 2026._
 
 **Where to start (Matt, 27 November 2026):** two jobs, each in its own pull requests, each starting from
 `main`:
-- **App Store step 1** (`docs/APP_STORE.md`): the rename, the phone fit, and hints at 3 + 3. Quick, and it
-  doesn't touch levels.
-- **The harder castle:** steps 1 and 2 are done (see Done and `docs/HARDER_CASTLE_REPORT.md`). Waiting for
-  nothing: the curve, the repeat limits and the order are decided (see the decisions below). **Next: teach the
+- **App Store step 1** (`docs/APP_STORE.md`): done in its pull request (see Done). Next is step 2,
+  Capacitor.
+- **The harder castle:** steps 1 and 2 are done (see Done and `docs/HARDER_CASTLE_REPORT.md`). The curve,
+  the repeat limits and the order are decided (see the decisions below). **Next: teach the
   builder** the new techniques (freeze on purpose, standoffs, the mouse turning twice, freeze-release with a
   waiting runner, closing off other solutions so 5 animals and two missing links build) and the repeat limits,
   with a new dry run. Then rebuild floor by floor from 201.
 
-1. **The App Store:** ship the finished castle as an iPhone app called **Mouse in Hole**, as soon as
-   possible. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps
+1. **The App Store:** ship the finished castle as a phone app called **Mouse in Hole**, as soon as
+   possible, on iPhone first and then Android from the same Capacitor project. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps
    are in `docs/APP_STORE.md`. Work through its steps in order, one pull request each. Step 1 (feel like a
    phone app) includes Matt's height check: the level screen, the floor map and the cards must fit a phone
    without scrolling.
@@ -274,7 +297,8 @@ Notes from Matt's legal and App Store checklist (a separate document):
 
 ## Decisions to remember
 
-- The game's name is **Mouse in Hole** (store, app and everything players see). It's for puzzle fans aged
+- The game's name is **Mouse in Hole** (store, app and everything players see). It ships on iPhone first,
+  then Android (Google Play), from one Capacitor project. It's for puzzle fans aged
   about 15–45, with plain, friendly text. Matt publishes as an individual. (November 2026)
 - Hints cost 3 cheese for the shaded area and 3 more for the exact square, and new players start with 0
   cheese. Flame levels only show that they're harder; they pay the same 1 cheese as any level (bosses
