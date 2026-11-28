@@ -1054,6 +1054,16 @@ public final class ChainBuilder {
      */
     public static Built find(Recipe recipe, String name, long baseSeed, int threads, int want, long timeoutSeconds,
                              java.util.Map<Animal, Integer> recent) throws InterruptedException {
+        return find(recipe, name, baseSeed, threads, want, timeoutSeconds, recent, l -> true);
+    }
+
+    /**
+     * Like the others, but only keeps levels that {@code keep} accepts as well (for example only those whose
+     * solution uses a certain technique, see {@link Techniques}). Used by the dry runs of new techniques.
+     */
+    public static Built find(Recipe recipe, String name, long baseSeed, int threads, int want, long timeoutSeconds,
+                             java.util.Map<Animal, Integer> recent, java.util.function.Predicate<Level> keep)
+            throws InterruptedException {
         LevelRules rules = recipe.rules();
         List<Built> found = Collections.synchronizedList(new ArrayList<>());
         java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
@@ -1067,7 +1077,7 @@ public final class ChainBuilder {
                         continue;
                     }
                     LevelChecker.Verdict v = LevelChecker.check(candidate, rules);
-                    if (v != null) {
+                    if (v != null && keep.test(candidate)) {
                         // keep the builder's chain-ordered solution (hints reveal it in this order)
                         found.add(new Built(candidate, v, Interest.score(candidate), seed));
                     }

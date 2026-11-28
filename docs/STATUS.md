@@ -198,6 +198,18 @@ _Last updated: 27 November 2026._
   in 4, one turn tile. 1084 was changed after the dry run. 1100 is the castle's last boss (score 19, the
   hardest in the room): walls, two traps to spring and a trapdoor; its first build scored only 15.5, so the
   recipe was made harder. Flames: 1083 and 1099.
+- **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`; the results are in
+  `docs/HARDER_CASTLE_REPORT.md`). Nothing in `data/` changed.
+  - `LevelsCli techniques` tags every level's solution by what happens when it's played (stop, swerve, catch,
+    freeze-release, lane cleared, standoff, and so on) and reports them per room (`--csv` for one line per level).
+    From 201 on the score is flat at about 10-14, no level has more than 3 animals, stop is in about 1 level in
+    3-4, and lane cleared (75%), freeze-release and catch (over half each) repeat even more.
+  - `FrontierSearch`: a quicker way to find every winning placement for hands of 4 or more (it only tries squares
+    the run reaches). Same answers as trying everything (`FrontierSearchTest`); 3-animal levels still use the old
+    search. One 4-animal search went from about 50 s to about 1 s, and 5 from about an hour to 3-80 s.
+  - `LevelsCli trial` is the dry run. 4 animals build in 14-42 s (scores 17.5-22.5). 5 animals built nothing in
+    15-20 minutes: the candidates nearly always have a second solution. Freeze on purpose, standoffs and the
+    mouse turning twice need the builder to design them.
 
 ## Next
 
@@ -205,9 +217,9 @@ _Last updated: 27 November 2026._
 `main`:
 - **App Store step 1** (`docs/APP_STORE.md`): the rename, the phone fit, and hints at 3 + 3. Quick, and it
   doesn't touch levels.
-- **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`): the technique tagging report and the dry
-  run, including 4 and 5 animals. Show Matt the results and the proposed curve before rebuilding
-  anything.
+- **The harder castle:** steps 1 and 2 are done (see Done and `docs/HARDER_CASTLE_REPORT.md`). Waiting for
+  Matt's choice of curve and repeat limits, and whether to teach the builder the new techniques before the
+  rebuild.
 
 1. **The App Store:** ship the finished castle as an iPhone app called **Mouse in Hole**, as soon as
    possible. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps

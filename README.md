@@ -205,7 +205,16 @@ Level tools:
 ./scripts/levels.sh check 30          # explain one level
 ./scripts/levels.sh make 30 --write   # make a new level 30 (designed if it has a recipe) and save it
 ./scripts/levels.sh make 71 --name "Some Name" --write   # add a new level at the end
+./scripts/levels.sh techniques --from 201  # which techniques each room's solutions use (stop, swerve, catch, ...)
+./scripts/levels.sh techniques 1011        # the techniques of one level
+./scripts/levels.sh trial --timeout 90     # dry run: try to build new kinds of puzzle (4 and 5 animals, new techniques)
 ```
+
+**Four and five animals.** Checking a level means finding every winning placement, and trying every square
+for every animal stops being possible past 3 animals (about 48 million placements for 4 different animals, 4
+billion for 5). For hands of 4 or more, `FrontierSearch` only tries squares the run actually reaches, adding
+your animals in the order they are first touched; it finds the same placements (`FrontierSearchTest` compares
+it with the full search). Smaller hands still use the full search.
 
 If you change the rules in `Simulator` or the builder, run `mvn verify -Dbuilder.tests.excluded=none`
 (the build does this automatically when those files change): the physics tests show what changed and

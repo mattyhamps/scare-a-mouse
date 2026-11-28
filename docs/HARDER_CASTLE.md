@@ -77,6 +77,10 @@ has to finish in a sensible time.
 
 ## How to do it
 
+**Steps 1 and 2 are done:** the results, the proposed curve and the questions for Matt are in
+`docs/HARDER_CASTLE_REPORT.md`. The tools: `LevelsCli techniques` (step 1), `LevelsCli trial` (step 2) and
+`FrontierSearch` (the quicker check for 4 and 5 animals).
+
 1. **Tag the techniques.** Tag every level's intended solution by the techniques it uses: swerve,
    freeze-release, waiting runner, catch, stop, lane blocker cleared, wrap-around, standoff, an animal
    placed touching nothing, trap sprung first, steer round a trap, trapdoor, turn tile, and the new ones as

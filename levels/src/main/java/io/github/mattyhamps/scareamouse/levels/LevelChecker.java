@@ -80,7 +80,9 @@ public final class LevelChecker {
                 }
                 List<Animal> fewer = new ArrayList<>(hand);
                 fewer.remove(i);
-                if (!solutions(level, fewer, 1).isEmpty()) {
+                // with 4 or more in the hand, the smaller hands use the quicker search too (same answer: is there one?)
+                List<List<Piece>> one = hand.size() >= FRONTIER_FROM ? FrontierSearch.solutions(level, fewer, 1) : solutions(level, fewer, 1);
+                if (!one.isEmpty()) {
                     return null; // the level can be won without one of your animals
                 }
             }
@@ -131,6 +133,17 @@ public final class LevelChecker {
      * Identical animals are never tried in swapped order, so each placement is counted once.
      */
     public static List<List<Piece>> solutions(Level level, List<Animal> hand, int cap) {
+        if (hand.size() >= FRONTIER_FROM) {
+            return FrontierSearch.solutions(level, hand, cap);   // 4 or 5 animals: only squares the run reaches
+        }
+        return allPlacements(level, hand, cap);
+    }
+
+    /** Hands this big use {@link FrontierSearch}; smaller ones try every placement, as they always have. */
+    static final int FRONTIER_FROM = Integer.getInteger("checker.frontierFrom", 4);   // -Dchecker.frontierFrom=99 for the old search
+
+    /** Every winning placement, up to {@code cap}, trying every square for every animal. */
+    static List<List<Piece>> allPlacements(Level level, List<Animal> hand, int cap) {
         List<int[]> open = level.openSquares();
         List<List<Piece>> out = new ArrayList<>();
         search(level, hand, open, 0, new int[hand.size()], new boolean[open.size()], cap, out);
