@@ -221,6 +221,18 @@ _Last updated: 27 November 2026._
   - `docs/APP_STORE.md` now plans **Android** too: the same Capacitor project, iPhone first, then Google Play
     ($25 account, a 12-tester / 14-day closed test for new personal accounts, Play Billing through
     RevenueCat, AdMob, the back button, screen sizes).
+- **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`; the results are in
+  `docs/HARDER_CASTLE_REPORT.md`). Nothing in `data/` changed.
+  - `LevelsCli techniques` tags every level's solution by what happens when it's played (stop, swerve, catch,
+    freeze-release, lane cleared, standoff, and so on) and reports them per room (`--csv` for one line per level).
+    From 201 on the score is flat at about 10-14, no level has more than 3 animals, stop is in about 1 level in
+    3-4, and lane cleared (75%), freeze-release and catch (over half each) repeat even more.
+  - `FrontierSearch`: a quicker way to find every winning placement for hands of 4 or more (it only tries squares
+    the run reaches). Same answers as trying everything (`FrontierSearchTest`); 3-animal levels still use the old
+    search. One 4-animal search went from about 50 s to about 1 s, and 5 from about an hour to 3-80 s.
+  - `LevelsCli trial` is the dry run. 4 animals build in 14-42 s (scores 17.5-22.5). 5 animals built nothing in
+    15-20 minutes: the candidates nearly always have a second solution. Freeze on purpose, standoffs and the
+    mouse turning twice need the builder to design them.
 
 ## Next
 
@@ -228,9 +240,11 @@ _Last updated: 27 November 2026._
 `main`:
 - **App Store step 1** (`docs/APP_STORE.md`): done in its pull request (see Done). Next is step 2,
   Capacitor.
-- **The harder castle, steps 1 and 2** (`docs/HARDER_CASTLE.md`): the technique tagging report and the dry
-  run, including 4 and 5 animals. Show Matt the results and the proposed curve before rebuilding
-  anything.
+- **The harder castle:** steps 1 and 2 are done (see Done and `docs/HARDER_CASTLE_REPORT.md`). The curve,
+  the repeat limits and the order are decided (see the decisions below). **Next: teach the
+  builder** the new techniques (freeze on purpose, standoffs, the mouse turning twice, freeze-release with a
+  waiting runner, closing off other solutions so 5 animals and two missing links build) and the repeat limits,
+  with a new dry run. Then rebuild floor by floor from 201.
 
 1. **The App Store:** ship the finished castle as a phone app called **Mouse in Hole**, as soon as
    possible, on iPhone first and then Android from the same Capacitor project. The plan, Matt's decisions (name, audience, cheese and hints, ads, cheese packs) and the steps
@@ -290,6 +304,15 @@ Notes from Matt's legal and App Store checklist (a separate document):
   cheese. Flame levels only show that they're harder; they pay the same 1 cheese as any level (bosses
   still pay 3). A hint by ad is always available, rewarded ads only. Cheese packs are how players skip ads. There's
   no "remove ads" purchase and no unlimited hints, so cheese keeps its value. Details in `docs/APP_STORE.md`.
+- The harder castle's curve (Matt, 27 November 2026): the steeper option, from about 12 at level 201 to about
+  17.5 at the Tower top (ordinary levels there about 18.8). 4-animal levels go anywhere they fit, not only on
+  flame levels and bosses: Matt wants more difficulty across the board. Breathers and warm-ups stay easy.
+- Repeats (Matt, 27 November 2026): he doesn't want to notice puzzle styles repeating, and wants techniques
+  less common wherever possible. The same puzzle style (main trick plus set-up) never within about 8 levels;
+  headline tricks at most about 1 in 8-10 and never within 3 levels; lane cleared and catch down to about 40%
+  and freeze-release to about 25%; the builder marks down repeats and a test checks each room. Details in
+  `docs/HARDER_CASTLE_REPORT.md`.
+- The builder learns the new techniques before the rebuild (Matt), so the castle is rebuilt once.
 - Difficulty: after Matt's playtest the castle gets harder and more varied before launch
   (`docs/HARDER_CASTLE.md`): a rising curve from about level 200, harder flame levels and bosses, new
   techniques, and no technique repeated too often. It shouldn't be all difficult: an occasional easy level

@@ -18,6 +18,8 @@ import java.util.List;
  *   audit                          check every level; exit code 1 if any fail
  *   check N                        explain level N
  *   hard [--write]   (lists the extra-hard levels; --write saves data/hard-levels.json)
+ *   trial [--timeout SEC] [--only TEXT]   dry run of new kinds of puzzle (4 and 5 animals, new techniques)
+ *   techniques [N] [--from N] [--csv PATH]   which techniques each room's levels use (or one level's)
  *   make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--balance K] [--write]
  *                                  generate a replacement for level N (or a new level at the end);
  *                                  --write saves it into levels.json
@@ -46,6 +48,27 @@ public final class LevelsCli {
                 break;
             case "make":
                 make(levels, file, args);
+                break;
+            case "techniques": {   // docs/HARDER_CASTLE.md step 1: which techniques each room uses
+                List<Techniques.Room> rooms = Techniques.rooms(Paths.get("web/src/main/webapp/index.html"), levels.size());
+                if (args.length > 1 && args[1].matches("[0-9]+")) {   // one level
+                    System.out.println(args[1] + ": " + Techniques.of(levels.get(Integer.parseInt(args[1]) - 1)));
+                    break;
+                }
+                int from = Integer.parseInt(option(args, "--from", "1"));
+                System.out.print(Techniques.report(levels, rooms, from));
+                System.out.println();
+                System.out.print(Techniques.stopsAndCatches(levels, rooms, from));
+                String csv = option(args, "--csv", null);
+                if (csv != null) {
+                    Files.write(Paths.get(csv), Techniques.perLevel(levels, rooms).getBytes(StandardCharsets.UTF_8));
+                    System.out.println("Saved every level's tags to " + csv);
+                }
+                break;
+            }
+            case "trial":   // docs/HARDER_CASTLE.md step 2: try new kinds of puzzle, save nothing
+                DryRun.run(Long.parseLong(option(args, "--timeout", "60")), option(args, "--only", null));
+                System.exit(0);   // don't wait for checks still running past the time limit
                 break;
             case "probe":
                 probe(Integer.parseInt(args[1]), Integer.parseInt(args[2]),
@@ -271,6 +294,6 @@ public final class LevelsCli {
     }
 
     private static void usage() {
-        System.out.println("Usage: audit | check N | hard [--write] | probe FROM TO [--timeout SEC] | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
+        System.out.println("Usage: audit | check N | hard [--write] | techniques [N] [--from N] [--csv PATH] | probe FROM TO [--timeout SEC] | make N [--seed S] [--threads T] [--timeout SEC] [--name NAME] [--tip TIP] [--write]  [--file PATH]");
     }
 }
