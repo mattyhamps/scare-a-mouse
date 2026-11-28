@@ -91,6 +91,8 @@ public final class LevelChecker {
         for (int i = 1; i < level.fixed.size(); i++) {
             parts.add(level.withoutFixed(i));
         }
+        int animalParts = parts.size();   // the first ones are board animals; up to rules.herrings may play no part
+        int herrings = 0;
         for (int i = 0; i < level.walls.size(); i++) {
             parts.add(level.withoutWall(i));
         }
@@ -103,14 +105,20 @@ public final class LevelChecker {
         if (!level.trapdoors.isEmpty()) {   // the trapdoor pair goes as one piece
             parts.add(level.withTrapdoors(java.util.Collections.<int[]>emptyList()));
         }
-        for (Level part : rules.clutterCheck ? parts : java.util.Collections.<Level>emptyList()) {
+        for (int k = 0; k < (rules.clutterCheck ? parts.size() : 0); k++) {
+            Level part = parts.get(k);
             boolean stillWins = false;
             for (List<Piece> s : sols) {
                 stillWins |= Simulator.run(part, s).win;
             }
             // A piece is clutter if taking it away changes nothing: the solutions still work and no new
             // ones open up. (Blockers and pinning animals pass, because removing them makes the puzzle easier.)
+            // A recipe with red herrings allows that many board animals to be clutter on purpose.
             if (stillWins && !puzzleChanges(part, hand, sols.size())) {
+                if (k < animalParts && herrings < rules.herrings) {
+                    herrings++;
+                    continue;
+                }
                 return null;
             }
         }

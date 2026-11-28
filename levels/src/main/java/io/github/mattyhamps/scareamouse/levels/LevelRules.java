@@ -38,6 +38,11 @@ public final class LevelRules {
     public final int minMoved;
     /** Every piece on the board must change the puzzle (false only for hand-made teaching levels, see {@link #teaching}). */
     public final boolean clutterCheck;
+    /**
+     * Board animals allowed to play no part (red herrings and decoy starts, docs/HARDER_CASTLE.md points 6 and 7).
+     * Only recipes that ask for them get any; walls, turn tiles, traps and trapdoors must always matter.
+     */
+    public final int herrings;
 
     private LevelRules(int pieces, int fixedMin, int fixedMax, int wallsMin, int wallsMax, List<Animal> types,
                        List<Animal> handTypes, List<Animal> ensure, Animal mustPlace, Animal mustMove,
@@ -69,9 +74,14 @@ public final class LevelRules {
         this.minDepth = minDepth;
         this.minMoved = minMoved;
         this.clutterCheck = true;
+        this.herrings = 0;
     }
 
     private LevelRules(LevelRules r, boolean clutterCheck) {
+        this(r, clutterCheck, r.herrings);
+    }
+
+    private LevelRules(LevelRules r, boolean clutterCheck, int herrings) {
         this.pieces = r.pieces;
         this.fixedMin = r.fixedMin;
         this.fixedMax = r.fixedMax;
@@ -86,6 +96,12 @@ public final class LevelRules {
         this.minDepth = r.minDepth;
         this.minMoved = r.minMoved;
         this.clutterCheck = clutterCheck;
+        this.herrings = herrings;
+    }
+
+    /** The same rules, allowing this many board animals that play no part (red herrings and decoys). */
+    public LevelRules withHerrings(int count) {
+        return new LevelRules(this, clutterCheck, count);
     }
 
     /**

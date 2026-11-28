@@ -61,12 +61,38 @@ final class DryRun {
         t.add(new Trial("5: elephant, 3 blockers, 1 catch, walls", new Recipe(Animal.ELEPHANT, 3, false, "", plain).withCatches(1).withWalls(1, 4), null));
         t.add(new Trial("5: lion, 4 lane blockers, walls", new Recipe(Animal.LION, 4, false, "", plain).withWalls(1, 4), null));
         t.add(new Trial("4: elephant freeze-release, 1 blocker, 2 catches, walls", new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(2).withWalls(1, 4), null));
-        // 4 and 5: new techniques, from familiar recipes, keeping only levels whose solution really uses them
-        t.add(new Trial("new: freeze on purpose", new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(1), Techniques.Tag.PIN));
-        t.add(new Trial("new: standoff", new Recipe(Animal.ELEPHANT, 1, false, "", plain).withCatches(1), Techniques.Tag.STANDOFF));
-        t.add(new Trial("two starters at once", new Recipe(Animal.ELEPHANT, 2, false, "", plain), Techniques.Tag.TWO_STARTS));
-        t.add(new Trial("new: mouse turned twice", new Recipe(Animal.ELEPHANT, 1, false, "", free).withCatches(1), Techniques.Tag.MOUSE_TURNS));
-        t.add(new Trial("new: mouse turned twice (turn tile)", new Recipe(Animal.LION, 1, false, "", plain).withTurnTiles(1), Techniques.Tag.MOUSE_TURNS));
+        // closing off shortcuts (a win with one animal fewer) with walls or mousetraps
+        t.add(new Trial("closed: lion chain, 2 missing links, walls", new Recipe(Animal.LION, 0, false, "", plain).withCatches(2).withWalls(1, 4), null));
+        t.add(new Trial("closed: lion chain, 2 missing links, traps", new Recipe(Animal.LION, 0, false, "", plain).withCatches(2).withTraps(1, 3), null));
+        t.add(new Trial("closed: 4: moving, 2 blockers, swerve + stop, walls", new Recipe(Animal.ELEPHANT, 2, false, "", plain).withMoves(Move.SWERVE, Move.STOP).withWalls(1, 4), null));
+        t.add(new Trial("closed: 5: elephant, 3 blockers, 1 catch, walls", new Recipe(Animal.ELEPHANT, 3, false, "", plain).withCatches(1).withWalls(1, 4), null));
+        t.add(new Trial("closed: 5: elephant, 3 blockers, 1 catch, traps", new Recipe(Animal.ELEPHANT, 3, false, "", plain).withCatches(1).withTraps(1, 3), null));
+        t.add(new Trial("closed: 5: lion, 4 lane blockers, walls", new Recipe(Animal.LION, 4, false, "", plain).withWalls(1, 4), null));
+        // taught to the builder (step 2 of teaching it): each technique on its own, then mixed with others
+        t.add(new Trial("taught: freeze-release + waiting runner", new Recipe(Animal.ELEPHANT, 0, false, "", free, wait), null));
+        t.add(new Trial("taught: freeze-release + waiting runner, 1 blocker", new Recipe(Animal.ELEPHANT, 1, false, "", free, wait), null));
+        t.add(new Trial("taught: freeze on purpose", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withPlaced(Move.PIN), Techniques.Tag.PIN));
+        t.add(new Trial("taught: freeze on purpose, freeze-release", new Recipe(Animal.ELEPHANT, 0, false, "", free).withPlaced(Move.PIN), Techniques.Tag.PIN));
+        t.add(new Trial("taught: freeze on purpose, moving", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.PIN), Techniques.Tag.PIN));
+        t.add(new Trial("taught: standoff", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withPlaced(Move.STANDOFF), Techniques.Tag.STANDOFF));
+        t.add(new Trial("taught: standoff, waiting runner", new Recipe(Animal.ELEPHANT, 0, false, "", wait).withPlaced(Move.STANDOFF), Techniques.Tag.STANDOFF));
+        t.add(new Trial("taught: standoff, moving", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.STANDOFF), Techniques.Tag.STANDOFF));
+        t.add(new Trial("taught: freeze on purpose, walls", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withPlaced(Move.PIN).withWalls(1, 3), Techniques.Tag.PIN));
+        t.add(new Trial("taught: freeze on purpose, traps", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withPlaced(Move.PIN).withTraps(1, 2), Techniques.Tag.PIN));
+        t.add(new Trial("taught: freeze on purpose, moving, walls", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.PIN).withWalls(1, 3), Techniques.Tag.PIN));
+        t.add(new Trial("taught: standoff, walls", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withPlaced(Move.STANDOFF).withWalls(1, 3), Techniques.Tag.STANDOFF));
+        t.add(new Trial("taught: standoff, traps", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withPlaced(Move.STANDOFF).withTraps(1, 2), Techniques.Tag.STANDOFF));
+        t.add(new Trial("taught: standoff, moving, walls", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMoves(Move.STANDOFF).withWalls(1, 3), Techniques.Tag.STANDOFF));
+        t.add(new Trial("taught: mouse turns twice", new Recipe(Animal.ELEPHANT, 0, false, "", plain).withMouseTurns(2), Techniques.Tag.MOUSE_TURNS));
+        t.add(new Trial("taught: mouse turns twice, freeze-release", new Recipe(Animal.ELEPHANT, 0, false, "", free).withMouseTurns(2), Techniques.Tag.MOUSE_TURNS));
+        t.add(new Trial("taught: mouse turns three times", new Recipe(Animal.LION, 0, false, "", plain).withMouseTurns(3), Techniques.Tag.MOUSE_TURNS));
+        t.add(new Trial("taught: red herring", new Recipe(Animal.ELEPHANT, 0, false, "", free).withHerrings(1, 0), null));
+        t.add(new Trial("taught: decoy start", new Recipe(Animal.ELEPHANT, 0, false, "", free).withHerrings(0, 1), null));
+        t.add(new Trial("taught: decoy start + red herring, 1 blocker", new Recipe(Animal.ELEPHANT, 1, false, "", plain).withHerrings(1, 1), null));
+        t.add(new Trial("taught: 4: pin + standoff, 1 blocker", new Recipe(Animal.ELEPHANT, 1, false, "", plain).withPlaced(Move.PIN, Move.STANDOFF), null));
+        t.add(new Trial("taught: 4: freeze + wait, 1 blocker, pin", new Recipe(Animal.ELEPHANT, 1, false, "", free, wait).withPlaced(Move.PIN), null));
+        t.add(new Trial("taught: 4: 2 blockers, standoff, mouse turns", new Recipe(Animal.ELEPHANT, 2, false, "", plain).withPlaced(Move.STANDOFF).withMouseTurns(2), null));
+        // timing and the loop (built before, from familiar recipes)
         t.add(new Trial("new: your animal clears a path (timing)", new Recipe(Animal.ELEPHANT, 1, false, "", wait).withCatches(1), Techniques.Tag.CLEAR_PATH));
         t.add(new Trial("new: elephant-mouse loop, 3 to place", new Recipe(Animal.CAT, 1, true, "", free).withCatches(1), Techniques.Tag.WRAP));
         return t;

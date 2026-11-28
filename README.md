@@ -167,6 +167,27 @@ mousetrap. The checker skips its clutter rule for it (`LevelRules.teaching`), si
 the idea. `TrapdoorLab` builds eleven test levels (951–961) into `web/src/main/webapp/trapdoor-lab.json`; add
 `?lab=trapdoor-lab` to the address to play them.
 
+**Techniques for the harder castle** (`docs/HARDER_CASTLE.md`). Recipes can also ask for:
+- `withPlaced(PIN)`, **freeze on purpose:** a spoiler beside a runner's path, its way out blocked; you place an
+  animal it fears beside it, so when the runner passes it's touched by two and freezes instead of bolting.
+- `withPlaced(STANDOFF)`, **a standoff on purpose:** you place an animal next to one it fears on the board, so it
+  runs off and reaches a square on a runner's way on the same step as the runner; neither moves (rule 4). The
+  "Standoff!" card (`STANDOFF_CARD`) shows on the first level that needs one (`STANDOFF_AT`).
+  `withMoves(PIN)` / `withMoves(STANDOFF)` do the same in an already-moving level.
+- `withMouseTurns(n)`: the mouse turns n times on its way to the hole, swerving away from cats beside its run.
+- `Recipe(..., FREEZE_RELEASE, WAITING_RUNNER)`: both tricks in one chain; in a short chain they share a link
+  (the animal the freeze releases is the blocker the waiting runner is stuck behind).
+- `withHerrings(h, d)`: **red herrings** (board animals that look as if they matter but play no part) and **decoy
+  starts** (an animal your first animal could set off, starting a chain that goes nowhere). The checker allows
+  exactly that many board animals to play no part (`LevelRules.withHerrings`); the solution must still be unique.
+
+Closing off other solutions with walls or mousetraps now also closes off **shortcuts** (a win with fewer
+animals, which would make one of yours unneeded), smallest first. That's what usually spoiled levels with many
+animals or with missing links put back. **Repeat limits:** `LevelsCli make` marks down candidates that repeat
+the puzzle style of the 8 levels before or a headline trick of the 3 before (`Techniques.repeatPenalty`), and
+`techniques --limits` lists where each room breaks the limits. Rooms in `Techniques.REBUILT_ROOMS` are held to
+them by `TechniquesTest`.
+
 **The plan for the rest of the castle** (all 10×10, each floor about as hard as the one before, with a mix
 of easier and harder levels, flames on the toughest and a boss at the end):
 

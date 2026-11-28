@@ -193,9 +193,14 @@ public final class Techniques {
                     ever |= dx[i][k] != 0 || dy[i][k] != 0;
                 }
                 starts |= steps >= 1 && (dx[i][1] != 0 || dy[i][1] != 0);
+                // frozen at some moment (touched by two or more it fears, one of them yours) and never moves
                 int fears = 0;
-                for (SimResult.Snapshot q : f.get(0)) {
-                    fears += q.type == o.type.predator() && Math.abs(q.x - o.x) + Math.abs(q.y - o.y) == 1 ? 1 : 0;
+                for (List<SimResult.Snapshot> frame : f) {
+                    int here = 0;
+                    for (SimResult.Snapshot q : frame) {
+                        here += !q.gone && q.type == o.type.predator() && Math.abs(q.x - o.x) + Math.abs(q.y - o.y) == 1 ? 1 : 0;
+                    }
+                    fears = Math.max(fears, here);
                 }
                 if (fears >= 2 && !ever) {
                     t.tags.add(Tag.PIN);
@@ -417,5 +422,119 @@ public final class Techniques {
             }
         }
         return s.toString();
+    }
+
+    // ---- Repeat limits (Matt, 27 November 2026; docs/HARDER_CASTLE_REPORT.md "Limits on repeats") ----
+
+    /** Tricks a player notices and remembers: each in at most about 1 level in 8, never within 3 levels of itself. */
+    static final Set<Tag> HEADLINE = EnumSet.of(Tag.STOP, Tag.SWERVE, Tag.WAITING, Tag.WRAP, Tag.STANDOFF, Tag.PIN,
+            Tag.CLEAR_PATH, Tag.MOUSE_TURNS, Tag.SPRING);
+    /** Everyday building blocks and the most of a room's levels each may use. */
+    static final Map<Tag, Double> EVERYDAY = Map.of(Tag.LANE, 0.40, Tag.CATCH, 0.40, Tag.FREEZE, 0.25);
+    static final double HEADLINE_SHARE = 1 / 8.0;
+    static final int HEADLINE_GAP = 3;
+    /** The same puzzle style never comes back within this many levels. */
+    static final int STYLE_GAP = 8;
+    /** Tags that make up a puzzle's style (with the number of animals you place). */
+    private static final Set<Tag> STYLE_TAGS = EnumSet.of(Tag.STOP, Tag.SWERVE, Tag.CATCH, Tag.FREEZE, Tag.WAITING,
+            Tag.LANE, Tag.WRAP, Tag.STANDOFF, Tag.PIN, Tag.CLEAR_PATH, Tag.MOUSE_TURNS, Tag.SPRING, Tag.STEER,
+            Tag.TRAPDOOR, Tag.TURN_TILE, Tag.MOVING);
+
+    /**
+     * Rooms rebuilt for the harder castle. Add each room's name here as it's rebuilt: {@code TechniquesTest} then
+     * holds it to the repeat limits. Rooms not rebuilt yet are left alone (most of them break the limits today).
+     */
+    static final List<String> REBUILT_ROOMS = List.of();
+
+    /** A puzzle's style: how many animals you place and which techniques it uses, for example "3: catch, stop". */
+    public static String style(Tags t) {
+        List<String> parts = new ArrayList<>();
+        for (Tag g : t.tags) {
+            if (STYLE_TAGS.contains(g)) {
+                parts.add(g.label);
+            }
+        }
+        return t.hand + ": " + String.join(", ", parts);
+    }
+
+    /** Where a room breaks the repeat limits (empty if it keeps them). Levels from..to, 1-based. */
+    public static List<String> limitProblems(List<Level> levels, int from, int to) {
+        List<Tags> tags = new ArrayList<>();
+        for (int n = from; n <= to; n++) {
+            tags.add(of(levels.get(n - 1)));
+        }
+        List<String> out = new ArrayList<>();
+        int count = tags.size();
+        Map<Tag, Integer> uses = new LinkedHashMap<>();
+        for (Tags t : tags) {
+            for (Tag g : t.tags) {
+                uses.merge(g, 1, Integer::sum);
+            }
+        }
+        for (Tag g : HEADLINE) {
+            int most = (int) Math.ceil(count * HEADLINE_SHARE);
+            if (uses.getOrDefault(g, 0) > most) {
+                out.add(g.label + " in " + uses.get(g) + " levels (at most " + most + ")");
+            }
+        }
+        for (Map.Entry<Tag, Double> e : EVERYDAY.entrySet()) {
+            int most = (int) Math.floor(count * e.getValue());
+            if (uses.getOrDefault(e.getKey(), 0) > most) {
+                out.add(e.getKey().label + " in " + uses.get(e.getKey()) + " levels (at most " + most + ")");
+            }
+        }
+        for (int i = 0; i < count; i++) {
+            for (int back = 1; back <= Math.max(HEADLINE_GAP, STYLE_GAP) && i - back >= 0; back++) {
+                Tags now = tags.get(i);
+                Tags then = tags.get(i - back);
+                if (back <= HEADLINE_GAP) {
+                    for (Tag g : now.tags) {
+                        if (HEADLINE.contains(g) && then.tags.contains(g)) {
+                            out.add((from + i) + " repeats " + g.label + " from " + (from + i - back));
+                        }
+                    }
+                }
+                if (style(now).equals(style(then))) {
+                    out.add((from + i) + " repeats the style of " + (from + i - back) + " (" + style(now) + ")");
+                }
+            }
+        }
+        return out;
+    }
+
+    /**
+     * How much a candidate level would repeat the levels just before it, for the builder to mark it down: a lot for
+     * the same style within 8 levels or a headline trick within 3, a little for each everyday block the recent
+     * levels already use often. 0 if it repeats nothing.
+     */
+    public static double repeatPenalty(Level candidate, List<Level> before) {
+        Tags t = of(candidate);
+        double penalty = 0;
+        int n = before.size();
+        Map<Tag, Integer> recent = new LinkedHashMap<>();
+        for (int back = 1; back <= n; back++) {
+            Tags then = of(before.get(n - back));
+            if (back <= STYLE_GAP && style(then).equals(style(t))) {
+                penalty += 100;
+            }
+            for (Tag g : t.tags) {
+                if (back <= HEADLINE_GAP && HEADLINE.contains(g) && then.tags.contains(g)) {
+                    penalty += 50;
+                }
+            }
+            for (Tag g : then.tags) {
+                recent.merge(g, 1, Integer::sum);
+            }
+        }
+        for (Tag g : t.tags) {
+            Double share = EVERYDAY.get(g);
+            if (share != null && n > 0 && recent.getOrDefault(g, 0) >= share * n) {
+                penalty += 20;
+            }
+            if (HEADLINE.contains(g) && n > 0 && recent.getOrDefault(g, 0) >= HEADLINE_SHARE * n) {
+                penalty += 20;
+            }
+        }
+        return penalty;
     }
 }
