@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Scare-a-Mouse">
+<meta name="apple-mobile-web-app-title" content="Mouse in Hole">
 <meta name="theme-color" content="#4a3328">
-<title>Scare-a-Mouse</title>
+<title>Mouse in Hole</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Almendra:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +19,7 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:radial-gradient(120% 80% at 50% 0%,#3a3046 0%,var(--bg) 60%);color:var(--ink);
-    font-family:Fredoka,ui-rounded,"SF Pro Rounded",system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation;overscroll-behavior:none}
+    font-family:Fredoka,ui-rounded,"SF Pro Rounded",system-ui,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%;touch-action:manipulation;overscroll-behavior:none}
   .app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:12px;
     padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 14px)}
   header{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -49,7 +49,9 @@
   .tip{background:var(--bg2);border:1px solid #3d3548;border-radius:14px;padding:10px 12px;font-size:15px;color:#e8dfcf;line-height:1.35;min-height:62px;box-sizing:border-box}
   .chain{display:flex;align-items:center;justify-content:center;gap:2px;font-size:20px;background:rgba(255,255,255,.04);border-radius:12px;padding:6px 4px}
   .chain .arrow{font-size:11px;color:var(--muted);margin:0 1px}
-  .chain .cap{font-size:11px;color:var(--muted);margin-right:6px;font-weight:500}
+  .chain .cap{font-size:11px;color:var(--muted);margin-right:6px;font-weight:500;white-space:nowrap;line-height:1.25}
+  /* the row keeps one height on every level (two lines of caption), so the board doesn't change size */
+  .chain{height:40px;box-sizing:border-box;flex:none;overflow:hidden}
   .board-wrap{position:relative;align-self:center}
   .board{position:relative;border-radius:14px;box-shadow:0 14px 30px rgba(0,0,0,.45),0 0 0 2px #3a332c}
   .lvlbtn{font:600 15px Fredoka,system-ui;color:var(--ink);background:var(--bg2);border:2px solid #4a4155;border-radius:12px;padding:7px 12px;cursor:pointer}
@@ -204,6 +206,10 @@
   .outside-band .band-floor{min-height:64px}
   .area-view{background:radial-gradient(circle at 50% 50%,#efdfba,#d4b882 75%,#a8854a)}
   .plan{position:relative;margin:14px 14px 8px;height:clamp(320px,calc(100dvh - 400px),560px)}
+  /* a floor's map fills the space the pop-up has and keeps its stairs buttons in view under it */
+  .map:has(> .plan){display:flex;flex-direction:column}
+  .map > .plan{flex:1 1 auto;height:auto;min-height:260px;max-height:560px}
+  .map > .stairs-row{flex:none}
   .plan.floor{border-radius:6px;background:#e7d3a6;box-shadow:inset 0 0 0 8px #8a6a3a,inset 0 0 0 10px #6b4a24}
   .plan.floor .plan-room:first-of-type{}
   .plan.cellars .corridors polyline{stroke:#9c8660}
@@ -373,6 +379,13 @@
   .piece.used{opacity:.25;cursor:default}
   .tray .empty{color:var(--muted);font-size:14px}
   .controls{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px}
+  .controls .btn{white-space:nowrap;padding-left:6px;padding-right:6px}
+  /* short screens (a phone's browser): tighter spacing, so more of the height goes to the board */
+  @media (max-height:760px){
+    .app{gap:8px;padding-top:calc(env(safe-area-inset-top) + 10px);padding-bottom:calc(env(safe-area-inset-bottom) + 10px)}
+    .controls .btn{padding-top:11px;padding-bottom:11px}
+    .tray{padding:6px 12px;min-height:60px}
+  }
   button.btn{font:600 18px Fredoka,system-ui;border:0;border-radius:16px;padding:14px 10px;color:var(--ink);background:#3a3345;box-shadow:0 4px 0 #26212d;cursor:pointer}
   button.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #26212d}
   button.go{background:linear-gradient(180deg,#f6c560,var(--gold-d));color:#2b1d05;box-shadow:0 4px 0 #8a5d10}
@@ -380,7 +393,8 @@
   button.btn:disabled{opacity:.45}
   .toast{position:absolute;left:50%;top:10px;transform:translate(-50%,-20px);opacity:0;background:rgba(20,16,24,.92);color:var(--ink);padding:9px 14px;border-radius:12px;font-size:15px;white-space:nowrap;transition:.25s;z-index:5;pointer-events:none}
   .toast.show{opacity:1;transform:translate(-50%,0)}
-  .overlay{position:fixed;inset:0;background:rgba(15,12,18,.7);display:none;place-items:center;z-index:10;padding:24px}
+  .overlay{position:fixed;inset:0;background:rgba(15,12,18,.7);display:none;place-items:center;z-index:10;padding:24px;
+    padding:max(24px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left))}   /* clear of the notch and home bar */
   .overlay.show{display:grid}
   /* How-to-play cards: before level 1, and when a new animal or board piece first appears */
   #guide{z-index:12}
@@ -549,6 +563,7 @@
   .plan-room.next{border:0;background:#b9b2a6;box-shadow:0 6px 0 #9d968a;color:var(--paper)}
   .plan-room.next{z-index:1;opacity:1;animation:none}
   .plan-room.next .fog-q{font:700 40px var(--font-title);color:var(--paper)}
+  .plan-room.next .fog-q small{display:block;font:600 14px var(--font-body);line-height:1.15;text-align:center}   /* "coming soon": both words fit (the ? is big) */
   .plan-room.next small{color:var(--paper);font:600 12px var(--font-body)}
   .plan-room.far{z-index:1}
   .plan-room.far{border:0;background:#cfc8bc;box-shadow:0 6px 0 #b9b2a6}
@@ -600,7 +615,7 @@
 <body>
 <div class="app">
   <header>
-    <div class="brand"><span class="crest"></span>Scare-a-Mouse</div>
+    <div class="brand"><span class="crest"></span>Mouse in Hole</div>
     <div class="hdr-right"><button class="soundbtn" id="soundBtn" aria-label="Sound on"></button>
     <button class="lvlbtn" id="lvlBtn"></button></div>
   </header>
@@ -634,7 +649,7 @@
   <button class="btn danger" id="resetProgress">Reset progress (testing)</button>
 </div></div>
 <div class="overlay" id="demoEnd"><div class="card">
-  <div class="big" id="demoArt"></div><h3>You cleared the Meadow!</h3><p>Thanks for testing Scare-a-Mouse. More rooms are on the way.</p>
+  <div class="big" id="demoArt"></div><h3>You cleared the Meadow!</h3><p>Thanks for testing Mouse in Hole. More rooms are on the way.</p>
   <button class="btn go" id="demoAgain">Play again</button>
 </div></div>
 <div class="overlay" id="win"><div class="card">
@@ -774,12 +789,18 @@ Promise.all([
     const b=document.createElement('div'); b.className='preview-banner';
     b.textContent=`Preview of pull request #${PREVIEW[1]} · progress here is separate`;
     document.querySelector('.app').prepend(b);
-    document.title = `Preview #${PREVIEW[1]} · Scare-a-Mouse`;
+    document.title = `Preview #${PREVIEW[1]} · Mouse in Hole`;
   }
 
   // Food-chain legend
-  $('chain').innerHTML = '<span class="cap">each fears the next</span>' +
+  $('chain').innerHTML = '<span class="cap">each fears<br>the next</span>' +
     ORDER.concat('mouse').map(t=>`<span title="${t}">${art(t,24)}</span>`).join('<span class="arrow">→</span>');
+
+  // Feel like an app, not a web page: no pinch zoom (iOS Safari ignores user-scalable=no) and no
+  // double-tap zoom (touch-action above). Scrolling inside the map and cards still works.
+  ['gesturestart', 'gesturechange'].forEach(t => document.addEventListener(t, e => e.preventDefault()));
+  // (two-finger scrolling still works inside the maps)
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 && !e.target.closest('.map')) e.preventDefault(); }, { passive: false });
 
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
@@ -906,7 +927,8 @@ Promise.all([
   // The last level of each area (the Gate at 100, the Kitchens at 200, ...) is its boss: a harder
   // puzzle, with a crown on the map.
   const isBoss = i => i + 1 === areaEnd(areaOf(i));
-  // Extra-hard levels (data/hard-levels.json, worked out by LevelsCli hard): a flame on the map, 2 cheese.
+  // Extra-hard levels (data/hard-levels.json, worked out by LevelsCli hard): a flame on the map. They pay
+  // 1 cheese like any other level (Matt); only bosses pay more.
   const HARD = new Set(HARD_LIST.map(n => n - 1));
   const isHard = i => HARD.has(i) && !isBoss(i);
   const roomExists = r => room(r).start < LEVELS.length;
@@ -923,16 +945,17 @@ Promise.all([
   if (!doorsSeen) { doorsSeen = []; for (let r=0; roomExists(r); r++) if (roomCleared(r)) doorsSeen.push(r); store.set('cm_doors2', doorsSeen); }
   // Cheese is scarce: a level solved the first time with no hints earns 1 (a boss level 3; nothing
   // if you used a hint), and clearing a room earns 2. It buys hints (see HINT_PRICE below).
-  // New players start with 5; players with progress from before cheese existed get it worked out
-  // the same way. Balances saved under the old, more generous rules are kept.
+  // New players start with 0; players with progress from before cheese existed get it worked out
+  // the same way. Balances saved under the old rules are kept. (docs/APP_STORE.md, Matt's decisions)
+  const START_CHEESE = 0;
   let cheese = store.get('cm_cheese', null);
-  if (cheese === null) { let c = 5; for (let r=0; roomExists(r); r++) if (roomCleared(r)) c += 2; cheese = c + doneCount(); store.set('cm_cheese', cheese); }
-  // Hints are bought per animal: tap one of your animals, then Hint. Its first hint costs 1 and shades the
-  // patch of board it goes in; its second costs 2 and lights up its exact square. If the animal is already
+  if (cheese === null) { let c = START_CHEESE; for (let r=0; roomExists(r); r++) if (roomCleared(r)) c += 2; cheese = c + doneCount(); store.set('cm_cheese', cheese); }
+  // Hints are bought per animal: tap one of your animals, then Hint. Its first hint costs 3 and shades the
+  // patch of board it goes in; its second costs 3 more and lights up its exact square. If the animal is already
   // on its right square, the hint confirms that instead (same price), and that animal needs no more hints.
   // Hints stay bought for that level. level key -> { h: hints per solution animal, c: confirmed or not }.
   // (cm_hints2 counted hints in solution order, area then square for each animal; they carry over.)
-  const HINT_PRICE = [1, 2];
+  const HINT_PRICE = [3, 3];
   let hintBook = store.get('cm_hints3', null);
   if (!hintBook) { hintBook = {}; const old = store.get('cm_hints2', {});
     for (const k in old) { const lvl = LEVELS.find(l => levelKey(l) === k); if (!lvl) continue;
@@ -1774,6 +1797,8 @@ Promise.all([
       text: 'Tap an animal in your hand, then tap a square to place it. When you\'re ready, press Go and watch!' },
     { art: `<span class="g-wall"></span><span>${art('cat',44)}</span><span>${icon('snow',34)}</span>`, title: 'Good to know',
       text: 'Running animals stop at walls and at the edge of the board. An animal touching two animals it fears freezes until one of them moves away.' },
+    { art: `<span>${icon('cheese',44)}</span><span>${icon('arrow',26)}</span><span class="g-go">Hint</span>`, title: 'Stuck?',
+      text: `Spend cheese on a hint. You earn cheese by solving levels without hints. A hint costs ${HINT_PRICE[0]} cheese, and ${HINT_PRICE[1]} more shows the exact square.` },
   ];
   const NEW_CARDS = {
     12: { art: scares('lion','bear'), title: 'New animal: the lion!', text: 'Lions scare bears.' },
@@ -1846,7 +1871,7 @@ Promise.all([
     levelTitle();
     const boss = isBoss(li);
     const areaName = AREAS[areaOf(li)].name;
-    $('tip').textContent = L.tip || (isHard(li) ? `Extra hard: one of the toughest puzzles ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}. Solve it without hints for 2 cheese.` : boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
+    $('tip').textContent = L.tip || (isHard(li) ? `Extra hard: one of the toughest puzzles ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.` : boss ? `Boss level: the toughest puzzle ${areaName === 'Outside' ? 'outside the castle' : (areaName === 'Cellars' ? 'in the cellars' : 'on the ' + areaName.toLowerCase())}.`
       : L.inv.length>1 ? `Place your ${L.inv.length} animals, then press Go.` : 'Get the mouse into the hole.');
     $('tip').classList.toggle('boss', boss); $('tip').classList.remove('hinting');
     { const j = hints.h.map((n, k) => n > 0 && !hints.c[k] ? k : -1).filter(k => k >= 0).pop(); if (j !== undefined) { $('tip').textContent = `Hint: ${hintText(j, hints.h[j])}`; $('tip').classList.add('hinting'); } }
@@ -1858,7 +1883,12 @@ Promise.all([
   function buildBoard(){
     const b=$('board'); const W=L.w+2, H=L.h+2;
     const maxW = Math.min(window.innerWidth - 28, 492);
-    const maxH = window.innerHeight * 0.52;
+    // The board takes the height the other rows leave, so the level screen fits a phone without scrolling
+    // (tools/screens/fit.js checks 390x664 and 360x640). The text keeps its size; the board shrinks.
+    const app = b.closest('.app'), cs = getComputedStyle(app), wrap = b.parentElement;
+    const rows = [...app.children].filter(e => e !== wrap && e.getClientRects().length);
+    const others = rows.reduce((n, e) => n + e.offsetHeight, 0) + parseFloat(cs.rowGap) * rows.length + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const maxH = Math.max(200, window.innerHeight - others - 4);
     const ef = (L.w>7||L.h>7) ? 0.3 : 1;
     cell = Math.floor(Math.min(maxW/(L.w+2*ef), maxH/(L.h+2*ef)));
     edge = Math.round(cell*ef);
@@ -2079,7 +2109,7 @@ Promise.all([
       renderDots();
       const last = li===LEVELS.length-1, cleared = !wasCleared && roomCleared(rIdx);
       // Cheese for a first solve: 1 with no hints (3 on a boss level), none with; +2 for clearing a room.
-      const forLevel = first && !hintShown ? (isBoss(li) ? 3 : isHard(li) ? 2 : 1) : 0, earned = forLevel + (cleared ? 2 : 0);
+      const forLevel = first && !hintShown ? (isBoss(li) ? 3 : 1) : 0, earned = forLevel + (cleared ? 2 : 0);
       if (earned) setTimeout(() => addCheese(earned), 600);
       const cheeseLine = !first ? '' : earned ? ` +${earned} cheese` + (cleared && forLevel ? ` (${forLevel} + 2 for the room)` : cleared ? ' for the room' : '')
         : ' Solve without hints to earn cheese.';
@@ -2239,13 +2269,20 @@ Promise.all([
     const n = NAME[L.solution[j].t], your = L.solution.length > 1 ? 'your ' : 'the ';
     return step >= 2 ? `put ${your}${n} on the glowing square.` : `${your}${n} goes somewhere in the shaded squares.`;
   }
+  // The player can't afford this hint. From update 1.1 (docs/APP_STORE.md step 6) this is where
+  // "Watch an ad for this hint" goes: the ad gives this one hint, never cheese, and if no ad can load the
+  // hint is given anyway. For now it says there isn't enough cheese.
+  function cantAfford(cost){
+    updateButtons();
+    toast(`This hint costs ${cost} cheese. Solve levels without hints to earn more.`);
+  }
   function hint(){
     if(mode==='failed') backToStart();
     if(mode!=='edit') return;
     const sol=L.solution, j = hintTarget();
     if (j === null || !hintPrice(j)) { updateButtons(); return; }
     const cost = hintPrice(j);
-    if (cheese < cost && !DEV) { updateButtons(); toast(`This hint costs ${cost} cheese. Solve levels without hints to earn more.`); return; }
+    if (cheese < cost && !DEV) { cantAfford(cost); return; }
     if (cheese >= cost) addCheese(-cost);
     hintShown = true;
     if (slotFilled(j)) {
@@ -2416,7 +2453,7 @@ Promise.all([
     const b=$('resetProgress');
     if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent='Tap again to erase all progress'; clearTimeout(b._t); b._t=setTimeout(()=>{ b.classList.remove('armed'); b.textContent='Reset progress (testing)'; },3000); return; }
     clearTimeout(b._t); b.classList.remove('armed'); b.textContent='Reset progress (testing)';
-    solved={}; store.set('cm_solved',solved); hintBook={}; store.set('cm_hints3',hintBook); cheese=5; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
+    solved={}; store.set('cm_solved',solved); hintBook={}; store.set('cm_hints3',hintBook); cheese=START_CHEESE; store.set('cm_cheese',cheese); doorsSeen=[]; store.set('cm_doors2',doorsSeen); store.set('cm_map_at',0); $('picker').classList.remove('show'); load(0); toast('Progress erased.');
   };
   $('picker').onclick=e=>{ if(e.target.id==='picker') { endTrip(); $('picker').classList.remove('show'); } };
   $('goBtn').onclick=go; $('resetBtn').onclick=reset; $('hintBtn').onclick=hint;
@@ -2425,6 +2462,9 @@ Promise.all([
   $('winLevelsBtn').onclick=()=>{ $('win').classList.remove('show'); const r=clearedRoom; clearedRoom=undefined; load(li, true); openPicker(r); };
   $('nextBtn').onclick=()=>{ $('win').classList.remove('show'); load(li===LEVELS.length-1?0:li+1); };
   let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(mode==='edit'){ buildBoard(); renderAnimals(); renderTray(); } },150); });
+  // The board fits the height the other rows leave; fit it again once the web fonts have loaded, in case the
+  // fallback font made a row a different height.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (mode === 'edit') { buildBoard(); renderAnimals(); renderTray(); } });
   // #dev=<passphrase> turns developer mode on for this browser; #dev=off turns it off.
   async function checkDevLink(){
     const m=/^#dev=(.+)$/.exec(location.hash);
